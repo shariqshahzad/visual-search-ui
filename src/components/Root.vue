@@ -1,0 +1,142 @@
+<template>
+  <v-app id="inspire">
+    <v-app-bar prominent app>
+      <v-form
+        ref="form"
+        style="text-align: center; width: 100%"
+        @submit.prevent="onClickSearch"
+      >
+        <img
+          class="center mt-2"
+          style="height: 50px"
+          src="https://assets.wsimgs.com/wsimgs/rk/images/i/202143/0006/images/common/logo.svg"
+        />
+        <v-row no-gutters>
+          <v-col cols="8" align-self="end">
+            <v-text-field
+              required
+              :rules="rules"
+              label="Image Url"
+              name="imgUrl"
+              v-model="imageUrl"
+              placeholder="Please Enter your url here"
+            ></v-text-field>
+          </v-col>
+          <v-col cols="4">
+            <v-btn type="submit" class="float-right mr-15" elevation="2"
+              >Search</v-btn
+            >
+          </v-col>
+        </v-row>
+      </v-form>
+      <!-- <v-row no-gutters>
+        <v-col cols="8">
+          <v-text-field
+            class="mt-10"
+            label="Regular"
+            placeholder="Placeholder"
+          ></v-text-field>
+        </v-col>
+
+        <v-col cols="4" align-self="end">
+          
+        </v-col>
+      </v-row> -->
+    </v-app-bar>
+
+    <v-main>
+      <v-container>
+        <v-snackbar v-model="isError">
+          {{ errorDetail }}
+          <template v-slot:action="{ attrs }">
+            <v-btn color="pink" text v-bind="attrs" @click="onSnackBarClose">
+              Close
+            </v-btn>
+          </template>
+        </v-snackbar>
+        <v-row>
+          <v-progress-linear
+            v-if="isLoading"
+            color="#231f20"
+            indeterminate
+            rounded
+            height="6"
+          ></v-progress-linear>
+          <v-col v-for="(data, index) in resultsData" :key="index" cols="4">
+            <v-card @click="onClickCard(data.hostPageDisplayUrl)">
+              <v-img :src="data.contentUrl" height="200px"></v-img>
+              <v-card-title> {{ data.name }} </v-card-title>
+            </v-card>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-main>
+  </v-app>
+</template>
+
+<script>
+import bingSearchService from "../services/bingSearch.service";
+export default {
+  data() {
+    return {
+      rules: [
+        (v) => {
+          var expression =
+            /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/gi; // eslint-disable-line
+          var regex = new RegExp(expression);
+          return Boolean(v.match(regex)) || "Invalid URL";
+        },
+      ],
+      resultsData: [],
+      imageUrl: "",
+      isLoading: false,
+      isError: false,
+      errorDetail: "",
+    };
+  },
+  methods: {
+    onSnackBarClose() {
+      this.isError = false;
+      this.errorDetail = "";
+    },
+    onClickCard(url) {
+      window.open(url);
+    },
+    onClickSearch() {
+      if (!this.$refs.form.validate()) {
+        return;
+      }
+      this.isLoading = true;
+      bingSearchService
+        .getResults(this.imageUrl)
+        .then((res) => {
+          const visualSearchResultsData = res.tags.reduce(
+            (finalResult, tag) => {
+              const actionWithVisualSearchResults = tag.actions?.find(
+                (action) => action.actionType == `ProductVisualSearch`
+              );
+              return actionWithVisualSearchResults?.data
+                ? actionWithVisualSearchResults?.data.value
+                : finalResult;
+            },
+            null
+          );
+          if (visualSearchResultsData && visualSearchResultsData.length > 0) {
+            this.resultsData = visualSearchResultsData;
+            return;
+          }
+          this.isError = true;
+          this.errorDetail = "No results found";
+        })
+        .catch((e) => {
+          this.isError = true;
+          this.errorDetail = "Something Went Wrong";
+          console.log(e);
+        })
+        .finally(() => {
+          this.isLoading = false;
+        });
+    },
+  },
+};
+</script>

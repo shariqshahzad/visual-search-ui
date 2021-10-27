@@ -1,17 +1,17 @@
 <template>
   <v-app>
-      <HelloWorld/>
+      <Root/>
   </v-app>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld';
+import Root from './components/Root';
 
 export default {
   name: 'App',
 
   components: {
-    HelloWorld,
+    Root,
   },
 
   data: () => ({
