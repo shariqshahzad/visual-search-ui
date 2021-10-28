@@ -14,6 +14,7 @@
         <v-row no-gutters>
           <v-col cols="8" align-self="end">
             <v-text-field
+              v-if="radioGrp === 'imageUrl'"
               required
               :rules="rules"
               label="Image Url"
@@ -21,11 +22,39 @@
               v-model="imageUrl"
               placeholder="Please Enter your url here"
             ></v-text-field>
+            <v-file-input
+              v-if="radioGrp === 'imageUpload'"
+              v-model="files"
+              :rules="imgFileRules"
+              accept="image/png, image/jpeg, image/bmp"
+              placeholder="Select an Image"
+              prepend-icon="mdi-camera"
+              label="Image"
+            ></v-file-input>
           </v-col>
+
           <v-col cols="4">
-            <v-btn type="submit" class="float-right mr-15" elevation="2"
-              >Search</v-btn
-            >
+            <v-row>
+              <v-col cols="8">
+                <v-radio-group class="ml-10 mt-2" v-model="radioGrp" row>
+                  <v-radio
+                    key="imageUpload"
+                    label="Upload Image"
+                    value="imageUpload"
+                  ></v-radio>
+                  <v-radio
+                    key="imageUrl"
+                    label="Image URL"
+                    value="imageUrl"
+                  ></v-radio>
+                </v-radio-group>
+              </v-col>
+              <v-col cols="4">
+                <v-btn type="submit" class="float-right mr-3" elevation="2"
+                  >Search</v-btn
+                >
+              </v-col>
+            </v-row>
           </v-col>
         </v-row>
       </v-form>
@@ -43,17 +72,16 @@
         </v-col>
       </v-row> -->
     </v-app-bar>
-
+    <v-snackbar v-model="isError">
+      {{ errorDetail }}
+      <template v-slot:action="{ attrs }">
+        <v-btn color="pink" text v-bind="attrs" @click="onSnackBarClose">
+          Close
+        </v-btn>
+      </template>
+    </v-snackbar>
     <v-main>
       <v-container>
-        <v-snackbar v-model="isError">
-          {{ errorDetail }}
-          <template v-slot:action="{ attrs }">
-            <v-btn color="pink" text v-bind="attrs" @click="onSnackBarClose">
-              Close
-            </v-btn>
-          </template>
-        </v-snackbar>
         <v-row>
           <v-progress-linear
             v-if="isLoading"
@@ -79,6 +107,14 @@ import bingSearchService from "../services/bingSearch.service";
 export default {
   data() {
     return {
+      radioGrp: "imageUrl",
+      files: [],
+      imgFileRules: [
+        (value) =>
+          !value ||
+          value.size < 1000000 ||
+          "Avatar size should be less than 1 MB!",
+      ],
       rules: [
         (v) => {
           var expression =
@@ -95,6 +131,9 @@ export default {
     };
   },
   methods: {
+    // onChangeInputSelection() {
+    //   console.log(this.radioGrp);
+    // },
     onSnackBarClose() {
       this.isError = false;
       this.errorDetail = "";
@@ -108,7 +147,10 @@ export default {
       }
       this.isLoading = true;
       bingSearchService
-        .getResults(this.imageUrl)
+        .getBingSearchResults(
+          this.radioGrp,
+          this.radioGrp === "imageUrl" ? this.imageUrl : this.files
+        )
         .then((res) => {
           const visualSearchResultsData = res.tags.reduce(
             (finalResult, tag) => {
