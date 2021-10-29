@@ -12,7 +12,7 @@
           src="https://assets.wsimgs.com/wsimgs/rk/images/i/202143/0006/images/common/logo.svg"
         />
         <v-row no-gutters>
-          <v-col cols="8" align-self="end">
+          <v-col cols="7" align-self="end">
             <v-text-field
               v-if="radioGrp === 'imageUrl'"
               required
@@ -33,10 +33,10 @@
             ></v-file-input>
           </v-col>
 
-          <v-col cols="4">
+          <v-col cols="5">
             <v-row>
-              <v-col cols="8">
-                <v-radio-group class="ml-10 mt-2" v-model="radioGrp" row>
+              <v-col cols="7">
+                <v-radio-group class="ml-3 mt-2" v-model="radioGrp" row>
                   <v-radio
                     key="imageUpload"
                     label="Upload Image"
@@ -49,10 +49,13 @@
                   ></v-radio>
                 </v-radio-group>
               </v-col>
-              <v-col cols="4">
-                <v-btn type="submit" class="float-right mr-3" elevation="2"
+              <v-col cols="5">
+                <v-btn type="submit" dark class="float-right mr-3" elevation="2"
                   >Search</v-btn
                 >
+                <!-- <v-btn class="float-right mr-3" dark @click="dialog = true">
+                  Crop
+                </v-btn> -->
               </v-col>
             </v-row>
           </v-col>
@@ -99,20 +102,34 @@
         </v-row>
       </v-container>
     </v-main>
+    <v-dialog v-model="dialog" max-width="auto">
+      <v-card>
+        <v-card-title>Crop Image</v-card-title>
+        <ImageCropper :src="imageUrl" />
+        <v-card-actions>
+          <v-btn color="primary" text @click="dialog = false"> Close </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-app>
 </template>
 
 <script>
 import bingSearchService from "../services/bingSearch.service";
+import ImageCropper from "./ImageCropper.vue";
 export default {
+  components: {
+    ImageCropper,
+  },
   data() {
     return {
       radioGrp: "imageUrl",
       files: [],
+      dialog: false,
       imgFileRules: [
         (value) =>
           !value ||
-          value.size < 1000000 ||
+          value.size <= 2000000 ||
           "Avatar size should be less than 1 MB!",
       ],
       rules: [
@@ -155,7 +172,9 @@ export default {
           const visualSearchResultsData = res.tags.reduce(
             (finalResult, tag) => {
               const actionWithVisualSearchResults = tag.actions?.find(
-                (action) => action.actionType == `ProductVisualSearch`
+                (action) =>
+                  action.actionType == `ProductVisualSearch` ||
+                  action.actionType == `VisualSearch`
               );
               return actionWithVisualSearchResults?.data
                 ? actionWithVisualSearchResults?.data.value
