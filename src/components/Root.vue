@@ -94,9 +94,14 @@
             height="6"
           ></v-progress-linear>
           <v-col v-for="(data, index) in resultsData" :key="index" cols="4">
-            <v-card @click="onClickCard(data.hostPageDisplayUrl)">
+            <v-card @click="onClickCard(data.hostPageDisplayUrl)" height="100%">
               <v-img :src="data.contentUrl" height="200px"></v-img>
-              <v-card-title> {{ data.name }} </v-card-title>
+              <v-card-title style="height: 96px"> {{ data.name }} </v-card-title>
+              <v-card-text>
+                <div class="my-4 text-subtitle-1">
+                  ${{ data.insightsMetadata.aggregateOffer.lowPrice }}
+                </div>
+              </v-card-text>
             </v-card>
           </v-col>
         </v-row>
@@ -176,7 +181,9 @@ export default {
                   action.actionType == `ProductVisualSearch`
               );
               return actionWithVisualSearchResults?.data
-                ? actionWithVisualSearchResults?.data.value
+                ? actionWithVisualSearchResults?.data.value.filter(value => {
+                     return value.insightsMetadata.shoppingSourcesCount > 0
+                  })
                 : finalResult;
             },
             null
