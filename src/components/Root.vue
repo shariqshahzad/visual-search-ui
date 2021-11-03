@@ -1,6 +1,6 @@
 <template>
   <v-app id="inspire">
-    <v-app-bar prominent app>
+    <v-app-bar prominent app height="200">
       <v-form
         ref="form"
         style="text-align: center; width: 100%"
@@ -60,6 +60,21 @@
             </v-row>
           </v-col>
         </v-row>
+        <v-row>
+          <v-radio-group
+            class="ml-3 mt-2"
+            v-for="(brand, index) in brandsList"
+            :key="index"
+            v-model="brandsRadioGrp"
+            row
+          >
+            <v-radio
+              :key="brand.NAME"
+              :label="brand.NAME"
+              :value="brand.DOMAIN_URL"
+            ></v-radio>
+          </v-radio-group>
+        </v-row>
       </v-form>
       <!-- <v-row no-gutters>
         <v-col cols="8">
@@ -96,7 +111,9 @@
           <v-col v-for="(data, index) in resultsData" :key="index" cols="4">
             <v-card @click="onClickCard(data.hostPageDisplayUrl)" height="100%">
               <v-img :src="data.contentUrl" height="200px"></v-img>
-              <v-card-title style="height: 96px"> {{ data.name }} </v-card-title>
+              <v-card-title style="height: 96px">
+                {{ data.name }}
+              </v-card-title>
               <v-card-text>
                 <div class="my-4 text-subtitle-1">
                   ${{ data.insightsMetadata.aggregateOffer.lowPrice }}
@@ -122,6 +139,7 @@
 <script>
 import bingSearchService from "../services/bingSearch.service";
 import ImageCropper from "./ImageCropper.vue";
+import { BRANDS } from "../constants/brands";
 export default {
   components: {
     ImageCropper,
@@ -129,6 +147,7 @@ export default {
   data() {
     return {
       radioGrp: "imageUrl",
+      brandsRadioGrp: BRANDS.WS.DOMAIN_URL,
       files: [],
       dialog: false,
       imgFileRules: [
@@ -171,18 +190,18 @@ export default {
       bingSearchService
         .getBingSearchResults(
           this.radioGrp,
-          this.radioGrp === "imageUrl" ? this.imageUrl : this.files
+          this.radioGrp === "imageUrl" ? this.imageUrl : this.files,
+          this.brandsRadioGrp
         )
         .then((res) => {
           const visualSearchResultsData = res.tags.reduce(
             (finalResult, tag) => {
               const actionWithVisualSearchResults = tag.actions?.find(
-                (action) =>
-                  action.actionType == `ProductVisualSearch`
+                (action) => action.actionType == `ProductVisualSearch`
               );
               return actionWithVisualSearchResults?.data
-                ? actionWithVisualSearchResults?.data.value.filter(value => {
-                     return value.insightsMetadata.shoppingSourcesCount > 0
+                ? actionWithVisualSearchResults?.data.value.filter((value) => {
+                    return value.insightsMetadata.shoppingSourcesCount > 0;
                   })
                 : finalResult;
             },
@@ -203,6 +222,18 @@ export default {
         .finally(() => {
           this.isLoading = false;
         });
+    },
+  },
+  computed: {
+    brandsList: function () {
+      console.log(
+        Object.keys(BRANDS).map((key) => {
+          return BRANDS[key];
+        })
+      );
+      return Object.keys(BRANDS).map((key) => {
+        return BRANDS[key];
+      });
     },
   },
 };

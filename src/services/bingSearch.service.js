@@ -1,13 +1,13 @@
 import axios from "axios";
 
 export default {
-  async getBingSearchResults(searchType, payload) {
+  async getBingSearchResults(searchType, payload, domainUrl) {
     return searchType === "imageUrl"
-      ? this.getURLResults(payload)
-      : this.getImageResults(payload)
+      ? this.getURLResults(payload, domainUrl)
+      : this.getImageResults(payload, domainUrl);
   },
-  async getURLResults(imageUrl) {
-    const bodyFormData = this.createBodyForUrl(imageUrl);
+  async getURLResults(imageUrl, domainUrl) {
+    const bodyFormData = this.createBodyForUrl(imageUrl, domainUrl);
     const headers = {
       "Content-Type": `multipart/form-data; boundary=${bodyFormData._boundary}`,
       "Ocp-Apim-Subscription-Key": "691fac28b4e145bdb4ca086f6c190c5d",
@@ -20,9 +20,9 @@ export default {
     });
     return res.data;
   },
-  async getImageResults(file) {
-    console.log(file)
-    const bodyFormData = this.createBodyForFileImage(file);
+  async getImageResults(file, domainUrl) {
+    console.log(file);
+    const bodyFormData = this.createBodyForFileImage(file, domainUrl);
     const headers = {
       "Content-Type": `multipart/form-data; boundary=${bodyFormData._boundary}`,
       "Ocp-Apim-Subscription-Key": "691fac28b4e145bdb4ca086f6c190c5d",
@@ -35,7 +35,7 @@ export default {
     });
     return res.data;
   },
-  createBodyForUrl(url) {
+  createBodyForUrl(url, domainUrl) {
     const bodyFormData = new FormData();
     bodyFormData.append(
       "knowledgeRequest",
@@ -44,19 +44,19 @@ export default {
           url: `${url}`,
         },
         knowledgeRequest: {
-          filters: { site: "https://www.williams-sonoma.com" },
+          filters: { site: domainUrl },
         },
       })
     );
     return bodyFormData;
   },
-  createBodyForFileImage(file) {
+  createBodyForFileImage(file, domainUrl) {
     const bodyFormData = new FormData();
     bodyFormData.append(
       "knowledgeRequest",
       JSON.stringify({
         knowledgeRequest: {
-          filters: { site: "https://www.williams-sonoma.com" },
+          filters: { site: domainUrl },
         },
       })
     );
