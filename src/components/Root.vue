@@ -173,8 +173,7 @@ export default {
             (finalResult, tag) => {
               const actionWithVisualSearchResults = tag.actions?.find(
                 (action) =>
-                  action.actionType == `ProductVisualSearch` ||
-                  action.actionType == `VisualSearch`
+                  action.actionType == `ProductVisualSearch`
               );
               return actionWithVisualSearchResults?.data
                 ? actionWithVisualSearchResults?.data.value
