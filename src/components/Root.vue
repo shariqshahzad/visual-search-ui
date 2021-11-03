@@ -53,9 +53,9 @@
                 <v-btn type="submit" dark class="float-right mr-3" elevation="2"
                   >Search</v-btn
                 >
-                <!-- <v-btn class="float-right mr-3" dark @click="dialog = true">
+                <v-btn class="float-right mr-3" dark @click="dialog = true">
                   Crop
-                </v-btn> -->
+                </v-btn>
               </v-col>
             </v-row>
           </v-col>
@@ -84,28 +84,28 @@
       </template>
     </v-snackbar>
     <v-main>
-      <v-container>
-        <v-row>
-          <v-progress-linear
-            v-if="isLoading"
-            color="#231f20"
-            indeterminate
-            rounded
-            height="6"
-          ></v-progress-linear>
-          <v-col v-for="(data, index) in resultsData" :key="index" cols="4">
-            <v-card @click="onClickCard(data.hostPageDisplayUrl)" height="100%">
-              <v-img :src="data.contentUrl" height="200px"></v-img>
-              <v-card-title style="height: 96px"> {{ data.name }} </v-card-title>
-              <v-card-text>
-                <div class="my-4 text-subtitle-1">
-                  ${{ data.insightsMetadata.aggregateOffer.lowPrice }}
-                </div>
-              </v-card-text>
-            </v-card>
-          </v-col>
-        </v-row>
-      </v-container>
+      <v-row>
+        <v-progress-linear
+          v-if="isLoading"
+          color="#231f20"
+          indeterminate
+          rounded
+          height="6"
+        ></v-progress-linear>
+        <v-col v-if="resultsData.length>0" cols="3">
+          <ImageCropper :src="imageUrl" />
+        </v-col>
+        <v-col cols="9">
+          <v-row>
+            <v-col v-for="(data, index) in resultsData" :key="index" cols="4">
+              <v-card @click="onClickCard(data.hostPageDisplayUrl)">
+                <v-img :src="data.contentUrl" height="200px"></v-img>
+                <v-card-title> {{ data.name }} </v-card-title>
+              </v-card>
+            </v-col>
+          </v-row>
+        </v-col>
+      </v-row>
     </v-main>
     <v-dialog v-model="dialog" max-width="auto">
       <v-card>

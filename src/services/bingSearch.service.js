@@ -4,7 +4,7 @@ export default {
   async getBingSearchResults(searchType, payload) {
     return searchType === "imageUrl"
       ? this.getURLResults(payload)
-      : this.getImageResults(payload)
+      : this.getImageResults(payload);
   },
   async getURLResults(imageUrl) {
     const bodyFormData = this.createBodyForUrl(imageUrl);
@@ -21,7 +21,7 @@ export default {
     return res.data;
   },
   async getImageResults(file) {
-    console.log(file)
+    console.log(file);
     const bodyFormData = this.createBodyForFileImage(file);
     const headers = {
       "Content-Type": `multipart/form-data; boundary=${bodyFormData._boundary}`,
@@ -42,6 +42,12 @@ export default {
       JSON.stringify({
         imageInfo: {
           url: `${url}`,
+          // cropArea: {
+          //   top: 0.1,
+          //   left: 0.2,
+          //   bottom: 0.7,
+          //   right: 0.5,
+          // },
         },
         knowledgeRequest: {
           filters: { site: "https://www.williams-sonoma.com" },
