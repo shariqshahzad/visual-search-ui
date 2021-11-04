@@ -94,10 +94,11 @@
         ></v-progress-linear>
         <v-col v-if="resultsData.length>0" cols="3">
           <ImageCropper :src="imageUrl" />
+          <filters :min="filters.priceRange._default.min" :max="filters.priceRange._default.max" @emitPriceRange="emitPriceRange" />
         </v-col>
         <v-col cols="9">
           <v-row>
-            <v-col v-for="(data, index) in resultsData" :key="index" cols="4">
+            <v-col v-for="(data, index) in filteredResult" :key="index" cols="4">
               <v-card @click="onClickCard(data.hostPageDisplayUrl)">
                 <v-img :src="data.contentUrl" height="200px"></v-img>
                 <v-card-title> {{ data.name }} </v-card-title>
@@ -122,8 +123,11 @@
 <script>
 import bingSearchService from "../services/bingSearch.service";
 import ImageCropper from "./ImageCropper.vue";
+import Filters from "./Filters";
+
 export default {
   components: {
+    Filters,
     ImageCropper,
   },
   data() {
@@ -150,7 +154,30 @@ export default {
       isLoading: false,
       isError: false,
       errorDetail: "",
+      filters: {
+        priceRange: {
+          _default: {
+            min: null,
+            max: null
+          },
+          selection: {
+            min: null,
+            max: null
+          }
+        },
+      }
     };
+  },
+  computed: {
+    filteredResult: function () {
+      return this.resultsData.filter(value => {
+        const price = value.insightsMetadata.aggregateOffer.lowPrice;
+        return (
+            price >= this.filters.priceRange.selection.min
+            && price <= this.filters.priceRange.selection.max
+        );
+      });
+    }
   },
   methods: {
     // onChangeInputSelection() {
@@ -181,15 +208,28 @@ export default {
                   action.actionType == `ProductVisualSearch`
               );
               return actionWithVisualSearchResults?.data
-                ? actionWithVisualSearchResults?.data.value.filter(value => {
-                     return value.insightsMetadata.shoppingSourcesCount > 0
-                  })
+                ? actionWithVisualSearchResults?.data.value
+                      .filter(value => (value.insightsMetadata.shoppingSourcesCount > 0))
                 : finalResult;
             },
             null
           );
           if (visualSearchResultsData && visualSearchResultsData.length > 0) {
             this.resultsData = visualSearchResultsData;
+
+            let priceRangeMin = Math.min.apply(Math, visualSearchResultsData.map(v => v.insightsMetadata.aggregateOffer.lowPrice)),
+                priceRangeMax = Math.max.apply(Math, visualSearchResultsData.map(v => v.insightsMetadata.aggregateOffer.lowPrice));
+            this.filters.priceRange._default = {
+              ...this.filters.priceRange._default,
+              min: priceRangeMin,
+              max: priceRangeMax
+            };
+            this.filters.priceRange.selection = {
+              ...this.filters.priceRange.selection,
+              min: priceRangeMin,
+              max: priceRangeMax
+            };
+
             return;
           }
           this.isError = true;
@@ -204,6 +244,10 @@ export default {
           this.isLoading = false;
         });
     },
+    emitPriceRange(range) {
+      this.filters.priceRange.selection.min = range[0];
+      this.filters.priceRange.selection.max = range[1];
+    }
   },
 };
 </script>
