@@ -98,9 +98,9 @@
               <v-img :src="data.contentUrl" height="200px"></v-img>
               <v-card-title style="height: 96px"> {{ data.name }} </v-card-title>
               <v-card-text>
-                <div class="my-4 text-subtitle-1">
-                  ${{ data.insightsMetadata.aggregateOffer.lowPrice }}
-                </div>
+<!--                <div class="my-4 text-subtitle-1">-->
+<!--                  ${{ data.insightsMetadata.aggregateOffer.lowPrice }}-->
+<!--                </div>-->
               </v-card-text>
             </v-card>
           </v-col>
@@ -179,11 +179,11 @@ export default {
               const actionWithVisualSearchResults = tag.actions?.find(
                 (action) =>
                   action.actionType == `ProductVisualSearch`
+                  || action.actionType == `VisualSearch`
               );
               return actionWithVisualSearchResults?.data
-                ? actionWithVisualSearchResults?.data.value.filter(value => {
-                     return value.insightsMetadata.shoppingSourcesCount > 0
-                  })
+                ? actionWithVisualSearchResults?.data.value
+                      // .filter(value => (value.insightsMetadata.shoppingSourcesCount > 0))
                 : finalResult;
             },
             null
