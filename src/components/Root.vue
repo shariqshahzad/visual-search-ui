@@ -92,10 +92,10 @@
           rounded
           height="6"
         ></v-progress-linear>
-        <v-col v-if="isCropperVisible" cols="3">
-          <ImageCropper @crop="(e)=>onImageCrop(e)" :src="imageUrl" />
+        <v-col v-if="isCropperVisible" cols="4">
+          <ImageCropper @crop="(e) => onImageCrop(e)" :src="imageUrl" />
         </v-col>
-        <v-col cols="9">
+        <v-col cols="8">
           <v-row>
             <v-col v-for="(data, index) in resultsData" :key="index" cols="4">
               <v-card @click="onClickCard(data.hostPageDisplayUrl)">
@@ -122,7 +122,7 @@
 <script>
 import bingSearchService from "../services/bingSearch.service";
 import ImageCropper from "./ImageCropper.vue";
-//import { dataURLtoFile } from "../utils/utils";
+import { dataURLtoFile } from "../utils/utils";
 
 export default {
   components: {
@@ -182,7 +182,8 @@ export default {
             (finalResult, tag) => {
               const actionWithVisualSearchResults = tag.actions?.find(
                 (action) =>
-                  action.actionType == `ProductVisualSearch` || "VisualSearch"
+                  action.actionType == `ProductVisualSearch` ||
+                  action.actionType == "VisualSearch"
               );
               return actionWithVisualSearchResults?.data
                 ? actionWithVisualSearchResults?.data.value
@@ -206,9 +207,9 @@ export default {
           this.isLoading = false;
         });
     },
-    onImageCrop() {
-      // this.bingSearch(value);
-      console.log("Evenet handler called");
+    onImageCrop(value) {
+      this.files = dataURLtoFile(value);
+      this.bingSearch();
     },
   },
 };

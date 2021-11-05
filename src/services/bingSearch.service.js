@@ -48,7 +48,7 @@ export default {
           // },
         },
         knowledgeRequest: {
-          filters: { site: "https://www.williams-sonoma.com" },
+          filters: { site: "https://www.westelm.com" },
         },
       })
     );
@@ -60,7 +60,7 @@ export default {
       "knowledgeRequest",
       JSON.stringify({
         knowledgeRequest: {
-          filters: { site: "https://www.williams-sonoma.com" },
+          filters: { site: "https://www.westelm.com" },
         },
       })
     );

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div style="max-height: 400px" class="ma-2">
+    <div style="max-height: 600px" class="ma-2">
       <img ref="image" :src="src" crossorigin />
     </div>
     <!-- <div class="img-container" style="display: hidden; justify-content: center">
@@ -51,7 +51,6 @@ export default {
         processChange(canvas);
       },
     });
-    this.$emit("crop", this.destination);
   },
 };
 </script>
