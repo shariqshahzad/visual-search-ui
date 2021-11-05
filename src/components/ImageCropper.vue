@@ -3,8 +3,8 @@
     <div style="max-height: 400px" class="ma-2">
       <img ref="image" :src="src" crossorigin />
     </div>
-    <!-- <div class="img-container" style="display: flex; justify-content: center">
-      <img ref="image" :src="src" crossorigin />
+    <!-- <div class="img-container" style="display: hidden; justify-content: center">
+      <img ref="image" :src="destination" crossorigin />
     </div> -->
   </div>
 </template>
@@ -24,7 +24,7 @@ export default {
     src: String,
   },
   mounted() {
-    function debounce(func, timeout = 1000) {
+    const debounce = (func, timeout = 1000) => {
       let timer;
       return (...args) => {
         clearTimeout(timer);
@@ -32,24 +32,26 @@ export default {
           func.apply(this, args);
         }, timeout);
       };
-    }
+    };
     // eslint-disable-next-line no-unused-vars
-    const processChange = debounce((canvas) => console.log(canvas));
-
-    this.image = this.$refs.image;
-    this.cropper = new Cropper(this.image, {
-      width: 200,
-      height: 200,
-      zoomable: false,
-      scalable: false,
-      aspectRatio: 1,
+    const processChange = debounce((canvas) => {
+      this.destination = canvas.toDataURL("image/png");
+      this.$emit("crop", this.destination);
+    });
+    let isInitialCrop = true;
+    this.cropper = new Cropper(this.$refs.image, {
       crop: () => {
-        const canvas = this.cropper.getCropBoxData();
+        if (isInitialCrop) {
+          console.log(isInitialCrop);
+          isInitialCrop = false;
+          return;
+        }
+        // const cropBoxData = this.cropper.getCropBoxData();
+        const canvas = this.cropper.getCroppedCanvas();
         processChange(canvas);
-        // this.destination = canvas.toDataURL("image/png");
       },
     });
-    this.cropper.setCropBoxData({left:0.2,top:0.1,width:50,height:100})
+    this.$emit("crop", this.destination);
   },
 };
 </script>

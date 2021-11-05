@@ -92,8 +92,8 @@
           rounded
           height="6"
         ></v-progress-linear>
-        <v-col v-if="resultsData.length>0" cols="3">
-          <ImageCropper :src="imageUrl" />
+        <v-col v-if="isCropperVisible" cols="3">
+          <ImageCropper @crop="(e)=>onImageCrop(e)" :src="imageUrl" />
         </v-col>
         <v-col cols="9">
           <v-row>
@@ -107,21 +107,23 @@
         </v-col>
       </v-row>
     </v-main>
-    <v-dialog v-model="dialog" max-width="auto">
+    <!-- <v-dialog v-model="dialog" max-width="auto">
       <v-card>
         <v-card-title>Crop Image</v-card-title>
-        <ImageCropper :src="imageUrl" />
+        <ImageCropper  :src="imageUrl" />
         <v-card-actions>
           <v-btn color="primary" text @click="dialog = false"> Close </v-btn>
         </v-card-actions>
       </v-card>
-    </v-dialog>
+    </v-dialog> -->
   </v-app>
 </template>
 
 <script>
 import bingSearchService from "../services/bingSearch.service";
 import ImageCropper from "./ImageCropper.vue";
+//import { dataURLtoFile } from "../utils/utils";
+
 export default {
   components: {
     ImageCropper,
@@ -129,6 +131,7 @@ export default {
   data() {
     return {
       radioGrp: "imageUrl",
+      isCropperVisible: false,
       files: [],
       dialog: false,
       imgFileRules: [
@@ -164,26 +167,25 @@ export default {
       window.open(url);
     },
     onClickSearch() {
+      this.isCropperVisible = true;
+      this.bingSearch(this.radioGrp === "imageUrl");
+    },
+    bingSearch(isUrl = false) {
       if (!this.$refs.form.validate()) {
         return;
       }
       this.isLoading = true;
       bingSearchService
-        .getBingSearchResults(
-          this.radioGrp,
-          this.radioGrp === "imageUrl" ? this.imageUrl : this.files
-        )
+        .getBingSearchResults(isUrl, isUrl ? this.imageUrl : this.files)
         .then((res) => {
           const visualSearchResultsData = res.tags.reduce(
             (finalResult, tag) => {
               const actionWithVisualSearchResults = tag.actions?.find(
                 (action) =>
-                  action.actionType == `ProductVisualSearch`
+                  action.actionType == `ProductVisualSearch` || "VisualSearch"
               );
               return actionWithVisualSearchResults?.data
-                ? actionWithVisualSearchResults?.data.value.filter(value => {
-                     return value.insightsMetadata.shoppingSourcesCount > 0
-                  })
+                ? actionWithVisualSearchResults?.data.value
                 : finalResult;
             },
             null
@@ -203,6 +205,10 @@ export default {
         .finally(() => {
           this.isLoading = false;
         });
+    },
+    onImageCrop() {
+      // this.bingSearch(value);
+      console.log("Evenet handler called");
     },
   },
 };

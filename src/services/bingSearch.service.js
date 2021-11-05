@@ -1,10 +1,8 @@
 import axios from "axios";
 
 export default {
-  async getBingSearchResults(searchType, payload) {
-    return searchType === "imageUrl"
-      ? this.getURLResults(payload)
-      : this.getImageResults(payload);
+  async getBingSearchResults(isUrl, payload) {
+    return isUrl ? this.getURLResults(payload) : this.getImageResults(payload);
   },
   async getURLResults(imageUrl) {
     const bodyFormData = this.createBodyForUrl(imageUrl);
