@@ -53,9 +53,6 @@
                 <v-btn type="submit" dark class="float-right mr-3" elevation="2"
                   >Search</v-btn
                 >
-                <!-- <v-btn class="float-right mr-3" dark @click="dialog = true">
-                  Crop
-                </v-btn> -->
               </v-col>
             </v-row>
           </v-col>
@@ -83,37 +80,17 @@
         </v-btn>
       </template>
     </v-snackbar>
-    <v-main>
-      <v-container>
-        <v-row>
-          <v-progress-linear
-            v-if="isLoading"
-            color="#231f20"
-            indeterminate
-            rounded
-            height="6"
-          ></v-progress-linear>
-          <v-col v-for="(data, index) in resultsData" :key="index" cols="4">
-            <v-card @click="onClickCard(data.hostPageUrl)" height="100%">
-              <v-img :src="data.contentUrl" height="200px"></v-img>
-              <v-card-title style="height: 96px"> {{ data.name }} </v-card-title>
-              <v-card-text>
-<!--                <div class="my-4 text-subtitle-1">-->
-<!--                  ${{ data.insightsMetadata.aggregateOffer.lowPrice }}-->
-<!--                </div>-->
-              </v-card-text>
-            </v-card>
-          </v-col>
-        </v-row>
-      </v-container>
-    </v-main>
-    <v-dialog v-model="dialog" max-width="auto">
-      <v-card>
-        <v-card-title>Crop Image</v-card-title>
-        <ImageCropper :src="imageUrl" />
-        <v-card-actions>
-          <v-btn color="primary" text @click="dialog = false"> Close </v-btn>
-        </v-card-actions>
+    <v-main> </v-main>
+    <v-dialog v-if="dialog" v-model="dialog" max-width="auto">
+      <v-card min-height="800">
+        <v-toolbar dark color="primary">
+          <v-btn icon dark @click="dialog = false">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+          <v-toolbar-title>Visual Search Results</v-toolbar-title>
+          <v-spacer></v-spacer>
+        </v-toolbar>
+        <ImageSearchTool :results="resultsData" :imageData="imageData" />
       </v-card>
     </v-dialog>
   </v-app>
@@ -121,16 +98,19 @@
 
 <script>
 import bingSearchService from "../services/bingSearch.service";
-import ImageCropper from "./ImageCropper.vue";
+import ImageSearchTool from "./ImageSearchTool.vue";
+import { searchResultsReducer } from "../utils/utils";
+
 export default {
   components: {
-    ImageCropper,
+    ImageSearchTool,
   },
   data() {
     return {
       radioGrp: "imageUrl",
       files: [],
       dialog: false,
+      imageData: null,
       imgFileRules: [
         (value) =>
           !value ||
@@ -164,33 +144,32 @@ export default {
       window.open(url);
     },
     onClickSearch() {
+      this.bingSearch(this.radioGrp === "imageUrl");
+    },
+    bingSearch(isUrl = false) {
       if (!this.$refs.form.validate()) {
         return;
       }
+
       this.isLoading = true;
+
       bingSearchService
-        .getBingSearchResults(
-          this.radioGrp,
-          this.radioGrp === "imageUrl" ? this.imageUrl : this.files
-        )
+        .getBingSearchResults(isUrl, isUrl ? this.imageUrl : this.files)
         .then((res) => {
           const visualSearchResultsData = res.tags.reduce(
-            (finalResult, tag) => {
-              const actionWithVisualSearchResults = tag.actions?.find(
-                (action) =>
-                  action.actionType == `ProductVisualSearch`
-                  || action.actionType == `VisualSearch`
-              );
-              return actionWithVisualSearchResults?.data
-                ? actionWithVisualSearchResults?.data.value.filter(value => {
-                     return value.hostPageUrl.includes("product")
-                  })
-                : finalResult;
-            },
+            searchResultsReducer,
             null
           );
           if (visualSearchResultsData && visualSearchResultsData.length > 0) {
             this.resultsData = visualSearchResultsData;
+            this.imageData = {
+              isUrl: this.radioGrp === "imageUrl",
+              src:
+                this.radioGrp === "imageUrl"
+                  ? this.imageUrl
+                  : URL.createObjectURL(this.files),
+            };
+            this.dialog = true;
             return;
           }
           this.isError = true;
@@ -208,3 +187,16 @@ export default {
   },
 };
 </script>
+<style scoped>
+.img-container {
+  width: 640px;
+  height: 480px;
+  float: left;
+}
+.img-preview {
+  width: 200px;
+  height: 200px;
+  float: left;
+  margin-left: 10px;
+}
+</style>
