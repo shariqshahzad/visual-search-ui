@@ -94,7 +94,7 @@
             height="6"
           ></v-progress-linear>
           <v-col v-for="(data, index) in resultsData" :key="index" cols="4">
-            <v-card @click="onClickCard(data.hostPageDisplayUrl)" height="100%">
+            <v-card @click="onClickCard(data.hostPageUrl)" height="100%">
               <v-img :src="data.contentUrl" height="200px"></v-img>
               <v-card-title style="height: 96px"> {{ data.name }} </v-card-title>
               <v-card-text>
@@ -182,8 +182,9 @@ export default {
                   || action.actionType == `VisualSearch`
               );
               return actionWithVisualSearchResults?.data
-                ? actionWithVisualSearchResults?.data.value
-                      // .filter(value => (value.insightsMetadata.shoppingSourcesCount > 0))
+                ? actionWithVisualSearchResults?.data.value.filter(value => {
+                     return value.hostPageUrl.includes("product")
+                  })
                 : finalResult;
             },
             null
