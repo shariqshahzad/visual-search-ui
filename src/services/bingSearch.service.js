@@ -18,7 +18,7 @@ export default {
       data: bodyFormData,
       headers: headers,
     });
-    return res.data;
+    return res.data; // response
   },
   async getImageResults(file) {
     console.log(file)
