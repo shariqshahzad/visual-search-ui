@@ -1,8 +1,9 @@
 <template>
   <div>
     <div style="max-height: 600px" class="ma-2">
-      <img ref="image" :src="src" crossorigin />
+      <img ref="uploadedImage" :src="imageData.src" crossorigin />
     </div>
+
     <!-- <div class="img-container" style="display: hidden; justify-content: center">
       <img ref="image" :src="destination" crossorigin />
     </div> -->
@@ -17,14 +18,17 @@ export default {
     return {
       cropper: {},
       destination: {},
-      image: {},
+      fileImageSrc: "",
+      urlImageSrc: "",
     };
   },
   props: {
-    src: String,
+    imageData: Object,
   },
   mounted() {
-    const debounce = (func, timeout = 1000) => {
+
+    // console.log(this.imageData);
+    const debounce = (func, timeout = 2000) => {
       let timer;
       return (...args) => {
         clearTimeout(timer);
@@ -39,10 +43,10 @@ export default {
       this.$emit("crop", this.destination);
     });
     let isInitialCrop = true;
-    this.cropper = new Cropper(this.$refs.image, {
+    this.cropper = new Cropper(this.$refs.uploadedImage, {
+      zoomable : false,
       crop: () => {
         if (isInitialCrop) {
-          console.log(isInitialCrop);
           isInitialCrop = false;
           return;
         }

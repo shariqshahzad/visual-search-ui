@@ -53,9 +53,6 @@
                 <v-btn type="submit" dark class="float-right mr-3" elevation="2"
                   >Search</v-btn
                 >
-                <v-btn class="float-right mr-3" dark @click="dialog = true">
-                  Crop
-                </v-btn>
               </v-col>
             </v-row>
           </v-col>
@@ -83,57 +80,36 @@
         </v-btn>
       </template>
     </v-snackbar>
-    <v-main>
-      <v-row>
-        <v-progress-linear
-          v-if="isLoading"
-          color="#231f20"
-          indeterminate
-          rounded
-          height="6"
-        ></v-progress-linear>
-        <v-col v-if="isCropperVisible" cols="4">
-          <ImageCropper @crop="(e) => onImageCrop(e)" :src="imageUrl" />
-        </v-col>
-        <v-col cols="8">
-          <v-row>
-            <v-col v-for="(data, index) in resultsData" :key="index" cols="4">
-              <v-card @click="onClickCard(data.hostPageDisplayUrl)">
-                <v-img :src="data.contentUrl" height="200px"></v-img>
-                <v-card-title> {{ data.name }} </v-card-title>
-              </v-card>
-            </v-col>
-          </v-row>
-        </v-col>
-      </v-row>
-    </v-main>
-    <!-- <v-dialog v-model="dialog" max-width="auto">
-      <v-card>
-        <v-card-title>Crop Image</v-card-title>
-        <ImageCropper  :src="imageUrl" />
-        <v-card-actions>
-          <v-btn color="primary" text @click="dialog = false"> Close </v-btn>
-        </v-card-actions>
+    <v-main> </v-main>
+    <v-dialog v-if="dialog" v-model="dialog" max-width="auto">
+      <v-card min-height="800">
+        <v-toolbar dark color="primary">
+          <v-btn icon dark @click="dialog = false">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+          <v-toolbar-title>Visual Search Results</v-toolbar-title>
+          <v-spacer></v-spacer>
+        </v-toolbar>
+        <ImageSearchTool :results="resultsData" :imageData="imageData" />
       </v-card>
-    </v-dialog> -->
+    </v-dialog>
   </v-app>
 </template>
 
 <script>
 import bingSearchService from "../services/bingSearch.service";
-import ImageCropper from "./ImageCropper.vue";
-import { dataURLtoFile } from "../utils/utils";
+import ImageSearchTool from "./ImageSearchTool.vue";
 
 export default {
   components: {
-    ImageCropper,
+    ImageSearchTool,
   },
   data() {
     return {
       radioGrp: "imageUrl",
-      isCropperVisible: false,
       files: [],
       dialog: false,
+      imageData: null,
       imgFileRules: [
         (value) =>
           !value ||
@@ -167,14 +143,15 @@ export default {
       window.open(url);
     },
     onClickSearch() {
-      this.isCropperVisible = true;
       this.bingSearch(this.radioGrp === "imageUrl");
     },
     bingSearch(isUrl = false) {
       if (!this.$refs.form.validate()) {
         return;
       }
+
       this.isLoading = true;
+
       bingSearchService
         .getBingSearchResults(isUrl, isUrl ? this.imageUrl : this.files)
         .then((res) => {
@@ -193,6 +170,14 @@ export default {
           );
           if (visualSearchResultsData && visualSearchResultsData.length > 0) {
             this.resultsData = visualSearchResultsData;
+            this.imageData = {
+              isUrl: this.radioGrp === "imageUrl",
+              src:
+                this.radioGrp === "imageUrl"
+                  ? this.imageUrl
+                  : URL.createObjectURL(this.files),
+            };
+            this.dialog = true;
             return;
           }
           this.isError = true;
@@ -207,10 +192,19 @@ export default {
           this.isLoading = false;
         });
     },
-    onImageCrop(value) {
-      this.files = dataURLtoFile(value);
-      this.bingSearch();
-    },
   },
 };
 </script>
+<style scoped>
+.img-container {
+  width: 640px;
+  height: 480px;
+  float: left;
+}
+.img-preview {
+  width: 200px;
+  height: 200px;
+  float: left;
+  margin-left: 10px;
+}
+</style>
