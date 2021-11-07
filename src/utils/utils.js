@@ -17,6 +17,8 @@ export const searchResultsReducer = (finalResult, tag) => {
       action.actionType == "VisualSearch"
   );
   return actionWithVisualSearchResults?.data
-    ? actionWithVisualSearchResults?.data.value
+  ? actionWithVisualSearchResults?.data.value.filter(value => {
+    return value.hostPageUrl.includes("product")
+ })
     : finalResult;
 };
