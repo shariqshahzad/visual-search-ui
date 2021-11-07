@@ -58,19 +58,6 @@
           </v-col>
         </v-row>
       </v-form>
-      <!-- <v-row no-gutters>
-        <v-col cols="8">
-          <v-text-field
-            class="mt-10"
-            label="Regular"
-            placeholder="Placeholder"
-          ></v-text-field>
-        </v-col>
-
-        <v-col cols="4" align-self="end">
-          
-        </v-col>
-      </v-row> -->
     </v-app-bar>
     <v-snackbar v-model="isError">
       {{ errorDetail }}
@@ -80,7 +67,25 @@
         </v-btn>
       </template>
     </v-snackbar>
-    <v-main> </v-main>
+    <v-main>
+      <v-row
+        v-if="isLoading"
+        class="fill-height"
+        align-content="center"
+        justify="center"
+      >
+        <v-col class="text-subtitle-1 text-center" cols="12">
+          Getting your results
+        </v-col>
+        <v-col cols="4">
+          <v-progress-linear
+            indeterminate
+            rounded
+            height="6"
+          ></v-progress-linear>
+        </v-col>
+      </v-row>
+    </v-main>
     <v-dialog v-if="dialog" v-model="dialog" max-width="auto">
       <v-card min-height="800">
         <v-toolbar dark color="primary">
@@ -140,9 +145,7 @@ export default {
       this.isError = false;
       this.errorDetail = "";
     },
-    onClickCard(url) {
-      window.open(url);
-    },
+
     onClickSearch() {
       this.bingSearch(this.radioGrp === "imageUrl");
     },

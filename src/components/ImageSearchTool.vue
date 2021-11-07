@@ -4,6 +4,23 @@
       <ImageCropper @crop="(e) => onImageCrop(e)" :imageData="imageData" />
     </v-col>
     <v-col cols="8">
+      <v-row
+        v-if="isLoading"
+        class="fill-height"
+        align-content="center"
+        justify="center"
+      >
+        <v-col class="text-subtitle-1 text-center" cols="12">
+          Getting your results
+        </v-col>
+        <v-col cols="6">
+          <v-progress-linear
+            indeterminate
+            rounded
+            height="6"
+          ></v-progress-linear>
+        </v-col>
+      </v-row>
       <v-row v-if="!isLoading">
         <v-col v-for="(data, index) in results" :key="index" cols="4">
           <v-card @click="onClickCard(data.hostPageUrl)">
@@ -18,7 +35,7 @@
 <script>
 import ImageCropper from "./ImageCropper.vue";
 import bingSearchService from "../services/bingSearch.service";
-import { dataURLtoFile,searchResultsReducer } from "../utils/utils";
+import { dataURLtoFile, searchResultsReducer } from "../utils/utils";
 
 export default {
   components: {
@@ -58,6 +75,9 @@ export default {
         .finally(() => {
           this.isLoading = false;
         });
+    },
+    onClickCard(url) {
+      window.open(url);
     },
   },
   mounted() {

@@ -28,7 +28,7 @@ export default {
   mounted() {
 
     // console.log(this.imageData);
-    const debounce = (func, timeout = 2000) => {
+    const debounce = (func, timeout = 0) => {
       let timer;
       return (...args) => {
         clearTimeout(timer);
@@ -42,14 +42,9 @@ export default {
       this.destination = canvas.toDataURL("image/png");
       this.$emit("crop", this.destination);
     });
-    let isInitialCrop = true;
     this.cropper = new Cropper(this.$refs.uploadedImage, {
       zoomable : false,
-      crop: () => {
-        if (isInitialCrop) {
-          isInitialCrop = false;
-          return;
-        }
+      cropend: () => {
         // const cropBoxData = this.cropper.getCropBoxData();
         const canvas = this.cropper.getCroppedCanvas();
         processChange(canvas);
