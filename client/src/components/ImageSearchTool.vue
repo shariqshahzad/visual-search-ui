@@ -24,14 +24,19 @@
       <v-row v-if="!isLoading">
         <v-col v-for="(data, index) in results" :key="index" cols="4">
           <v-card @click="onClickCard(data.hostPageUrl)">
-            <v-img :src="data.contentUrl" height="200px"></v-img>
-            <v-card-title> {{ data.name }} </v-card-title>
+            <v-img :src="data.contentUrl" height="auto"></v-img>
+            <v-card-title height="40px"> {{ data.name }} </v-card-title>
           </v-card>
         </v-col>
       </v-row>
     </v-col>
   </v-row>
 </template>
+<style>
+.v-card__title{
+  height:126px;
+}
+</style>
 <script>
 import ImageCropper from "./ImageCropper.vue";
 import bingSearchService from "../services/bingSearch.service";
