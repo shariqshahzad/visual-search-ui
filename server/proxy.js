@@ -21,7 +21,6 @@ function processRequest(req, res, proxy, new_req) {
 }
 
 const port = process.env.PORT || 8000;
-console.log('port - proxy', port);
 httpProxy.createServer(function (req, res, proxy) {
     var url_path = req.url.slice(1);
     let new_req;

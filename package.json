@@ -7,7 +7,7 @@
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
     "postinstall": "npm run build",
-    "start": "concurrently --kill-others \"node server/index.js\" \"node server/proxy.js\"",
+    "start": "node server/index.js",
     "dev": "concurrently --kill-others \"nodemon server/index.js\" \"nodemon server/proxy.js\""
   },
   "dependencies": {
