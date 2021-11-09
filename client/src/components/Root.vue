@@ -143,6 +143,11 @@ export default {
       errorDetail: "",
     };
   },
+  computed:{
+    imageProxyUrl:function (){
+      return `${process.env.VUE_APP_PROXY_SERVER_URL}/${this.imageUrl}`;
+    }
+  },
   methods: {
     // onChangeInputSelection() {
     //   console.log(this.radioGrp);
@@ -182,7 +187,7 @@ export default {
               isUrl: this.radioGrp === "imageUrl",
               src:
                 this.radioGrp === "imageUrl"
-                  ? this.imageUrl
+                  ? this.imageProxyUrl
                   : URL.createObjectURL(this.files),
             };
             this.dialog = true;
