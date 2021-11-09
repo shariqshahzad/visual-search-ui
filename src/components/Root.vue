@@ -95,7 +95,7 @@
           <v-toolbar-title>Visual Search Results</v-toolbar-title>
           <v-spacer></v-spacer>
         </v-toolbar>
-        <ImageSearchTool :results="resultsData" :imageData="imageData" />
+        <ImageSearchTool :results="resultsData" :imageData="imageData" :defaultFilters="this.filters" />
       </v-card>
     </v-dialog>
   </v-app>
@@ -132,6 +132,12 @@ export default {
       ],
       resultsData: [],
       imageUrl: "",
+      filters: {
+        priceRange: {
+          min: null,
+          max: null
+        }
+      },
       isLoading: false,
       isError: false,
       errorDetail: "",
@@ -165,6 +171,13 @@ export default {
           );
           if (visualSearchResultsData && visualSearchResultsData.length > 0) {
             this.resultsData = visualSearchResultsData;
+
+            this.filters.priceRange = {
+              ...this.filters.priceRange,
+              min: Math.min.apply(Math, visualSearchResultsData.map(v => !(v?.insightsMetadata?.aggregateOffer?.lowPrice) ? 0 : v?.insightsMetadata?.aggregateOffer?.lowPrice)),
+              max: Math.max.apply(Math, visualSearchResultsData.map(v => !(v?.insightsMetadata?.aggregateOffer?.lowPrice) ? 0 : v?.insightsMetadata?.aggregateOffer?.lowPrice))
+            };
+
             this.imageData = {
               isUrl: this.radioGrp === "imageUrl",
               src:
