@@ -4,7 +4,7 @@
       <v-form
         ref="form"
         style="text-align: center; width: 100%"
-        @submit.prevent="onClickSearch"
+        v-on:submit.prevent
       >
         <img
           class="center mt-2"
@@ -50,9 +50,15 @@
                 </v-radio-group>
               </v-col>
               <v-col cols="5">
-                <v-btn type="submit" dark class="float-right mr-3" elevation="2"
-                  >Search</v-btn
-                >
+                <v-row class="mt-1">
+                  <v-btn @click="onBingSearch" type="submit" dark class="float-right mr-3" elevation="2">
+                    <v-icon>mdi-microsoft-bing</v-icon>
+                    Bing
+                  </v-btn>
+                  <v-btn @click="onGoogleSearch" type="submit" dark class="float-right mr-3" elevation="2">
+                    <v-icon>mdi-google</v-icon>Google
+                  </v-btn>
+                </v-row>
               </v-col>
             </v-row>
           </v-col>
@@ -92,10 +98,10 @@
           <v-btn icon dark @click="dialog = false">
             <v-icon>mdi-close</v-icon>
           </v-btn>
-          <v-toolbar-title>Visual Search Results</v-toolbar-title>
+          <v-toolbar-title><span class="text-capitalize">{{this.searchOption}}</span> Search Results</v-toolbar-title>
           <v-spacer></v-spacer>
         </v-toolbar>
-        <ImageSearchTool :results="resultsData" :imageData="imageData" :defaultFilters="this.filters" />
+        <ImageSearchTool :results="resultsData" :imageData="imageData" :defaultFilters="this.filters" :searchOption="searchOption" />
       </v-card>
     </v-dialog>
   </v-app>
@@ -103,6 +109,7 @@
 
 <script>
 import bingSearchService from "../services/bingSearch.service";
+import googleSearchService from "../services/googleSearch.service";
 import ImageSearchTool from "./ImageSearchTool.vue";
 import { searchResultsReducer } from "../utils/utils";
 
@@ -113,6 +120,7 @@ export default {
   data() {
     return {
       radioGrp: "imageUrl",
+      searchOption:null,
       files: [],
       dialog: false,
       imageData: null,
@@ -157,8 +165,13 @@ export default {
       this.errorDetail = "";
     },
 
-    onClickSearch() {
+    onBingSearch() {
+      this.searchOption = 'bing';
       this.bingSearch(this.radioGrp === "imageUrl");
+    },
+    onGoogleSearch() {
+      this.searchOption = 'google';
+      this.googleSearch(this.radioGrp === "imageUrl");
     },
     bingSearch(isUrl = false) {
       if (!this.$refs.form.validate()) {
@@ -168,19 +181,20 @@ export default {
       this.isLoading = true;
 
       bingSearchService
-        .getBingSearchResults(isUrl, isUrl ? this.imageUrl : this.files)
+        .getSearchResults(isUrl, isUrl ? this.imageUrl : this.files)
         .then((res) => {
-          const visualSearchResultsData = res.tags.reduce(
+          let visualSearchResultsData = res.tags.reduce(
             searchResultsReducer,
             null
           );
+          visualSearchResultsData = bingSearchService.mapResultParams(visualSearchResultsData);
           if (visualSearchResultsData && visualSearchResultsData.length > 0) {
             this.resultsData = visualSearchResultsData;
 
             this.filters.priceRange = {
               ...this.filters.priceRange,
-              min: Math.min.apply(Math, visualSearchResultsData.map(v => !(v?.insightsMetadata?.aggregateOffer?.lowPrice) ? 0 : v?.insightsMetadata?.aggregateOffer?.lowPrice)),
-              max: Math.max.apply(Math, visualSearchResultsData.map(v => !(v?.insightsMetadata?.aggregateOffer?.lowPrice) ? 0 : v?.insightsMetadata?.aggregateOffer?.lowPrice))
+              min: Math.min.apply(Math, visualSearchResultsData.map(v => !(v.price) ? 0 : v.price)),
+              max: Math.max.apply(Math, visualSearchResultsData.map(v => !(v.price) ? 0 : v.price))
             };
 
             this.imageData = {
@@ -204,6 +218,46 @@ export default {
         .finally(() => {
           this.isLoading = false;
         });
+    },
+    googleSearch(isUrl = false) {
+      if (!this.$refs.form.validate()) {
+        return;
+      }
+
+      this.isLoading = true;
+
+      googleSearchService
+          .getSearchResults(isUrl, isUrl ? this.imageUrl : this.files)
+          .then((visualSearchResultsData) => {
+            if (visualSearchResultsData && visualSearchResultsData.length > 0) {
+              this.resultsData = visualSearchResultsData;
+              this.filters.priceRange = {
+                ...this.filters.priceRange,
+                min: Math.min.apply(Math, visualSearchResultsData.map(v => !(v.price) ? 0 : v.price)),
+                max: Math.max.apply(Math, visualSearchResultsData.map(v => !(v.price) ? 0 : v.price))
+              };
+
+              this.imageData = {
+                isUrl: this.radioGrp === "imageUrl",
+                src:
+                    this.radioGrp === "imageUrl"
+                        ? this.imageProxyUrl
+                        : URL.createObjectURL(this.files),
+              };
+              this.dialog = true;
+              return;
+            }
+            this.isError = true;
+            this.errorDetail = "No results found";
+          })
+          .catch((e) => {
+            this.isError = true;
+            this.errorDetail = "Something Went Wrong";
+            console.log(e);
+          })
+          .finally(() => {
+            this.isLoading = false;
+          });
     },
   },
 };

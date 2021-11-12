@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export default {
-  async getBingSearchResults(isUrl, payload) {
+  async getSearchResults(isUrl, payload) {
     return isUrl ? this.getURLResults(payload) : this.getImageResults(payload);
   },
   async getURLResults(imageUrl) {
@@ -19,7 +19,6 @@ export default {
     return res.data; // response
   },
   async getImageResults(file) {
-    console.log(file);
     const bodyFormData = this.createBodyForFileImage(file);
     const headers = {
       "Content-Type": `multipart/form-data; boundary=${bodyFormData._boundary}`,
@@ -67,4 +66,14 @@ export default {
     bodyFormData.append("image", file);
     return bodyFormData;
   },
+  mapResultParams(result){
+    return result.map(res => {
+      return {
+        name: res.name,
+        image: res.contentUrl,
+        price: res?.insightsMetadata?.aggregateOffer?.lowPrice || 0,
+        hostPageUrl: res.hostPageUrl
+      };
+    });
+  }
 };

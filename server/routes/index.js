@@ -1,13 +1,13 @@
 var express = require('express'),
-    router = express.Router(),
-    bodyParser = require('body-parser'),
-    app = express();
+    app = express(),
+    cors = require('cors'),
+    visualSearchController = require('../controllers/visualSearchController'),
+    fileupload = require("express-fileupload");
 
-app.use(bodyParser.json());
+app.use(express.json());
+app.use(cors());
+app.use(fileupload());
 
-/* GET home page. */
-router.get('/test', async function (req, res, next) {
-  res.send("Working!");
-});
+app.post('/visual-search/:provider', visualSearchController.index);
 
-module.exports = router;
+module.exports = app;

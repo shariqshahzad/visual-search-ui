@@ -25,7 +25,7 @@
       <v-row v-if="!isLoading">
         <v-col v-for="(data, index) in filteredResult" :key="index" cols="4">
           <v-card @click="onClickCard(data.hostPageUrl)">
-            <v-img :src="data.contentUrl" height="auto"></v-img>
+            <v-img :src="data.image" height="auto"></v-img>
             <v-card-title height="40px"> {{ data.name }} </v-card-title>
           </v-card>
         </v-col>
@@ -41,6 +41,7 @@
 <script>
 import ImageCropper from "./ImageCropper.vue";
 import bingSearchService from "../services/bingSearch.service";
+import gooogleSearchService from "../services/googleSearch.service";
 // import Filters from "./Filters";
 
 import { dataURLtoFile, searchResultsReducer } from "../utils/utils";
@@ -52,6 +53,7 @@ export default {
   },
   data() {
     return {
+      dataResults: this.results,
       isLoading: false,
       cropper: {},
       destination: {},
@@ -66,13 +68,13 @@ export default {
   },
   computed: {
     filteredResult: function () {
-      return this.results.filter(value => {
-        const price = value?.insightsMetadata?.aggregateOffer?.lowPrice;
+      return this.dataResults.filter(value => {
+        const price = value.price;
         if (price) {
-          return (
-              price >= this.filters.priceRangeSelection.min
-              && price <= this.filters.priceRangeSelection.max
-          );
+          // return (
+          //     price >= this.filters.priceRangeSelection.min
+          //     && price <= this.filters.priceRangeSelection.max
+          // );
         }
         return true;
       });
@@ -82,15 +84,25 @@ export default {
     onImageCrop(value) {
       const file = dataURLtoFile(value);
       this.isLoading = true;
-      bingSearchService
-        .getBingSearchResults(false, file)
+      const searchServices = {
+        bing: bingSearchService,
+        google: gooogleSearchService
+      },
+          searchService = searchServices[this.searchOption];
+      searchService
+        .getSearchResults(false, file)
         .then((res) => {
-          const visualSearchResultsData = res.tags.reduce(
-            searchResultsReducer,
-            null
-          );
+          let visualSearchResultsData;
+          if ('bing' === this.searchOption) {
+            visualSearchResultsData = res.tags.reduce(
+                searchResultsReducer,
+                null
+            );
+            visualSearchResultsData = bingSearchService.mapResultParams(visualSearchResultsData);
+          } else visualSearchResultsData = res;
+
           if (visualSearchResultsData && visualSearchResultsData.length > 0) {
-            this.results = visualSearchResultsData;
+            this.dataResults = visualSearchResultsData;
             return;
           }
           this.isError = true;
@@ -119,6 +131,7 @@ export default {
   props: {
     results: Array,
     imageData: Object,
+    searchOption: String,
   },
 };
 </script>
