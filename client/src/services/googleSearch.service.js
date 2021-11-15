@@ -7,9 +7,7 @@ export default {
   async getSearchResults(isUrl, payload) {
     let body = {}, headers = {};
     if (!isUrl) {
-      headers = {
-        "Content-Type": `multipart/form-data;`,
-      }
+      headers = { "Content-Type": `multipart/form-data;` }
       body = new FormData()
       body.append("file", payload);
       endpoint = serverPath + '/upload';
@@ -26,14 +24,16 @@ export default {
     });
     return this.mapResultParams(res.data);
   },
-  mapResultParams(result){
-    return result.map(res => {
-      return {
-        name: res.productName,
-        image: res.productImage,
-        price: res.productPrice,
-        hostPageUrl: 'https://www.williams-sonoma.com/'
-      };
-    });
+  mapResultParams(result) {
+    if (result && result.length)
+        return result.map(res => {
+        return {
+          name: res.productName,
+          image: res.productImage,
+          price: res.productPrice,
+          hostPageUrl: 'https://www.williams-sonoma.com/'
+        };
+      });
+    return [];
   }
 };

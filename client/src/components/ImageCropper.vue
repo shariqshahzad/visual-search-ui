@@ -24,6 +24,7 @@ export default {
   },
   props: {
     imageData: Object,
+    objectBoundaries: Array,
   },
   mounted() {
 
@@ -42,6 +43,15 @@ export default {
       this.destination = canvas.toDataURL("image/png");
       this.$emit("crop", this.destination);
     });
+    const objectBoundaries = this.objectBoundaries;
+    this.$refs.uploadedImage.onload = function (){
+      const dimensions = {
+        width: this.naturalWidth,
+        height: this.naturalHeight,
+      }
+
+      console.log('dimensions',dimensions,'objectBoundaries', objectBoundaries)
+    }
     this.cropper = new Cropper(this.$refs.uploadedImage, {
       zoomable : false,
       cropend: () => {

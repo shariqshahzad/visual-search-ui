@@ -22,3 +22,7 @@ export const searchResultsReducer = (finalResult, tag) => {
  })
     : finalResult;
 };
+
+export const isInt = (data) => {
+  return data === parseInt(data, 10);
+}

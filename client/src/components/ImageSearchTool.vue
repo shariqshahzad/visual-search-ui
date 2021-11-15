@@ -1,7 +1,7 @@
 <template>
   <v-row class="mt-5">
     <v-col cols="4">
-      <ImageCropper @crop="(e) => onImageCrop(e)" :imageData="imageData" />
+      <ImageCropper @crop="(e) => onImageCrop(e)" :imageData="imageData" :objectBoundaries="objectBoundaries" />
 <!--      <filters :min="defaultFilters.priceRange.min" :max="defaultFilters.priceRange.max" @emitPriceRange="emitPriceRange" />-->
     </v-col>
     <v-col cols="8">
@@ -131,6 +131,7 @@ export default {
   props: {
     results: Array,
     imageData: Object,
+    objectBoundaries: Array,
     searchOption: String,
   },
 };

@@ -101,7 +101,7 @@
           <v-toolbar-title><span class="text-capitalize">{{this.searchOption}}</span> Search Results</v-toolbar-title>
           <v-spacer></v-spacer>
         </v-toolbar>
-        <ImageSearchTool :results="resultsData" :imageData="imageData" :defaultFilters="this.filters" :searchOption="searchOption" />
+        <ImageSearchTool :results="resultsData" :imageData="imageData" :objectBoundaries="objectBoundaries" :defaultFilters="this.filters" :searchOption="searchOption" />
       </v-card>
     </v-dialog>
   </v-app>
@@ -124,6 +124,7 @@ export default {
       files: [],
       dialog: false,
       imageData: null,
+      objectBoundaries: [],
       imgFileRules: [
         (value) =>
           !value ||
@@ -183,6 +184,7 @@ export default {
       bingSearchService
         .getSearchResults(isUrl, isUrl ? this.imageUrl : this.files)
         .then((res) => {
+          this.objectBoundaries = bingSearchService.getResultObjectBoundaries(res);
           let visualSearchResultsData = res.tags.reduce(
             searchResultsReducer,
             null

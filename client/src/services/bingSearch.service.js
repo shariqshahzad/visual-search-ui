@@ -1,4 +1,5 @@
 import axios from "axios";
+import {isInt} from "../utils/utils";
 
 export default {
   async getSearchResults(isUrl, payload) {
@@ -67,13 +68,31 @@ export default {
     return bodyFormData;
   },
   mapResultParams(result){
-    return result.map(res => {
-      return {
-        name: res.name,
-        image: res.contentUrl,
-        price: res?.insightsMetadata?.aggregateOffer?.lowPrice || 0,
-        hostPageUrl: res.hostPageUrl
-      };
-    });
+    if (result && result.length)
+      return result.map(res => {
+        return {
+          name: res.name,
+          image: res.contentUrl,
+          price: res?.insightsMetadata?.aggregateOffer?.lowPrice || 0,
+          hostPageUrl: res.hostPageUrl
+        };
+      });
+    return [];
+  },
+  getResultObjectBoundaries(result) {
+    let boundaries = [];
+    result.tags.forEach(tag => {
+      if (!tag.displayName)
+        return;
+      const rectangleBox = tag.boundingBox.queryRectangle,
+          rectangleCenterSpot = tag.boundingBox.displayRectangle,
+          displayName = tag.displayName;
+
+      if (isInt(rectangleBox.topLeft.x) && isInt(rectangleBox.bottomRight.y))
+        return; //
+
+      boundaries.push({rectangleBox,rectangleCenterSpot,displayName})
+    })
+      return boundaries;
   }
 };
