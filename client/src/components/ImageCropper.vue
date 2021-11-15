@@ -39,27 +39,31 @@ export default {
       };
     };
     // eslint-disable-next-line no-unused-vars
-    const processChange = debounce((canvas) => {
-      this.destination = canvas.toDataURL("image/png");
-      this.$emit("crop", this.destination);
-    });
+    // const processChange = debounce((canvas) => {
+    //   this.destination = canvas.toDataURL("image/png");
+    //   this.$emit("crop", this.destination);
+    // });
     const objectBoundaries = this.objectBoundaries;
-    this.$refs.uploadedImage.onload = function (){
+    this.$refs.uploadedImage.onload = function () {
       const dimensions = {
         width: this.naturalWidth,
         height: this.naturalHeight,
       }
+      const objectBoundary=objectBoundaries[0];
 
-      console.log('dimensions',dimensions,'objectBoundaries', objectBoundaries)
+      console.log(objectBoundary.displayName)
+
+      const rectangleBox = objectBoundary.rectangleBox,
+          x = rectangleBox.topLeft.x * dimensions.width,
+          y = rectangleBox.topLeft.y * dimensions.height,
+          width = (rectangleBox.topRight.x * dimensions.width) - x,
+          height = (rectangleBox.bottomRight.y * dimensions.height) - y;
+
+      this.cropper = new Cropper(this, {
+        zoomable : false,
+        data: { x, y, width, height }
+      });
     }
-    this.cropper = new Cropper(this.$refs.uploadedImage, {
-      zoomable : false,
-      cropend: () => {
-        // const cropBoxData = this.cropper.getCropBoxData();
-        const canvas = this.cropper.getCroppedCanvas();
-        processChange(canvas);
-      },
-    });
   },
 };
 </script>
