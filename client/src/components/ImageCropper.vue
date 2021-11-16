@@ -1,7 +1,14 @@
 <template>
   <div>
-    <div style="max-height: 600px" class="ma-2">
+    <div class="img-container ma-2">
       <img ref="uploadedImage" :src="imageData.src" crossorigin />
+      <span
+        @click="onClickSpot(btn)"
+        v-for="(btn, index) in hotspotButtons"
+        :key="index"
+        v-bind:style="btn.btnStyle"
+        class="dot"
+      ></span>
     </div>
 
     <!-- <div class="img-container" style="display: hidden; justify-content: center">
@@ -16,6 +23,7 @@ export default {
   name: "ImageCropper",
   data() {
     return {
+      hotspotButtons: [],
       cropper: {},
       destination: {},
       fileImageSrc: "",
@@ -27,7 +35,6 @@ export default {
     objectBoundaries: Array,
   },
   mounted() {
-
     // console.log(this.imageData);
     const debounce = (func, timeout = 0) => {
       let timer;
@@ -44,35 +51,87 @@ export default {
     //   this.$emit("crop", this.destination);
     // });
     const objectBoundaries = this.objectBoundaries;
-    this.$refs.uploadedImage.onload = function () {
+    this.$refs.uploadedImage.onload = (img) => {
       const dimensions = {
-        width: this.naturalWidth,
-        height: this.naturalHeight,
-      }
-      const objectBoundary=objectBoundaries[0];
-
-      console.log(objectBoundary.displayName)
-
-      const rectangleBox = objectBoundary.rectangleBox,
-          x = rectangleBox.topLeft.x * dimensions.width,
-          y = rectangleBox.topLeft.y * dimensions.height,
-          width = (rectangleBox.topRight.x * dimensions.width) - x,
-          height = (rectangleBox.bottomRight.y * dimensions.height) - y;
-
-      this.cropper = new Cropper(this, {
-        zoomable : false,
-        data: { x, y, width, height }
+        width: img.target.naturalWidth,
+        height: img.target.naturalHeight,
+      };
+      this.hotspotButtons = objectBoundaries.map((bd) => {
+        const x = bd.rectangleBox.topLeft.x * dimensions.width,
+          y = bd.rectangleBox.topLeft.y * dimensions.height;
+        return {
+          btnStyle: {
+            top: `${bd.rectangleCenterSpot.topLeft.y * 100}%`,
+            left: `${bd.rectangleCenterSpot.topLeft.x * 100}%`,
+            transform: `translate(-${
+              (bd.rectangleCenterSpot.topLeft.x * 100) / 2
+            }%, -${(bd.rectangleCenterSpot.topLeft.y * 100) / 2}%)`,
+          },
+          cropperCoordinates: {
+            x,
+            y,
+            width: bd.rectangleBox.topRight.x * dimensions.width - x,
+            height: bd.rectangleBox.bottomRight.y * dimensions.height - y,
+          },
+        };
       });
-    }
+
+      const objectBoundary = objectBoundaries[0];
+
+      console.log(objectBoundary.displayName);
+
+      // const rectangleBox = objectBoundary.rectangleBox,
+      //   x = rectangleBox.topLeft.x * dimensions.width,
+      //   y = rectangleBox.topLeft.y * dimensions.height,
+      //   width = rectangleBox.topRight.x * dimensions.width - x,
+      //   height = rectangleBox.bottomRight.y * dimensions.height - y;
+
+      this.cropper = new Cropper(img.target, {
+        zoomable: false,
+        cropend: (e) => {
+          console.log(e);
+        },
+        // data: { x, y, width, height },
+      });
+    };
+  },
+  methods: {
+    onClickSpot(e) {
+      console.log(this.cropper.getData());
+      console.log(this.$refs.uploadedImage.naturalWidth);
+      this.cropper.setData(e.cropperCoordinates);
+    },
   },
 };
 </script>
 
 <style scoped>
+.dot {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border: #fff 3px solid;
+  background: #05e9f5;
+  border-radius: 50%;
+  display: inline-block;
+}
+.btn {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #555;
+  color: white;
+  font-size: 16px;
+  padding: 12px 24px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  text-align: center;
+}
+
 .img-container {
-  width: 640px;
-  height: 480px;
-  float: left;
+  position: relative;
+  max-height: 600px;
 }
 .img-preview {
   width: 200px;
