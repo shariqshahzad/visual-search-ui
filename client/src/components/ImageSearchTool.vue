@@ -81,8 +81,9 @@ export default {
     }
   },
   methods: {
-    onImageCrop(value) {
-      const file = dataURLtoFile(value);
+    onImageCrop(cropArea) {
+      // const file = dataURLtoFile(value);
+      const file = new File([""], this.imageData.src);
       this.isLoading = true;
       const searchServices = {
         bing: bingSearchService,
@@ -90,7 +91,7 @@ export default {
       },
           searchService = searchServices[this.searchOption];
       searchService
-        .getSearchResults(false, file)
+        .getSearchResults({isUrl: false, payload: file,cropArea})
         .then((res) => {
           let visualSearchResultsData;
           if ('bing' === this.searchOption) {

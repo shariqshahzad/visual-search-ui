@@ -4,7 +4,8 @@ const serverPath = process.env.VUE_APP_SERVER_URL;
 let endpoint = null;
 
 export default {
-  async getSearchResults(isUrl, payload) {
+  async getSearchResults(params) {
+    const {isUrl, payload} = params;
     let body = {}, headers = {};
     if (!isUrl) {
       headers = { "Content-Type": `multipart/form-data;` }

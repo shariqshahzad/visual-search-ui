@@ -26,3 +26,7 @@ export const searchResultsReducer = (finalResult, tag) => {
 export const isInt = (data) => {
   return data === parseInt(data, 10);
 }
+
+function saveInput(){
+  console.log('Saving data');
+}

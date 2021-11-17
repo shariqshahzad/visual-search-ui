@@ -182,7 +182,7 @@ export default {
       this.isLoading = true;
 
       bingSearchService
-        .getSearchResults(isUrl, isUrl ? this.imageUrl : this.files)
+        .getSearchResults({isUrl, payload: isUrl ? this.imageUrl : this.files})
         .then((res) => {
           this.objectBoundaries = bingSearchService.getResultObjectBoundaries(res);
           let visualSearchResultsData = res.tags.reduce(
@@ -204,7 +204,7 @@ export default {
               src:
                 this.radioGrp === "imageUrl"
                   ? this.imageProxyUrl
-                  : URL.createObjectURL(this.files),
+                  : URL.createObjectURL(this.files)
             };
             this.dialog = true;
             return;
@@ -229,7 +229,7 @@ export default {
       this.isLoading = true;
 
       googleSearchService
-          .getSearchResults(isUrl, isUrl ? this.imageUrl : this.files)
+          .getSearchResults({isUrl, payload: isUrl ? this.imageUrl : this.files})
           .then((visualSearchResultsData) => {
             if (visualSearchResultsData && visualSearchResultsData.length > 0) {
               this.resultsData = visualSearchResultsData;
@@ -244,7 +244,7 @@ export default {
                 src:
                     this.radioGrp === "imageUrl"
                         ? this.imageProxyUrl
-                        : URL.createObjectURL(this.files),
+                        : URL.createObjectURL(this.files)
               };
               this.dialog = true;
               return;

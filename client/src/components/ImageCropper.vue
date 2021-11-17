@@ -3,7 +3,7 @@
     <div class="img-container ma-2">
       <img ref="uploadedImage" :src="imageData.src" crossorigin />
       <span
-        @click="onClickSpot(btn)"
+        @click="emitSpotChange(btn)"
         v-for="(btn, index) in hotspotButtons"
         :key="index"
         v-bind:style="btn.btnStyle"
@@ -35,21 +35,6 @@ export default {
     objectBoundaries: Array,
   },
   mounted() {
-    // console.log(this.imageData);
-    const debounce = (func, timeout = 0) => {
-      let timer;
-      return (...args) => {
-        clearTimeout(timer);
-        timer = setTimeout(() => {
-          func.apply(this, args);
-        }, timeout);
-      };
-    };
-    // eslint-disable-next-line no-unused-vars
-    // const processChange = debounce((canvas) => {
-    //   this.destination = canvas.toDataURL("image/png");
-    //   this.$emit("crop", this.destination);
-    // });
     const objectBoundaries = this.objectBoundaries;
     this.$refs.uploadedImage.onload = (img) => {
       const dimensions = {
@@ -89,17 +74,34 @@ export default {
       this.cropper = new Cropper(img.target, {
         zoomable: false,
         cropend: (e) => {
-          console.log(e);
+          this.emitSpotChange(e, false);
+          // const canvas = this.cropper.getCroppedCanvas();
+          // this.processChange(canvas);
         },
         // data: { x, y, width, height },
       });
     };
   },
   methods: {
-    onClickSpot(e) {
-      console.log(this.cropper.getData());
-      console.log(this.$refs.uploadedImage.naturalWidth);
-      this.cropper.setData(e.cropperCoordinates);
+    processChange(canvas) {
+      setTimeout(() => {
+        this.destination = canvas.toDataURL("image/png");
+        this.$emit("crop", this.destination);
+      },200);
+    },
+    emitSpotChange(e, setCropper = true) {
+      setCropper && this.cropper.setData(e.cropperCoordinates);
+      // const canvas = this.cropper.getCroppedCanvas();
+      // this.processChange(canvas);
+      const cropperData = this.cropper.getData(),
+          {naturalWidth, naturalHeight} = this.$refs.uploadedImage,
+          coordinates = {
+            left: (cropperData.x / naturalWidth),
+            right: (naturalWidth - (cropperData.x+cropperData.width)) / naturalWidth,
+            top: (cropperData.y / naturalHeight),
+            bottom: (naturalHeight - (cropperData.y+cropperData.height)) / naturalHeight
+          }
+      this.$emit("crop", coordinates);
     },
   },
 };
@@ -114,6 +116,7 @@ export default {
   background: #05e9f5;
   border-radius: 50%;
   display: inline-block;
+  cursor: pointer;
 }
 .btn {
   top: 50%;

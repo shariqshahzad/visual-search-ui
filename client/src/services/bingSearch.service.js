@@ -2,11 +2,13 @@ import axios from "axios";
 import {isInt} from "../utils/utils";
 
 export default {
-  async getSearchResults(isUrl, payload) {
-    return isUrl ? this.getURLResults(payload) : this.getImageResults(payload);
+  async getSearchResults(params) {
+    const {isUrl, payload, cropArea} = params;
+
+    return isUrl ? this.getURLResults(payload, cropArea) : this.getImageResults(payload, cropArea);
   },
-  async getURLResults(imageUrl) {
-    const bodyFormData = this.createBodyForUrl(imageUrl);
+  async getURLResults(imageUrl, cropArea) {
+    const bodyFormData = this.createBodyForUrl(imageUrl, cropArea);
     const headers = {
       "Content-Type": `multipart/form-data; boundary=${bodyFormData._boundary}`,
       "Ocp-Apim-Subscription-Key": "691fac28b4e145bdb4ca086f6c190c5d",
@@ -19,8 +21,8 @@ export default {
     });
     return res.data; // response
   },
-  async getImageResults(file) {
-    const bodyFormData = this.createBodyForFileImage(file);
+  async getImageResults(file, cropArea) {
+    const bodyFormData = this.createBodyForFileImage(file, cropArea);
     const headers = {
       "Content-Type": `multipart/form-data; boundary=${bodyFormData._boundary}`,
       "Ocp-Apim-Subscription-Key": "691fac28b4e145bdb4ca086f6c190c5d",
@@ -33,20 +35,17 @@ export default {
     });
     return res.data;
   },
-  createBodyForUrl(url) {
+  createBodyForUrl(url, cropArea) {
     const bodyFormData = new FormData();
+    let imageInfo = {
+      url: `${url}`
+    };
+    if (cropArea)
+      imageInfo['cropArea'] = cropArea;
     bodyFormData.append(
       "knowledgeRequest",
       JSON.stringify({
-        imageInfo: {
-          url: `${url}`,
-          // cropArea: {
-          //   top: 0.1,
-          //   left: 0.2,
-          //   bottom: 0.7,
-          //   right: 0.5,
-          // },
-        },
+        imageInfo,
         knowledgeRequest: {
           filters: { site: "https://www.westelm.com" },
         },
@@ -54,11 +53,17 @@ export default {
     );
     return bodyFormData;
   },
-  createBodyForFileImage(file) {
+  createBodyForFileImage(file, cropArea) {
     const bodyFormData = new FormData();
+    let imageInfo = {};
+    if (cropArea)
+      imageInfo['cropArea'] = cropArea;
+
+
     bodyFormData.append(
       "knowledgeRequest",
       JSON.stringify({
+        imageInfo,
         knowledgeRequest: {
           filters: { site: "https://www.westelm.com" },
         },
