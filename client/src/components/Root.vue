@@ -38,11 +38,13 @@
               <v-col cols="7">
                 <v-radio-group class="ml-3 mt-2" v-model="radioGrp" row>
                   <v-radio
+                    chec
                     key="imageUpload"
                     label="Upload Image"
                     value="imageUpload"
                   ></v-radio>
                   <v-radio
+                    disabled
                     key="imageUrl"
                     label="Image URL"
                     value="imageUrl"
@@ -119,7 +121,7 @@ export default {
   },
   data() {
     return {
-      radioGrp: "imageUrl",
+      radioGrp: "imageUpload",
       searchOption:null,
       files: [],
       dialog: false,
@@ -204,7 +206,8 @@ export default {
               src:
                 this.radioGrp === "imageUrl"
                   ? this.imageProxyUrl
-                  : URL.createObjectURL(this.files)
+                  : URL.createObjectURL(this.files),
+              files: this.files
             };
             this.dialog = true;
             return;
@@ -244,7 +247,8 @@ export default {
                 src:
                     this.radioGrp === "imageUrl"
                         ? this.imageProxyUrl
-                        : URL.createObjectURL(this.files)
+                        : URL.createObjectURL(this.files),
+                files: this.files
               };
               this.dialog = true;
               return;

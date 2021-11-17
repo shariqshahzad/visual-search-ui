@@ -97,9 +97,9 @@ export default {
           {naturalWidth, naturalHeight} = this.$refs.uploadedImage,
           coordinates = {
             left: (cropperData.x / naturalWidth),
-            right: (naturalWidth - (cropperData.x+cropperData.width)) / naturalWidth,
+            right: ((cropperData.x + cropperData.width) / naturalWidth),
             top: (cropperData.y / naturalHeight),
-            bottom: (naturalHeight - (cropperData.y+cropperData.height)) / naturalHeight
+            bottom: ((cropperData.y + cropperData.height) / naturalHeight)
           }
       this.$emit("crop", coordinates);
     },
