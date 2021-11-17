@@ -26,8 +26,10 @@ export default {
       hotspotButtons: [],
       cropper: {},
       destination: {},
+      imageTarget: null,
       fileImageSrc: "",
       urlImageSrc: "",
+      cropperInitialised: false
     };
   },
   props: {
@@ -37,6 +39,7 @@ export default {
   mounted() {
     const objectBoundaries = this.objectBoundaries;
     this.$refs.uploadedImage.onload = (img) => {
+      this.imageTarget = img.target;
       const dimensions = {
         width: img.target.naturalWidth,
         height: img.target.naturalHeight,
@@ -61,25 +64,13 @@ export default {
         };
       });
 
-      const objectBoundary = objectBoundaries[0];
-
-      console.log(objectBoundary.displayName);
-
+      // const objectBoundary = objectBoundaries[0];
+      // console.log(objectBoundary.displayName);
       // const rectangleBox = objectBoundary.rectangleBox,
       //   x = rectangleBox.topLeft.x * dimensions.width,
       //   y = rectangleBox.topLeft.y * dimensions.height,
       //   width = rectangleBox.topRight.x * dimensions.width - x,
       //   height = rectangleBox.bottomRight.y * dimensions.height - y;
-
-      this.cropper = new Cropper(img.target, {
-        zoomable: false,
-        cropend: (e) => {
-          this.emitSpotChange(e, false);
-          // const canvas = this.cropper.getCroppedCanvas();
-          // this.processChange(canvas);
-        },
-        // data: { x, y, width, height },
-      });
     };
   },
   methods: {
@@ -90,18 +81,33 @@ export default {
       },200);
     },
     emitSpotChange(e, setCropper = true) {
-      setCropper && this.cropper.setData(e.cropperCoordinates);
-      // const canvas = this.cropper.getCroppedCanvas();
-      // this.processChange(canvas);
-      const cropperData = this.cropper.getData(),
-          {naturalWidth, naturalHeight} = this.$refs.uploadedImage,
-          coordinates = {
-            left: (cropperData.x / naturalWidth),
-            right: ((cropperData.x + cropperData.width) / naturalWidth),
-            top: (cropperData.y / naturalHeight),
-            bottom: ((cropperData.y + cropperData.height) / naturalHeight)
-          }
-      this.$emit("crop", coordinates);
+      if (!this.cropperInitialised) {
+        this.cropper = new Cropper(this.imageTarget, {
+          zoomable: false,
+          cropend: (e) => {
+            this.emitSpotChange(e, false);
+            // const canvas = this.cropper.getCroppedCanvas();
+            // this.processChange(canvas);
+          },
+          data: e.cropperCoordinates,
+        });
+        this.cropperInitialised = true;
+      } else {
+        setCropper && this.cropper.setData(e.cropperCoordinates);
+      }
+
+      setTimeout(() => {
+        const cropperData = this.cropper.getData(),
+            {naturalWidth, naturalHeight} = this.$refs.uploadedImage,
+            coordinates = {
+              left: (cropperData.x / naturalWidth),
+              right: ((cropperData.x + cropperData.width) / naturalWidth),
+              top: (cropperData.y / naturalHeight),
+              bottom: ((cropperData.y + cropperData.height) / naturalHeight)
+            }
+
+        this.$emit("crop", coordinates);
+      },100)
     },
   },
 };
