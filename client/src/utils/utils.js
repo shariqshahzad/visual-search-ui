@@ -10,19 +10,6 @@ export function dataURLtoFile(dataUrl, fileName) {
   return new File([u8arr], fileName, { type: mime });
 }
 
-export const searchResultsReducer = (finalResult, tag) => {
-  const actionWithVisualSearchResults = tag.actions?.find(
-    (action) =>
-      action.actionType == `ProductVisualSearch` ||
-      action.actionType == "VisualSearch"
-  );
-  return actionWithVisualSearchResults?.data
-  ? actionWithVisualSearchResults?.data.value.filter(value => {
-    return value.hostPageUrl.includes("product")
- })
-    : finalResult;
-};
-
 export const isInt = (data) => {
   return data === parseInt(data, 10);
 }

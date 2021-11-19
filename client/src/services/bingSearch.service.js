@@ -1,6 +1,8 @@
 import axios from "axios";
 import {isInt} from "../utils/utils";
 
+const searchHostBing = 'https://www.westelm.com';
+
 export default {
   async getSearchResults(params) {
     const {isUrl, payload, cropArea} = params;
@@ -47,7 +49,7 @@ export default {
       JSON.stringify({
         imageInfo,
         knowledgeRequest: {
-          filters: { site: "https://www.westelm.com" },
+          filters: { site: searchHostBing },
         },
       })
     );
@@ -65,7 +67,7 @@ export default {
       JSON.stringify({
         imageInfo,
         knowledgeRequest: {
-          filters: { site: "https://www.westelm.com" },
+          filters: { site: searchHostBing },
         },
       })
     );
@@ -99,5 +101,32 @@ export default {
       boundaries.push({rectangleBox,rectangleCenterSpot,displayName})
     })
       return boundaries;
+  },
+  reduceSearchResults(result) {
+    return result.reduce(
+        (finalResult, tag) => {
+          let actionWithVisualSearchResults = [];
+
+          const productVisualSearchResults = tag.actions?.find(
+              (action) =>
+                  action.actionType == `ProductVisualSearch`
+          );
+          const visualSearchResults = tag.actions?.find(
+              (action) =>
+                  action.actionType == `VisualSearch`
+          );
+
+          productVisualSearchResults?.data?.value && actionWithVisualSearchResults.push(...productVisualSearchResults.data.value);
+          visualSearchResults?.data?.value && actionWithVisualSearchResults.push(...visualSearchResults.data.value);
+
+          return actionWithVisualSearchResults.length
+              ? actionWithVisualSearchResults.filter(value => {
+                console.log('-v',value)
+                return value.hostPageUrl.includes("product")
+              })
+              : finalResult;
+        },
+        null
+    )
   }
 };

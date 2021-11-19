@@ -113,7 +113,7 @@
 import bingSearchService from "../services/bingSearch.service";
 import googleSearchService from "../services/googleSearch.service";
 import ImageSearchTool from "./ImageSearchTool.vue";
-import { searchResultsReducer } from "../utils/utils";
+import {reduceBingSearchResults} from "../utils/utils";
 
 export default {
   components: {
@@ -187,10 +187,7 @@ export default {
         .getSearchResults({isUrl, payload: isUrl ? this.imageUrl : this.files})
         .then((res) => {
           this.objectBoundaries = bingSearchService.getResultObjectBoundaries(res);
-          let visualSearchResultsData = res.tags.reduce(
-            searchResultsReducer,
-            null
-          );
+          let visualSearchResultsData = bingSearchService.reduceSearchResults(res.tags);
           visualSearchResultsData = bingSearchService.mapResultParams(visualSearchResultsData);
           if (visualSearchResultsData && visualSearchResultsData.length > 0) {
             this.resultsData = visualSearchResultsData;

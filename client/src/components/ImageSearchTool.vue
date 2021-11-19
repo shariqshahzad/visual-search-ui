@@ -44,7 +44,7 @@ import bingSearchService from "../services/bingSearch.service";
 import gooogleSearchService from "../services/googleSearch.service";
 // import Filters from "./Filters";
 
-import { dataURLtoFile, searchResultsReducer } from "../utils/utils";
+import { reduceBingSearchResults } from "../utils/utils";
 
 export default {
   components: {
@@ -95,10 +95,7 @@ export default {
         .then((res) => {
           let visualSearchResultsData;
           if ('bing' === this.searchOption) {
-            visualSearchResultsData = res.tags.reduce(
-                searchResultsReducer,
-                null
-            );
+            visualSearchResultsData = bingSearchService.reduceSearchResults(res.tags);
             visualSearchResultsData = bingSearchService.mapResultParams(visualSearchResultsData);
           } else visualSearchResultsData = res;
 
