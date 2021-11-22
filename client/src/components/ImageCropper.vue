@@ -29,7 +29,6 @@ export default {
       imageTarget: null,
       fileImageSrc: "",
       urlImageSrc: "",
-      cropperInitialised: false
     };
   },
   props: {
@@ -71,6 +70,16 @@ export default {
       //   y = rectangleBox.topLeft.y * dimensions.height,
       //   width = rectangleBox.topRight.x * dimensions.width - x,
       //   height = rectangleBox.bottomRight.y * dimensions.height - y;
+
+      this.cropper = new Cropper(this.imageTarget, {
+        zoomable: false,
+        cropend: (e) => {
+          this.emitSpotChange(e, false);
+          // const canvas = this.cropper.getCroppedCanvas();
+          // this.processChange(canvas);
+        }
+      });
+      this.cropperInitialised = true;
     };
   },
   methods: {
@@ -81,20 +90,7 @@ export default {
       },200);
     },
     emitSpotChange(e, setCropper = true) {
-      if (!this.cropperInitialised) {
-        this.cropper = new Cropper(this.imageTarget, {
-          zoomable: false,
-          cropend: (e) => {
-            this.emitSpotChange(e, false);
-            // const canvas = this.cropper.getCroppedCanvas();
-            // this.processChange(canvas);
-          },
-          data: e.cropperCoordinates,
-        });
-        this.cropperInitialised = true;
-      } else {
-        setCropper && this.cropper.setData(e.cropperCoordinates);
-      }
+      setCropper && this.cropper.setData(e.cropperCoordinates);
 
       setTimeout(() => {
         const cropperData = this.cropper.getData(),
