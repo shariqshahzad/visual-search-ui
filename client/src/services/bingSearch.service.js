@@ -105,23 +105,28 @@ export default {
   reduceSearchResults(result) {
     return result.reduce(
         (finalResult, tag) => {
-          let actionWithVisualSearchResults = [];
-
-          const productVisualSearchResults = tag.actions?.find(
+          let actionWithVisualSearchResults = tag.actions?.find(
               (action) =>
                   action.actionType == `ProductVisualSearch`
-          );
-          const visualSearchResults = tag.actions?.find(
-              (action) =>
-                  action.actionType == `VisualSearch`
+                || action.actionType == `VisualSearch`
           );
 
-          productVisualSearchResults?.data?.value && actionWithVisualSearchResults.push(...productVisualSearchResults.data.value);
-          visualSearchResults?.data?.value && actionWithVisualSearchResults.push(...visualSearchResults.data.value);
 
-          return actionWithVisualSearchResults.length
-              ? actionWithVisualSearchResults.filter(value => {
-                console.log('-v',value)
+          // let actionWithVisualSearchResults = [];
+          // const productVisualSearchResults = tag.actions?.find(
+          //     (action) =>
+          //         action.actionType == `ProductVisualSearch`
+          // );
+          // const visualSearchResults = tag.actions?.find(
+          //     (action) =>
+          //         action.actionType == `VisualSearch`
+          // );
+          // productVisualSearchResults?.data?.value && actionWithVisualSearchResults.push(...productVisualSearchResults.data.value);
+          // visualSearchResults?.data?.value && actionWithVisualSearchResults.push(...visualSearchResults.data.value);
+
+          return actionWithVisualSearchResults?.data?.value.length
+              ? actionWithVisualSearchResults?.data?.value.filter(value => {
+                // console.log('-v',value)
                 return value.hostPageUrl.includes("product")
               })
               : finalResult;
