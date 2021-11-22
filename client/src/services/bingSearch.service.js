@@ -1,7 +1,7 @@
 import axios from "axios";
 import {isInt} from "../utils/utils";
-
-const searchHostBing = 'https://www.westelm.com';
+const searchHostBing = 'https://www.westelm.com',
+    apiKey = process.env.VUE_APP_BING_SEARCH_SUBSCRIPTION_KEY;
 
 export default {
   async getSearchResults(params) {
@@ -13,7 +13,7 @@ export default {
     const bodyFormData = this.createBodyForUrl(imageUrl, cropArea);
     const headers = {
       "Content-Type": `multipart/form-data; boundary=${bodyFormData._boundary}`,
-      "Ocp-Apim-Subscription-Key": "691fac28b4e145bdb4ca086f6c190c5d",
+      "Ocp-Apim-Subscription-Key": apiKey,
     };
     let res = await axios({
       method: "post",
@@ -27,7 +27,7 @@ export default {
     const bodyFormData = this.createBodyForFileImage(file, cropArea);
     const headers = {
       "Content-Type": `multipart/form-data; boundary=${bodyFormData._boundary}`,
-      "Ocp-Apim-Subscription-Key": "691fac28b4e145bdb4ca086f6c190c5d",
+      "Ocp-Apim-Subscription-Key": apiKey,
     };
     let res = await axios({
       method: "post",
