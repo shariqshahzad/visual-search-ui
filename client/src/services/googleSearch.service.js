@@ -32,7 +32,7 @@ export default {
           name: res.productName,
           image: res.productImage,
           price: res.productPrice,
-          hostPageUrl: 'https://www.williams-sonoma.com/'
+          hostPageUrl: `https://www.westelm.com/products/${res.pid}`
         };
       });
     return [];
