@@ -170,10 +170,12 @@ export default {
 
     onBingSearch() {
       this.searchOption = 'bing';
+      this.objectBoundaries = [];
       this.bingSearch(this.radioGrp === "imageUrl");
     },
     onGoogleSearch() {
       this.searchOption = 'google';
+      this.objectBoundaries = [];
       this.googleSearch(this.radioGrp === "imageUrl");
     },
     bingSearch(isUrl = false) {
