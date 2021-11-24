@@ -53,11 +53,23 @@
               </v-col>
               <v-col cols="5">
                 <v-row class="mt-1">
-                  <v-btn @click="onBingSearch" type="submit" dark class="float-right mr-3" elevation="2">
+                  <v-btn
+                    @click="onBingSearch"
+                    type="submit"
+                    dark
+                    class="float-right mr-3"
+                    elevation="2"
+                  >
                     <v-icon>mdi-microsoft-bing</v-icon>
                     Bing
                   </v-btn>
-                  <v-btn @click="onGoogleSearch" type="submit" dark class="float-right mr-3" elevation="2">
+                  <v-btn
+                    @click="onGoogleSearch"
+                    type="submit"
+                    dark
+                    class="float-right mr-3"
+                    elevation="2"
+                  >
                     <v-icon>mdi-google</v-icon>Google
                   </v-btn>
                 </v-row>
@@ -100,10 +112,19 @@
           <v-btn icon dark @click="dialog = false">
             <v-icon>mdi-close</v-icon>
           </v-btn>
-          <v-toolbar-title><span class="text-capitalize">{{this.searchOption}}</span> Search Results</v-toolbar-title>
+          <v-toolbar-title
+            ><span class="text-capitalize">{{ this.searchOption }}</span> Search
+            Results</v-toolbar-title
+          >
           <v-spacer></v-spacer>
         </v-toolbar>
-        <ImageSearchTool :results="resultsData" :imageData="imageData" :objectBoundaries="objectBoundaries" :defaultFilters="this.filters" :searchOption="searchOption" />
+        <ImageSearchTool
+          :results="resultsData"
+          :imageData="imageData"
+          :objectBoundaries="objectBoundaries"
+          :defaultFilters="this.filters"
+          :searchOption="searchOption"
+        />
       </v-card>
     </v-dialog>
   </v-app>
@@ -113,7 +134,7 @@
 import bingSearchService from "../services/bingSearch.service";
 import googleSearchService from "../services/googleSearch.service";
 import ImageSearchTool from "./ImageSearchTool.vue";
-import {reduceBingSearchResults} from "../utils/utils";
+import { googleResultsToProductMapper } from "../utils/utils";
 
 export default {
   components: {
@@ -122,7 +143,7 @@ export default {
   data() {
     return {
       radioGrp: "imageUpload",
-      searchOption:null,
+      searchOption: null,
       files: [],
       dialog: false,
       imageData: null,
@@ -146,18 +167,18 @@ export default {
       filters: {
         priceRange: {
           min: null,
-          max: null
-        }
+          max: null,
+        },
       },
       isLoading: false,
       isError: false,
       errorDetail: "",
     };
   },
-  computed:{
-    imageProxyUrl:function (){
+  computed: {
+    imageProxyUrl: function () {
       return `${process.env.VUE_APP_PROXY_SERVER_URL}/${this.imageUrl}`;
-    }
+    },
   },
   methods: {
     // onChangeInputSelection() {
@@ -169,12 +190,12 @@ export default {
     },
 
     onBingSearch() {
-      this.searchOption = 'bing';
+      this.searchOption = "bing";
       this.objectBoundaries = [];
       this.bingSearch(this.radioGrp === "imageUrl");
     },
     onGoogleSearch() {
-      this.searchOption = 'google';
+      this.searchOption = "google";
       this.objectBoundaries = [];
       this.googleSearch(this.radioGrp === "imageUrl");
     },
@@ -186,18 +207,32 @@ export default {
       this.isLoading = true;
 
       bingSearchService
-        .getSearchResults({isUrl, payload: isUrl ? this.imageUrl : this.files})
+        .getSearchResults({
+          isUrl,
+          payload: isUrl ? this.imageUrl : this.files,
+        })
         .then((res) => {
-          this.objectBoundaries = bingSearchService.getResultObjectBoundaries(res);
-          let visualSearchResultsData = bingSearchService.reduceSearchResults(res.tags);
-          visualSearchResultsData = bingSearchService.mapResultParams(visualSearchResultsData);
+          this.objectBoundaries =
+            bingSearchService.getResultObjectBoundaries(res);
+          let visualSearchResultsData = bingSearchService.reduceSearchResults(
+            res.tags
+          );
+          visualSearchResultsData = bingSearchService.mapResultParams(
+            visualSearchResultsData
+          );
           if (visualSearchResultsData && visualSearchResultsData.length > 0) {
             this.resultsData = visualSearchResultsData;
 
             this.filters.priceRange = {
               ...this.filters.priceRange,
-              min: Math.min.apply(Math, visualSearchResultsData.map(v => !(v.price) ? 0 : v.price)),
-              max: Math.max.apply(Math, visualSearchResultsData.map(v => !(v.price) ? 0 : v.price))
+              min: Math.min.apply(
+                Math,
+                visualSearchResultsData.map((v) => (!v.price ? 0 : v.price))
+              ),
+              max: Math.max.apply(
+                Math,
+                visualSearchResultsData.map((v) => (!v.price ? 0 : v.price))
+              ),
             };
 
             this.imageData = {
@@ -206,7 +241,7 @@ export default {
                 this.radioGrp === "imageUrl"
                   ? this.imageProxyUrl
                   : URL.createObjectURL(this.files),
-              files: this.files
+              files: this.files,
             };
             this.dialog = true;
             return;
@@ -229,40 +264,51 @@ export default {
       }
 
       this.isLoading = true;
-
       googleSearchService
-          .getSearchResults({isUrl, payload: isUrl ? this.imageUrl : this.files})
-          .then((visualSearchResultsData) => {
-            if (visualSearchResultsData && visualSearchResultsData.length > 0) {
-              this.resultsData = visualSearchResultsData;
-              this.filters.priceRange = {
-                ...this.filters.priceRange,
-                min: Math.min.apply(Math, visualSearchResultsData.map(v => !(v.price) ? 0 : v.price)),
-                max: Math.max.apply(Math, visualSearchResultsData.map(v => !(v.price) ? 0 : v.price))
-              };
+        .getSearchResults({
+          isUrl,
+          payload: isUrl ? this.imageUrl : this.files,
+        })
+        .then((res) => {
+          const visualSearchResultsData = res.productSearchResults.map(
+            googleResultsToProductMapper
+          );
+          if (visualSearchResultsData && visualSearchResultsData.length > 0) {
+            this.resultsData = visualSearchResultsData;
+            this.filters.priceRange = {
+              ...this.filters.priceRange,
+              min: Math.min.apply(
+                Math,
+                visualSearchResultsData.map((v) => (!v.price ? 0 : v.price))
+              ),
+              max: Math.max.apply(
+                Math,
+                visualSearchResultsData.map((v) => (!v.price ? 0 : v.price))
+              ),
+            };
 
-              this.imageData = {
-                isUrl: this.radioGrp === "imageUrl",
-                src:
-                    this.radioGrp === "imageUrl"
-                        ? this.imageProxyUrl
-                        : URL.createObjectURL(this.files),
-                files: this.files
-              };
-              this.dialog = true;
-              return;
-            }
-            this.isError = true;
-            this.errorDetail = "No results found";
-          })
-          .catch((e) => {
-            this.isError = true;
-            this.errorDetail = "Something Went Wrong";
-            console.log(e);
-          })
-          .finally(() => {
-            this.isLoading = false;
-          });
+            this.imageData = {
+              isUrl: this.radioGrp === "imageUrl",
+              src:
+                this.radioGrp === "imageUrl"
+                  ? this.imageProxyUrl
+                  : URL.createObjectURL(this.files),
+              files: this.files,
+            };
+            this.dialog = true;
+            return;
+          }
+          this.isError = true;
+          this.errorDetail = "No results found";
+        })
+        .catch((e) => {
+          this.isError = true;
+          this.errorDetail = "Something Went Wrong";
+          console.log(e);
+        })
+        .finally(() => {
+          this.isLoading = false;
+        });
     },
   },
 };

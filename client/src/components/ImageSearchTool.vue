@@ -1,8 +1,12 @@
 <template>
   <v-row class="mt-5">
     <v-col cols="4">
-      <ImageCropper @crop="(e) => onImageCrop(e)" :imageData="imageData" :objectBoundaries="objectBoundaries" />
-<!--      <filters :min="defaultFilters.priceRange.min" :max="defaultFilters.priceRange.max" @emitPriceRange="emitPriceRange" />-->
+      <ImageCropper
+        @crop="(e) => onImageCrop(e)"
+        :imageData="imageData"
+        :objectBoundaries="objectBoundaries"
+      />
+      <!--      <filters :min="defaultFilters.priceRange.min" :max="defaultFilters.priceRange.max" @emitPriceRange="emitPriceRange" />-->
     </v-col>
     <v-col cols="8">
       <v-row
@@ -34,14 +38,15 @@
   </v-row>
 </template>
 <style>
-.v-card__title{
-  height:126px;
+.v-card__title {
+  height: 126px;
 }
 </style>
 <script>
 import ImageCropper from "./ImageCropper.vue";
 import bingSearchService from "../services/bingSearch.service";
 import gooogleSearchService from "../services/googleSearch.service";
+import { googleResultsToProductMapper } from "../utils/utils";
 // import Filters from "./Filters";
 
 import { reduceBingSearchResults } from "../utils/utils";
@@ -61,14 +66,14 @@ export default {
       filters: {
         priceRangeSelection: {
           min: null,
-          max: null
-        }
-      }
+          max: null,
+        },
+      },
     };
   },
   computed: {
     filteredResult: function () {
-      return this.dataResults.filter(value => {
+      return this.dataResults.filter((value) => {
         const price = value.price;
         if (price) {
           // return (
@@ -78,7 +83,7 @@ export default {
         }
         return true;
       });
-    }
+    },
   },
   methods: {
     onImageCrop(cropArea) {
@@ -86,18 +91,25 @@ export default {
       const file = this.imageData.files;
       this.isLoading = true;
       const searchServices = {
-        bing: bingSearchService,
-        google: gooogleSearchService
-      },
-          searchService = searchServices[this.searchOption];
+          bing: bingSearchService,
+          google: gooogleSearchService,
+        },
+        searchService = searchServices[this.searchOption];
       searchService
-        .getSearchResults({isUrl: false, payload: file, cropArea})
+        .getSearchResults({ isUrl: false, payload: file, cropArea })
         .then((res) => {
           let visualSearchResultsData;
-          if ('bing' === this.searchOption) {
-            visualSearchResultsData = bingSearchService.reduceSearchResults(res.tags);
-            visualSearchResultsData = bingSearchService.mapResultParams(visualSearchResultsData);
-          } else visualSearchResultsData = res;
+          if ("bing" === this.searchOption) {
+            visualSearchResultsData = bingSearchService.reduceSearchResults(
+              res.tags
+            );
+            visualSearchResultsData = bingSearchService.mapResultParams(
+              visualSearchResultsData
+            );
+          } else
+            visualSearchResultsData = res.productResults.map(
+              googleResultsToProductMapper
+            );
 
           if (visualSearchResultsData && visualSearchResultsData.length > 0) {
             this.dataResults = visualSearchResultsData;
@@ -120,6 +132,7 @@ export default {
       this.filters.priceRangeSelection.max = range[1];
     },
     onClickCard(url) {
+      console.log(url);
       window.open(url);
     },
   },

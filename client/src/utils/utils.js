@@ -12,8 +12,23 @@ export function dataURLtoFile(dataUrl, fileName) {
 
 export const isInt = (data) => {
   return data === parseInt(data, 10);
+};
+
+function saveInput() {
+  console.log("Saving data");
 }
 
-function saveInput(){
-  console.log('Saving data');
-}
+export const googleResultsToProductMapper = (res) => {
+  const product = res.product_.productLabels_.reduce(
+    (prevVal, element, index) => {
+      prevVal[element.key_] = [element.value_];
+      return prevVal;
+    },
+    {}
+  );
+  product.name = res.product_.displayName_;
+  product.image = product.imagePublicURL[0];
+  product.price = product.price[0];
+  product.hostPageUrl = product.pip[0];
+  return product;
+};
