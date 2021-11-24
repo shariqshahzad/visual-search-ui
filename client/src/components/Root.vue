@@ -274,6 +274,8 @@ export default {
             googleResultsToProductMapper
           );
           if (visualSearchResultsData && visualSearchResultsData.length > 0) {
+            this.objectBoundaries = googleSearchService.getResultObjectBoundaries(res.productGroupedResults);
+
             this.resultsData = visualSearchResultsData;
             this.filters.priceRange = {
               ...this.filters.priceRange,

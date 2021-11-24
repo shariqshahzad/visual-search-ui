@@ -53,4 +53,31 @@ export default {
     //   return { productResults, groupProudctResults };
     // } else return [];
   },
+  getResultObjectBoundaries(result) {
+    let boundaries = [];
+    result.forEach((result,i) => {
+      const boundingPoly = result.boundingPoly_.normalizedVertices_;
+      if (Object.keys(boundingPoly[0]).length === 0)
+        return;
+      const rectangleBox = {
+            topLeft: {x: boundingPoly[0].x_, y: boundingPoly[0].y_},
+            topRight: {x: boundingPoly[1].x_, y: boundingPoly[1].y_},
+            bottomRight: {x: boundingPoly[2].x_, y: boundingPoly[2].y_},
+            bottomLeft: {x: boundingPoly[3].x_, y: boundingPoly[3].y_},
+          },
+          centerPoints = {
+            x: (rectangleBox.topLeft.x + rectangleBox.topRight.x) / 2,
+            y: (rectangleBox.topLeft.y + rectangleBox.bottomLeft.y) / 2,
+          },
+          rectangleCenterSpot = {
+            topLeft: {x: centerPoints.x, y: centerPoints.y},
+            topRight: {x: centerPoints.x, y: centerPoints.y},
+            bottomRight: {x: centerPoints.x, y: centerPoints.y},
+            bottomLeft: {x: centerPoints.x, y: centerPoints.y}
+          };
+
+      boundaries.push({displayName:null,rectangleBox,rectangleCenterSpot});
+    });
+    return boundaries;
+  }
 };
