@@ -73,6 +73,8 @@ export default {
 
       this.cropper = new Cropper(this.imageTarget, {
         zoomable: false,
+        autoCropArea: 0,
+        autoCrop: false,
         cropend: (e) => {
           this.emitSpotChange(e, false);
           // const canvas = this.cropper.getCroppedCanvas();
@@ -90,6 +92,7 @@ export default {
       },200);
     },
     emitSpotChange(e, setCropper = true) {
+      this.cropper.crop();
       setCropper && this.cropper.setData(e.cropperCoordinates);
 
       setTimeout(() => {
