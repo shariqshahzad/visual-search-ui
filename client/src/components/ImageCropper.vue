@@ -19,6 +19,7 @@
 
 <script>
 import Cropper from "cropperjs";
+import {dataURLtoFile} from '../utils/utils'
 export default {
   name: "ImageCropper",
   data() {
@@ -60,6 +61,7 @@ export default {
             width: bd.rectangleBox.topRight.x * dimensions.width - x,
             height: bd.rectangleBox.bottomRight.y * dimensions.height - y,
           },
+          boundingPolyIndex:bd.boundingPolyIndex
         };
       });
 
@@ -77,20 +79,11 @@ export default {
         autoCrop: false,
         cropend: (e) => {
           this.emitSpotChange(e, false);
-          // const canvas = this.cropper.getCroppedCanvas();
-          // this.processChange(canvas);
         }
       });
-      this.cropperInitialised = true;
     };
   },
   methods: {
-    processChange(canvas) {
-      setTimeout(() => {
-        this.destination = canvas.toDataURL("image/png");
-        this.$emit("crop", this.destination);
-      },200);
-    },
     emitSpotChange(e, setCropper = true) {
       this.cropper.crop();
       setCropper && this.cropper.setData(e.cropperCoordinates);
@@ -105,7 +98,19 @@ export default {
               bottom: ((cropperData.y + cropperData.height) / naturalHeight)
             }
 
-        this.$emit("crop", coordinates);
+            let cropArea = {
+              coordinates,
+              boundingPolyIndex: e.boundingPolyIndex,
+            }
+
+            if (!setCropper) {
+              // Set cropped image for manual cropped part
+              const canvas = this.cropper.getCroppedCanvas(),
+                  cropAreaImage = dataURLtoFile(canvas.toDataURL("image/png"));
+              cropArea = {...cropArea, cropAreaImage};
+            }
+
+        this.$emit("crop", cropArea);
       },100)
     },
   },

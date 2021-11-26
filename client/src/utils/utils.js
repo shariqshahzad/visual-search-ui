@@ -27,8 +27,8 @@ export const googleResultsToProductMapper = (res) => {
     {}
   );
   product.name = res.product_.displayName_;
-  product.image = product.imagePublicURL[0];
-  product.price = product.price[0];
-  product.hostPageUrl = product.pip[0];
+  product.image = product.imagePublicURL && product.imagePublicURL[0];
+  product.price = product.price && product.price[0];
+  product.hostPageUrl = product.pip && product.pip[0];
   return product;
 };

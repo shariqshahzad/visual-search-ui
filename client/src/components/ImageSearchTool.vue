@@ -106,10 +106,11 @@ export default {
             visualSearchResultsData = bingSearchService.mapResultParams(
               visualSearchResultsData
             );
-          } else
-            visualSearchResultsData = res.productResults.map(
-              googleResultsToProductMapper
+          } else {
+            visualSearchResultsData = res.productSearchResults.map(
+                googleResultsToProductMapper
             );
+          }
 
           if (visualSearchResultsData && visualSearchResultsData.length > 0) {
             this.dataResults = visualSearchResultsData;
@@ -137,7 +138,7 @@ export default {
     },
   },
   mounted() {
-    console.log(this.imageData);
+    // console.log(this.imageData);
   },
   props: {
     results: Array,
