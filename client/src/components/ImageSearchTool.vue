@@ -103,7 +103,7 @@ export default {
         searchService = searchServices[this.searchOption];
       searchService
         .getSearchResults({
-          selectedBrand: BRANDS[this.selectedBrand],
+          selectedBrand: this.selectedBrand,
           isUrl: false,
           payload: file,
           cropArea,
