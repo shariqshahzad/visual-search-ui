@@ -12,7 +12,7 @@
           src="https://assets.wsimgs.com/wsimgs/rk/images/i/202143/0006/images/common/logo.svg"
         />
         <v-row no-gutters>
-          <v-col cols="6" align-self="end">
+          <v-col cols="5" align-self="end">
             <v-text-field
               v-if="radioGrp === 'imageUrl'"
               required
@@ -34,7 +34,7 @@
             ></v-file-input>
           </v-col>
           <v-spacer></v-spacer>
-          <v-col cols="3">
+          <v-col cols="2">
             <v-select
               name="brand"
               required
