@@ -90,13 +90,13 @@ export default {
 
       setTimeout(() => {
         const cropperData = this.cropper.getData(),
-            {naturalWidth, naturalHeight} = this.$refs.uploadedImage,
-            coordinates = {
-              left: (cropperData.x / naturalWidth),
-              right: ((cropperData.x + cropperData.width) / naturalWidth),
-              top: (cropperData.y / naturalHeight),
-              bottom: ((cropperData.y + cropperData.height) / naturalHeight)
-            }
+          { naturalWidth, naturalHeight } = this.$refs.uploadedImage,
+          coordinates = {
+            left: cropperData.x / naturalWidth,
+            right: (cropperData.x + cropperData.width) / naturalWidth,
+            top: cropperData.y / naturalHeight,
+            bottom: (cropperData.y + cropperData.height) / naturalHeight,
+          };
 
             let cropArea = {
               coordinates,
@@ -114,6 +114,7 @@ export default {
       },100)
     },
   },
+
 };
 </script>
 

@@ -1,13 +1,15 @@
 import axios from "axios";
-import {isInt} from "../utils/utils";
-const searchHostBing = 'https://www.westelm.com',
-    apiKey = process.env.VUE_APP_BING_SEARCH_SUBSCRIPTION_KEY;
+import { isInt } from "../utils/utils";
+// const searchHostBing = 'https://www.westelm.com',
+const apiKey = process.env.VUE_APP_BING_SEARCH_SUBSCRIPTION_KEY;
 
 export default {
   async getSearchResults(params) {
-    const {isUrl, payload, cropArea} = params;
+    const { isUrl, payload, cropArea, selectedBrand } = params;
 
-    return isUrl ? this.getURLResults(payload, cropArea) : this.getImageResults(payload, cropArea);
+    return isUrl
+      ? this.getURLResults(payload, cropArea)
+      : this.getImageResults(payload, cropArea, selectedBrand);
   },
   async getURLResults(imageUrl, cropArea) {
     const bodyFormData = this.createBodyForUrl(imageUrl, cropArea);
@@ -23,8 +25,12 @@ export default {
     });
     return res.data; // response
   },
-  async getImageResults(file, cropArea) {
-    const bodyFormData = this.createBodyForFileImage(file, cropArea);
+  async getImageResults(file, cropArea, selectedBrand) {
+    const bodyFormData = this.createBodyForFileImage(
+      file,
+      cropArea,
+      selectedBrand.hostUrl
+    );
     const headers = {
       "Content-Type": `multipart/form-data; boundary=${bodyFormData._boundary}`,
       "Ocp-Apim-Subscription-Key": apiKey,
@@ -37,10 +43,10 @@ export default {
     });
     return res.data;
   },
-  createBodyForUrl(url, cropArea) {
+  createBodyForUrl(url, cropArea, searchHostBing) {
     const bodyFormData = new FormData();
     let imageInfo = {
-      url: `${url}`
+      url: `${url}`,
     };
     if (cropArea?.coordinates)
       imageInfo['cropArea'] = cropArea.coordinates;
@@ -55,7 +61,7 @@ export default {
     );
     return bodyFormData;
   },
-  createBodyForFileImage(file, cropArea) {
+  createBodyForFileImage(file, cropArea, searchHostBing) {
     const bodyFormData = new FormData();
     let imageInfo = {};
     if (cropArea?.coordinates)
@@ -74,64 +80,65 @@ export default {
     bodyFormData.append("image", file);
     return bodyFormData;
   },
-  mapResultParams(result){
+  mapResultParams(result) {
     if (result && result.length)
-      return result.map(res => {
+      return result.map((res) => {
         return {
           name: res.name,
           image: res.contentUrl,
           price: res?.insightsMetadata?.aggregateOffer?.lowPrice || 0,
-          hostPageUrl: res.hostPageUrl
+          hostPageUrl: res.hostPageUrl,
         };
       });
     return [];
   },
   getResultObjectBoundaries(result) {
     let boundaries = [];
-    result.tags.forEach(tag => {
-      if (!tag.displayName)
-        return;
+    result.tags.forEach((tag) => {
+      if (!tag.displayName) return;
       const rectangleBox = tag.boundingBox.queryRectangle,
-          rectangleCenterSpot = tag.boundingBox.displayRectangle,
-          displayName = tag.displayName;
+        rectangleCenterSpot = tag.boundingBox.displayRectangle,
+        displayName = tag.displayName;
 
       if (isInt(rectangleBox.topLeft.x) && isInt(rectangleBox.bottomRight.y))
         return; //
 
-      boundaries.push({rectangleBox,rectangleCenterSpot,displayName})
-    })
-      return boundaries;
+      boundaries.push({ rectangleBox, rectangleCenterSpot, displayName });
+    });
+    return boundaries;
   },
   reduceSearchResults(result) {
-    return result.reduce(
-        (finalResult, tag) => {
-          let actionWithVisualSearchResults = tag.actions?.find(
-              (action) =>
-                  action.actionType == `ProductVisualSearch`
-                || action.actionType == `VisualSearch`
-          );
+    return result.reduce((finalResult, tag) => {
+      let actionWithVisualSearchResults = tag.actions?.find(
+        (action) =>
+          action.actionType == `ProductVisualSearch` ||
+          action.actionType == `VisualSearch`
+      );
+
+      // let actionWithVisualSearchResults = [];
+      // const productVisualSearchResults = tag.actions?.find(
+      //     (action) =>
+      //         action.actionType == `ProductVisualSearch`
+      // );
+      // const visualSearchResults = tag.actions?.find(
+      //     (action) =>
+      //         action.actionType == `VisualSearch`
+      // );
+      // productVisualSearchResults?.data?.value && actionWithVisualSearchResults.push(...productVisualSearchResults.data.value);
+      // visualSearchResults?.data?.value && actionWithVisualSearchResults.push(...visualSearchResults.data.value);
+      if (actionWithVisualSearchResults?.data?.value.length) {
+        const actualProducts = actionWithVisualSearchResults?.data?.value.filter(
+          (value) => {
+            // console.log('-v',value)
+            return value.hostPageUrl.includes("product");
+          }
+        );
+        finalResult.push(...actualProducts);
+      }
+      return finalResult;
 
 
-          // let actionWithVisualSearchResults = [];
-          // const productVisualSearchResults = tag.actions?.find(
-          //     (action) =>
-          //         action.actionType == `ProductVisualSearch`
-          // );
-          // const visualSearchResults = tag.actions?.find(
-          //     (action) =>
-          //         action.actionType == `VisualSearch`
-          // );
-          // productVisualSearchResults?.data?.value && actionWithVisualSearchResults.push(...productVisualSearchResults.data.value);
-          // visualSearchResults?.data?.value && actionWithVisualSearchResults.push(...visualSearchResults.data.value);
-
-          return actionWithVisualSearchResults?.data?.value.length
-              ? actionWithVisualSearchResults?.data?.value.filter(value => {
-                // console.log('-v',value)
-                return value.hostPageUrl.includes("product")
-              })
-              : finalResult;
-        },
-        null
-    )
-  }
+      
+    }, []);
+  },
 };
