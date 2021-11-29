@@ -25,6 +25,7 @@
             <v-file-input
               v-if="radioGrp === 'imageUpload'"
               v-model="files"
+              required
               :rules="imgFileRules"
               accept="image/png, image/jpeg, image/bmp"
               placeholder="Select an Image"
@@ -35,7 +36,10 @@
           <v-spacer></v-spacer>
           <v-col cols="3">
             <v-select
+              name="brand"
+              required
               :items="brands"
+              :rules="brandRules"
               v-model="selectedBrand"
               item-text="name"
               item-value="value"
@@ -143,11 +147,9 @@ export default {
       imageData: null,
       objectBoundaries: [],
       imgFileRules: [
-        (value) =>
-          !value ||
-          value.size <= 2000000 ||
-          "Avatar size should be less than 1 MB!",
+        (v) => v.size <= 2000000 || "Image size should be less than 1 MB!",
       ],
+      brandRules: [(v) => !!v || "Brand is required"],
       rules: [
         (v) => {
           var expression =
@@ -269,7 +271,7 @@ export default {
       this.isLoading = true;
       googleSearchService
         .getSearchResults({
-          selectedBrand : this.selectedBrand,
+          selectedBrand: this.selectedBrand,
           isUrl,
           payload: isUrl ? this.imageUrl : this.files,
         })
