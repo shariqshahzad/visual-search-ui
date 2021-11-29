@@ -269,7 +269,7 @@ export default {
       this.isLoading = true;
       googleSearchService
         .getSearchResults({
-          selectedBrand,
+          selectedBrand : BRANDS[this.selectedBrand],
           isUrl,
           payload: isUrl ? this.imageUrl : this.files,
         })

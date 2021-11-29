@@ -123,13 +123,19 @@ export default {
       // );
       // productVisualSearchResults?.data?.value && actionWithVisualSearchResults.push(...productVisualSearchResults.data.value);
       // visualSearchResults?.data?.value && actionWithVisualSearchResults.push(...visualSearchResults.data.value);
-
-      return actionWithVisualSearchResults?.data?.value.length
-        ? actionWithVisualSearchResults?.data?.value.filter((value) => {
+      if (actionWithVisualSearchResults?.data?.value.length) {
+        const actualProducts = actionWithVisualSearchResults?.data?.value.filter(
+          (value) => {
             // console.log('-v',value)
             return value.hostPageUrl.includes("product");
-          })
-        : finalResult;
-    }, null);
+          }
+        );
+        finalResult.push(...actualProducts);
+      }
+      return finalResult;
+
+
+      
+    }, []);
   },
 };
