@@ -73,11 +73,13 @@ export default {
 
       this.cropper = new Cropper(this.imageTarget, {
         zoomable: false,
+        autoCropArea: 0,
+        autoCrop: false,
         cropend: (e) => {
           this.emitSpotChange(e, false);
           // const canvas = this.cropper.getCroppedCanvas();
           // this.processChange(canvas);
-        }
+        },
       });
       this.cropperInitialised = true;
     };
@@ -87,25 +89,26 @@ export default {
       setTimeout(() => {
         this.destination = canvas.toDataURL("image/png");
         this.$emit("crop", this.destination);
-      },200);
+      }, 200);
     },
     emitSpotChange(e, setCropper = true) {
       setCropper && this.cropper.setData(e.cropperCoordinates);
 
       setTimeout(() => {
         const cropperData = this.cropper.getData(),
-            {naturalWidth, naturalHeight} = this.$refs.uploadedImage,
-            coordinates = {
-              left: (cropperData.x / naturalWidth),
-              right: ((cropperData.x + cropperData.width) / naturalWidth),
-              top: (cropperData.y / naturalHeight),
-              bottom: ((cropperData.y + cropperData.height) / naturalHeight)
-            }
+          { naturalWidth, naturalHeight } = this.$refs.uploadedImage,
+          coordinates = {
+            left: cropperData.x / naturalWidth,
+            right: (cropperData.x + cropperData.width) / naturalWidth,
+            top: cropperData.y / naturalHeight,
+            bottom: (cropperData.y + cropperData.height) / naturalHeight,
+          };
 
         this.$emit("crop", coordinates);
-      },100)
+      }, 100);
     },
   },
+
 };
 </script>
 

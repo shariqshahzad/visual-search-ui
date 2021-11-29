@@ -47,6 +47,7 @@ import ImageCropper from "./ImageCropper.vue";
 import bingSearchService from "../services/bingSearch.service";
 import gooogleSearchService from "../services/googleSearch.service";
 import { googleResultsToProductMapper } from "../utils/utils";
+import { mapMutations,mapGetters } from "vuex";
 // import Filters from "./Filters";
 
 import { reduceBingSearchResults } from "../utils/utils";
@@ -84,6 +85,10 @@ export default {
         return true;
       });
     },
+    ...mapGetters([
+      "selectedBrand",
+      // ...
+    ]),
   },
   methods: {
     onImageCrop(cropArea) {
@@ -96,7 +101,12 @@ export default {
         },
         searchService = searchServices[this.searchOption];
       searchService
-        .getSearchResults({ isUrl: false, payload: file, cropArea })
+        .getSearchResults({
+          selectedBrand: BRANDS[this.selectedBrand],
+          isUrl: false,
+          payload: file,
+          cropArea,
+        })
         .then((res) => {
           let visualSearchResultsData;
           if ("bing" === this.searchOption) {

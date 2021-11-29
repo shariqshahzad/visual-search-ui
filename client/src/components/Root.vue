@@ -12,7 +12,7 @@
           src="https://assets.wsimgs.com/wsimgs/rk/images/i/202143/0006/images/common/logo.svg"
         />
         <v-row no-gutters>
-          <v-col cols="7" align-self="end">
+          <v-col cols="6" align-self="end">
             <v-text-field
               v-if="radioGrp === 'imageUrl'"
               required
@@ -32,49 +32,36 @@
               label="Image"
             ></v-file-input>
           </v-col>
-
-          <v-col cols="5">
-            <v-row>
-              <v-col cols="7">
-                <v-radio-group class="ml-3 mt-2" v-model="radioGrp" row>
-                  <v-radio
-                    chec
-                    key="imageUpload"
-                    label="Upload Image"
-                    value="imageUpload"
-                  ></v-radio>
-                  <v-radio
-                    disabled
-                    key="imageUrl"
-                    label="Image URL"
-                    value="imageUrl"
-                  ></v-radio>
-                </v-radio-group>
-              </v-col>
-              <v-col cols="5">
-                <v-row class="mt-1">
-                  <v-btn
-                    @click="onBingSearch"
-                    type="submit"
-                    dark
-                    class="float-right mr-3"
-                    elevation="2"
-                  >
-                    <v-icon>mdi-microsoft-bing</v-icon>
-                    Bing
-                  </v-btn>
-                  <v-btn
-                    @click="onGoogleSearch"
-                    type="submit"
-                    dark
-                    class="float-right mr-3"
-                    elevation="2"
-                  >
-                    <v-icon>mdi-google</v-icon>Google
-                  </v-btn>
-                </v-row>
-              </v-col>
-            </v-row>
+          <v-spacer></v-spacer>
+          <v-col cols="3">
+            <v-select
+              :items="brands"
+              v-model="selectedBrand"
+              item-text="name"
+              item-value="value"
+              label="Brand"
+            ></v-select>
+          </v-col>
+          <v-col cols="2">
+            <v-btn
+              @click="onBingSearch"
+              type="submit"
+              dark
+              class="float-right mr-3"
+              elevation="2"
+            >
+              <v-icon>mdi-microsoft-bing</v-icon>
+              Bing
+            </v-btn>
+            <v-btn
+              @click="onGoogleSearch"
+              type="submit"
+              dark
+              class="float-right mr-3"
+              elevation="2"
+            >
+              <v-icon>mdi-google</v-icon>Google
+            </v-btn>
           </v-col>
         </v-row>
       </v-form>
@@ -135,6 +122,8 @@ import bingSearchService from "../services/bingSearch.service";
 import googleSearchService from "../services/googleSearch.service";
 import ImageSearchTool from "./ImageSearchTool.vue";
 import { googleResultsToProductMapper } from "../utils/utils";
+import { BRANDS } from "../constants/constants";
+import { mapMutations, mapGetters } from "vuex";
 
 export default {
   components: {
@@ -142,6 +131,11 @@ export default {
   },
   data() {
     return {
+      selectedBrand: null,
+      brands: Object.keys(BRANDS).map((key) => ({
+        name: BRANDS[key].name,
+        value: key,
+      })),
       radioGrp: "imageUpload",
       searchOption: null,
       files: [],
@@ -175,12 +169,18 @@ export default {
       errorDetail: "",
     };
   },
+
   computed: {
+    // ...mapGetters([
+    //   "selectedBrand",
+    //   // ...
+    // ]),
     imageProxyUrl: function () {
       return `${process.env.VUE_APP_PROXY_SERVER_URL}/${this.imageUrl}`;
     },
   },
   methods: {
+    ...mapMutations(["setSelectedBrand"]),
     // onChangeInputSelection() {
     //   console.log(this.radioGrp);
     // },
@@ -190,11 +190,13 @@ export default {
     },
 
     onBingSearch() {
+      this.setSelectedBrand(BRANDS[this.selectedBrand]);
       this.searchOption = "bing";
       this.objectBoundaries = [];
       this.bingSearch(this.radioGrp === "imageUrl");
     },
     onGoogleSearch() {
+      this.setSelectedBrand(BRANDS[this.selectedBrand]);
       this.searchOption = "google";
       this.objectBoundaries = [];
       this.googleSearch(this.radioGrp === "imageUrl");
@@ -208,6 +210,7 @@ export default {
 
       bingSearchService
         .getSearchResults({
+          selectedBrand: BRANDS[this.selectedBrand],
           isUrl,
           payload: isUrl ? this.imageUrl : this.files,
         })
@@ -266,6 +269,7 @@ export default {
       this.isLoading = true;
       googleSearchService
         .getSearchResults({
+          selectedBrand,
           isUrl,
           payload: isUrl ? this.imageUrl : this.files,
         })
@@ -274,7 +278,10 @@ export default {
             googleResultsToProductMapper
           );
           if (visualSearchResultsData && visualSearchResultsData.length > 0) {
-            this.objectBoundaries = googleSearchService.getResultObjectBoundaries(res.productGroupedResults);
+            this.objectBoundaries =
+              googleSearchService.getResultObjectBoundaries(
+                res.productGroupedResults
+              );
 
             this.resultsData = visualSearchResultsData;
             this.filters.priceRange = {
