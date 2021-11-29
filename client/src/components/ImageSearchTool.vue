@@ -47,7 +47,8 @@ import ImageCropper from "./ImageCropper.vue";
 import bingSearchService from "../services/bingSearch.service";
 import gooogleSearchService from "../services/googleSearch.service";
 import { googleResultsToProductMapper } from "../utils/utils";
-import { mapMutations,mapGetters } from "vuex";
+import { BRANDS } from "../constants/constants";
+import { mapMutations, mapGetters } from "vuex";
 // import Filters from "./Filters";
 
 import { reduceBingSearchResults } from "../utils/utils";
