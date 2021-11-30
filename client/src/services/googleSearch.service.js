@@ -1,4 +1,5 @@
 import axios from "axios";
+import {googleResultsToProductMapper} from "../utils/utils";
 // const endpoint = process.env.VUE_APP_SERVER_URL + '/visual-search/google'
 const serverPath = process.env.VUE_APP_SERVER_URL;
 let endpoint = null;
@@ -29,11 +30,12 @@ export default {
   },
   mapResultParams(result) {
     const productSearchResults =
-      result.responses_[0].productSearchResults_.results_;
-    const productGroupedResults =
-      result.responses_[0].productSearchResults_.productGroupedResults_;
+      result.responses_[0].productSearchResults_.results_,
+      productGroupedResults =
+      result.responses_[0].productSearchResults_.productGroupedResults_,
+      categorizeSearchResults = this.categorizeSearchResults(productSearchResults);
 
-    return { productSearchResults, productGroupedResults };
+    return { productSearchResults, productGroupedResults, categorizeSearchResults };
     // let productResults;
     // if (result?.responses_[0]?.productSearchResults_?.results_?.length) {
     //   productResults = result.responses_[0].productSearchResults_.results_.map(
@@ -82,4 +84,49 @@ export default {
     });
     return boundaries;
   },
+  getResultsForCroppedArea(params) {
+    if (params.cropArea && (typeof params.cropArea.boundingPolyIndex !== "undefined") && this.searchResults.productGroupedResults?.length) {
+      const productSearchResults = this.searchResults.productGroupedResults[params.cropArea.boundingPolyIndex]?.results_,
+          productGroupedResults = this.searchResults.productGroupedResults,
+          categorizeSearchResults = this.categorizeSearchResults(productSearchResults);
+      return { productSearchResults , productGroupedResults, categorizeSearchResults };
+    }
+    return null;
+  },
+  categorizeSearchResults(searchResult) {
+    let categorizeSearchResults = [];
+    if (searchResult.length) {
+      searchResult.forEach(result => {
+        const product = googleResultsToProductMapper(result);
+        if (product.category) {
+          const dataObj = {
+            name: product.name,
+            image: product.image,
+            price: product.price,
+            hostPageUrl: product.hostPageUrl,
+          };
+          if (!categorizeSearchResults.length) {
+            categorizeSearchResults.push({
+              categoryName: product.category,
+              data: [dataObj],
+              previewData: [dataObj]
+            });
+          } else {
+            let categoryResult = categorizeSearchResults.find(r => r.categoryName === product.category);
+            if (categoryResult) {
+              categoryResult.data.push(dataObj);
+              categoryResult.previewData.length < 3 && categoryResult.previewData.push(dataObj);
+            } else {
+              categorizeSearchResults.push({
+                categoryName: product.category,
+                data: [dataObj],
+                previewData: [dataObj]
+              });
+            }
+          }
+        }
+      });
+    }
+    return categorizeSearchResults;
+  }
 };
