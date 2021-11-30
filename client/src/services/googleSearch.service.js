@@ -18,7 +18,7 @@ export default {
       const file = params.cropArea?.cropAreaImage ?? payload;
       headers = { "Content-Type": `multipart/form-data;` };
       body = new FormData();
-      body.append("file", payload);
+      body.append("file", file);
       body.append("brand", selectedBrand);
       endpoint = serverPath + "/upload";
     } else {
