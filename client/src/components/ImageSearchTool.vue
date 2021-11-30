@@ -9,31 +9,7 @@
       <!--      <filters :min="defaultFilters.priceRange.min" :max="defaultFilters.priceRange.max" @emitPriceRange="emitPriceRange" />-->
     </v-col>
     <v-col cols="8">
-      <v-row
-        v-if="isLoading"
-        class="fill-height"
-        align-content="center"
-        justify="center"
-      >
-        <v-col class="text-subtitle-1 text-center" cols="12">
-          Getting your results
-        </v-col>
-        <v-col cols="6">
-          <v-progress-linear
-            indeterminate
-            rounded
-            height="6"
-          ></v-progress-linear>
-        </v-col>
-      </v-row>
-      <v-row v-if="!isLoading">
-        <v-col v-for="(data, index) in filteredResult" :key="index" cols="4">
-          <v-card @click="onClickCard(data.hostPageUrl)">
-            <v-img :src="data.image" height="auto"></v-img>
-            <v-card-title height="40px"> {{ data.name }} </v-card-title>
-          </v-card>
-        </v-col>
-      </v-row>
+      <CategoryProductDisplay :data="dummyCategoryData" />
     </v-col>
   </v-row>
 </template>
@@ -47,6 +23,7 @@ import ImageCropper from "./ImageCropper.vue";
 import bingSearchService from "../services/bingSearch.service";
 import gooogleSearchService from "../services/googleSearch.service";
 import { googleResultsToProductMapper } from "../utils/utils";
+import CategoryProductDisplay from "./CategoryProductDisplay.vue";
 import { BRANDS } from "../constants/constants";
 import { mapMutations, mapGetters } from "vuex";
 // import Filters from "./Filters";
@@ -56,6 +33,7 @@ import { reduceBingSearchResults } from "../utils/utils";
 export default {
   components: {
     ImageCropper,
+    CategoryProductDisplay,
     // Filters
   },
   data() {
@@ -88,6 +66,7 @@ export default {
     },
     ...mapGetters([
       "selectedBrand",
+      "dummyCategoryData",
       // ...
     ]),
   },
@@ -119,7 +98,7 @@ export default {
             );
           } else {
             visualSearchResultsData = res.productSearchResults.map(
-                googleResultsToProductMapper
+              googleResultsToProductMapper
             );
           }
 
