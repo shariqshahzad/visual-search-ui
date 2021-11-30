@@ -48,7 +48,8 @@ export default {
     let imageInfo = {
       url: `${url}`,
     };
-    if (cropArea) imageInfo["cropArea"] = cropArea;
+    if (cropArea?.coordinates)
+      imageInfo['cropArea'] = cropArea.coordinates;
     bodyFormData.append(
       "knowledgeRequest",
       JSON.stringify({
@@ -63,7 +64,9 @@ export default {
   createBodyForFileImage(file, cropArea, searchHostBing) {
     const bodyFormData = new FormData();
     let imageInfo = {};
-    if (cropArea) imageInfo["cropArea"] = cropArea;
+    if (cropArea?.coordinates)
+      imageInfo['cropArea'] = cropArea.coordinates;
+
 
     bodyFormData.append(
       "knowledgeRequest",

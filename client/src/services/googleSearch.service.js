@@ -1,18 +1,25 @@
 import axios from "axios";
-import {googleResultsToProductMapper} from "../utils/utils";
+import {googleResultsToProductMapper} from '../utils/utils';
 // const endpoint = process.env.VUE_APP_SERVER_URL + '/visual-search/google'
 const serverPath = process.env.VUE_APP_SERVER_URL;
 let endpoint = null;
 
 export default {
+  searchResults: [],
   async getSearchResults(params) {
     const { isUrl, payload, selectedBrand } = params;
+
+    const resultsForCroppedArea = this.getResultsForCroppedArea(params);
+    if (resultsForCroppedArea) return resultsForCroppedArea;
+
+
     let body = {},
       headers = {};
     if (!isUrl) {
+      const file = params.cropArea?.cropAreaImage ?? payload;
       headers = { "Content-Type": `multipart/form-data;` };
       body = new FormData();
-      body.append("file", payload);
+      body.append("file", file);
       body.append("brand", selectedBrand);
       endpoint = serverPath + "/upload";
     } else {
@@ -26,7 +33,10 @@ export default {
       data: body,
       headers: headers,
     });
-    return this.mapResultParams(res.data);
+    const result = this.mapResultParams(res.data);
+    if (!params.cropArea) // Avoid setting default search results for cropped area search
+      this.searchResults = result;
+    return result;
   },
   mapResultParams(result) {
     const productSearchResults =
@@ -80,7 +90,7 @@ export default {
           bottomLeft: { x: centerPoints.x, y: centerPoints.y },
         };
 
-      boundaries.push({ displayName: null, rectangleBox, rectangleCenterSpot });
+      boundaries.push({displayName:null,rectangleBox,rectangleCenterSpot,boundingPolyIndex:i});
     });
     return boundaries;
   },
@@ -127,6 +137,7 @@ export default {
         }
       });
     }
+    console.log('categorizeSearchResults',categorizeSearchResults)
     return categorizeSearchResults;
   }
 };

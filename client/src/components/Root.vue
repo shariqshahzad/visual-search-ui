@@ -46,7 +46,7 @@
               label="Brand"
             ></v-select>
           </v-col>
-          <v-col cols="2">
+          <v-col cols="3">
             <v-btn
               @click="onBingSearch"
               type="submit"
