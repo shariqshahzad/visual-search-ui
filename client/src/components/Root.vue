@@ -109,13 +109,15 @@
           >
           <v-spacer></v-spacer>
         </v-toolbar>
-        <ImageSearchTool
-          :results="resultsData"
-          :imageData="imageData"
-          :objectBoundaries="objectBoundaries"
-          :defaultFilters="this.filters"
-          :searchOption="searchOption"
-        />
+        <div style="padding:10px; overflow:hidden">
+          <ImageSearchTool
+            :results="resultsData"
+            :imageData="imageData"
+            :objectBoundaries="objectBoundaries"
+            :defaultFilters="this.filters"
+            :searchOption="searchOption"
+          />
+        </div>
       </v-card>
     </v-dialog>
   </v-app>
