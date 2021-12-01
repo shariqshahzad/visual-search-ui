@@ -139,7 +139,7 @@ export default {
             let categoryResult = categorizeSearchResults.find(r => r.categoryName === product.category);
             if (categoryResult) {
               categoryResult.data.push(dataObj);
-              categoryResult.previewData.length < 3 && categoryResult.previewData.push(dataObj);
+              categoryResult.previewData.length < 15 && categoryResult.previewData.push(dataObj);
             } else {
               categoryPusher();
             }
