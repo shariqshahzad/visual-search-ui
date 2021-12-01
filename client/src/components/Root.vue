@@ -114,6 +114,7 @@
             :results="resultsData"
             :imageData="imageData"
             :objectBoundaries="objectBoundaries"
+            :categorizeSearchResults="categorizeSearchResults"
             :defaultFilters="this.filters"
             :searchOption="searchOption"
           />
@@ -161,6 +162,7 @@ export default {
         },
       ],
       resultsData: [],
+      categorizeSearchResults: [],
       imageUrl: "",
       filters: {
         priceRange: {
@@ -286,6 +288,8 @@ export default {
               googleSearchService.getResultObjectBoundaries(
                 res.productGroupedResults
               );
+
+            this.categorizeSearchResults = res.categorizeSearchResults;
 
             this.resultsData = visualSearchResultsData;
             this.filters.priceRange = {

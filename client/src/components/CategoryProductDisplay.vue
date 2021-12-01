@@ -15,7 +15,7 @@
     </v-row>
     <v-row v-for="(category, index) in data" :key="index">
       <v-col cols="12">
-        <span class="text-h4 font-weight-medium">
+        <span class="text-h4 font-weight-medium text-capitalize">
           {{ category.categoryName }} :</span
         >
         <a

@@ -9,7 +9,7 @@
       <!--      <filters :min="defaultFilters.priceRange.min" :max="defaultFilters.priceRange.max" @emitPriceRange="emitPriceRange" />-->
     </v-col>
     <v-col cols="8">
-      <CategoryProductDisplay :data="dummyCategoryData" />
+      <CategoryProductDisplay :data="this.resultsByCategories" />
     </v-col>
   </v-row>
 </template>
@@ -39,6 +39,7 @@ export default {
   data() {
     return {
       dataResults: this.results,
+      resultsByCategories: this.categorizeSearchResults,
       isLoading: false,
       cropper: {},
       destination: {},
@@ -66,7 +67,7 @@ export default {
     },
     ...mapGetters([
       "selectedBrand",
-      "dummyCategoryData",
+      // "dummyCategoryData",
       // ...
     ]),
   },
@@ -88,6 +89,7 @@ export default {
           cropArea,
         })
         .then((res) => {
+          this.resultsByCategories = res.categorizeSearchResults;
           let visualSearchResultsData;
           if ("bing" === this.searchOption) {
             visualSearchResultsData = bingSearchService.reduceSearchResults(
@@ -135,6 +137,7 @@ export default {
     imageData: Object,
     objectBoundaries: Array,
     searchOption: String,
+    categorizeSearchResults: Array,
   },
 };
 </script>

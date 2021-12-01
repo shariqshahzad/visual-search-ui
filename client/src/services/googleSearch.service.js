@@ -1,5 +1,6 @@
 import axios from "axios";
 import {googleResultsToProductMapper} from '../utils/utils';
+import { BRANDS } from "../constants/constants";
 // const endpoint = process.env.VUE_APP_SERVER_URL + '/visual-search/google'
 const serverPath = process.env.VUE_APP_SERVER_URL;
 let endpoint = null;
@@ -7,7 +8,17 @@ let endpoint = null;
 export default {
   searchResults: [],
   async getSearchResults(params) {
-    const { isUrl, payload, selectedBrand } = params;
+    let { isUrl, payload, selectedBrand } = params;
+
+    if(typeof selectedBrand === 'object') {
+      for(let key in BRANDS){
+        let brand = BRANDS[key];
+        if (brand.hostUrl === selectedBrand.hostUrl){
+          selectedBrand = key;
+          break;
+        }
+      }
+    }
 
     const resultsForCroppedArea = this.getResultsForCroppedArea(params);
     if (resultsForCroppedArea) return resultsForCroppedArea;
@@ -115,29 +126,28 @@ export default {
             price: product.price,
             hostPageUrl: product.hostPageUrl,
           };
-          if (!categorizeSearchResults.length) {
+          const categoryPusher = () => {
             categorizeSearchResults.push({
               categoryName: product.category,
               data: [dataObj],
               previewData: [dataObj]
             });
+          }
+          if (!categorizeSearchResults.length) {
+            categoryPusher();
           } else {
             let categoryResult = categorizeSearchResults.find(r => r.categoryName === product.category);
             if (categoryResult) {
               categoryResult.data.push(dataObj);
               categoryResult.previewData.length < 3 && categoryResult.previewData.push(dataObj);
             } else {
-              categorizeSearchResults.push({
-                categoryName: product.category,
-                data: [dataObj],
-                previewData: [dataObj]
-              });
+              categoryPusher();
             }
           }
         }
       });
     }
-    console.log('categorizeSearchResults',categorizeSearchResults)
+
     return categorizeSearchResults;
   }
 };
