@@ -28,25 +28,42 @@
           "
           @click.prevent="(e) => onClickViewAll(category)"
         >
-          View All</a
-        >
+          View All<v-icon>mdi-arrow-right</v-icon>
+        </a>
       </v-col>
-      <v-col
-        cols="4"
-        v-for="(product, index) in category.previewData"
-        :key="index"
-      >
-        <v-card @click="onClickCard(product.hostPageUrl)">
-          <v-img :src="product.image" height="auto"></v-img>
-          <v-card-title height="40px"> {{ product.name }} </v-card-title>
-        </v-card>
+      <v-col cols="12">
+        <v-sheet class="mx-auto" elevation="8" max-width="1100">
+          <v-slide-group
+            class="pa-4"
+            active-class="success"
+          >
+            <v-slide-item
+              v-for="(product, index) in category.previewData"
+              :key="index"
+            >
+              <v-card
+                class="ma-4"
+                @click="onClickCard(product.hostPageUrl)"
+                height="400"
+                width="300"
+              >
+                <!-- <v-row class="fill-height"> -->
+                  <v-img :src="product.image" height="200" max-width="300"></v-img>
+                  <v-card-title height="40px">
+                    {{ product.name }}
+                  </v-card-title>
+                <!-- </v-row> -->
+              </v-card>
+            </v-slide-item>
+          </v-slide-group>
+        </v-sheet>
       </v-col>
     </v-row>
     <v-dialog v-if="showMore" v-model="showMore" max-width="auto">
       <v-card min-height="800">
         <v-toolbar dark color="primary">
           <v-btn icon dark @click="showMore = false">
-            <v-icon>mdi-keyboard-backspace</v-icon>
+            <v-icon>mdi-arrow-left</v-icon>
           </v-btn>
           <v-toolbar-title
             ><span class="text-capitalize">
