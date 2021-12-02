@@ -15,12 +15,12 @@
     </v-row>
     <v-row v-for="(category, index) in data" :key="index">
       <v-col cols="12">
-        <span class="text-h4 font-weight-medium text-capitalize">
+        <span class="text-h5 font-weight-medium text-capitalize">
           {{ category.categoryName }} :</span
         >
         <a
           class="
-            text-h4
+            text-h5
             grey--text
             text-darken-1
             font-weight-medium
@@ -81,7 +81,7 @@
             >
               <v-card @click="onClickCard(product.hostPageUrl)">
                 <v-img :src="product.image" height="auto"></v-img>
-                <v-card-title height="40px"> {{ product.name }} </v-card-title>
+                <v-card-title height="30px"> {{ product.name }} </v-card-title>
               </v-card>
             </v-col>
           </v-row>
@@ -105,8 +105,8 @@ export default {
     };
   },
   methods: {
-    onClickCard() {
-      console.log("here");
+    onClickCard(url) {
+      window.open(url);
     },
     onClickViewAll(category) {
       this.selectedCategoryFullData = category.data;
