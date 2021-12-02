@@ -44,7 +44,7 @@
               <v-card
                 class="ma-4"
                 @click="onClickCard(product.hostPageUrl)"
-                height="400"
+                height="320"
                 width="300"
               >
                 <!-- <v-row class="fill-height"> -->
