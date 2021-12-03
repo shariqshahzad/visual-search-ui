@@ -20,8 +20,8 @@ export default {
       }
     }
 
-    const resultsForCroppedArea = this.getResultsForCroppedArea(params);
-    if (resultsForCroppedArea) return resultsForCroppedArea;
+    // const resultsForCroppedArea = this.getResultsForCroppedArea(params);
+    // if (resultsForCroppedArea) return resultsForCroppedArea;
 
 
     let body = {},
@@ -110,6 +110,7 @@ export default {
       const productSearchResults = this.searchResults.productGroupedResults[params.cropArea.boundingPolyIndex]?.results_,
           productGroupedResults = this.searchResults.productGroupedResults,
           categorizeSearchResults = this.categorizeSearchResults(productSearchResults);
+      // console.log('-l',this.searchResults.productGroupedResults[params.cropArea.boundingPolyIndex]?.objectAnnotations_)
       return { productSearchResults , productGroupedResults, categorizeSearchResults };
     }
     return null;

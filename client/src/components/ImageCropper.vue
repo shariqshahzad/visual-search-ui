@@ -108,12 +108,12 @@ export default {
           boundingPolyIndex: e.boundingPolyIndex,
         };
 
-        if (!setCropper) {
+        // if (!setCropper) {
           // Set cropped image for manual cropped part
           const canvas = this.cropper.getCroppedCanvas(),
             cropAreaImage = dataURLtoFile(canvas.toDataURL("image/png"));
           cropArea = { ...cropArea, cropAreaImage };
-        }
+        // }
 
         this.$emit("crop", cropArea);
       }, 100);
