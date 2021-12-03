@@ -1,7 +1,12 @@
 <template>
   <div>
     <div class="img-container ma-2">
-      <img ref="uploadedImage" :src="imageData.src" crossorigin />
+      <img
+        ref="uploadedImage"
+        style="max-width: 100%"
+        :src="imageData.src"
+        crossorigin
+      />
       <span
         @click="emitSpotChange(btn)"
         v-for="(btn, index) in hotspotButtons"
@@ -19,7 +24,7 @@
 
 <script>
 import Cropper from "cropperjs";
-import {dataURLtoFile} from '../utils/utils'
+import { dataURLtoFile } from "../utils/utils";
 export default {
   name: "ImageCropper",
   data() {
@@ -61,7 +66,7 @@ export default {
             width: bd.rectangleBox.topRight.x * dimensions.width - x,
             height: bd.rectangleBox.bottomRight.y * dimensions.height - y,
           },
-          boundingPolyIndex:bd.boundingPolyIndex
+          boundingPolyIndex: bd.boundingPolyIndex,
         };
       });
 
@@ -79,7 +84,7 @@ export default {
         autoCrop: false,
         cropend: (e) => {
           this.emitSpotChange(e, false);
-        }
+        },
       });
     };
   },
@@ -98,23 +103,22 @@ export default {
             bottom: (cropperData.y + cropperData.height) / naturalHeight,
           };
 
-            let cropArea = {
-              coordinates,
-              boundingPolyIndex: e.boundingPolyIndex,
-            }
+        let cropArea = {
+          coordinates,
+          boundingPolyIndex: e.boundingPolyIndex,
+        };
 
-            if (!setCropper) {
-              // Set cropped image for manual cropped part
-              const canvas = this.cropper.getCroppedCanvas(),
-                  cropAreaImage = dataURLtoFile(canvas.toDataURL("image/png"));
-              cropArea = {...cropArea, cropAreaImage};
-            }
+        if (!setCropper) {
+          // Set cropped image for manual cropped part
+          const canvas = this.cropper.getCroppedCanvas(),
+            cropAreaImage = dataURLtoFile(canvas.toDataURL("image/png"));
+          cropArea = { ...cropArea, cropAreaImage };
+        }
 
         this.$emit("crop", cropArea);
-      },100)
+      }, 100);
     },
   },
-
 };
 </script>
 

@@ -9,7 +9,10 @@
       <!--      <filters :min="defaultFilters.priceRange.min" :max="defaultFilters.priceRange.max" @emitPriceRange="emitPriceRange" />-->
     </v-col>
     <v-col cols="8">
-      <CategoryProductDisplay :data="this.resultsByCategories" />
+      <CategoryProductDisplay
+        :isLoading="isLoading"
+        :data="resultsByCategories"
+      />
     </v-col>
   </v-row>
 </template>
