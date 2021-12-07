@@ -1,20 +1,5 @@
 <template>
   <div>
-    <v-row
-      v-if="isLoading"
-      class="fill-height"
-      align-content="center"
-      justify="center"
-      style="position: relative; top: 10rem"
-    >
-      <v-col class="text-subtitle-1 text-center" cols="12">
-        Getting your results
-      </v-col>
-      <v-col cols="6">
-        <v-progress-linear indeterminate rounded height="6"></v-progress-linear>
-      </v-col>
-    </v-row>
-    <div v-if="!isLoading">
       <v-row v-for="(category, index) in data" :key="index">
         <v-col cols="12">
           <span class="text-h5 font-weight-medium text-capitalize">
@@ -62,7 +47,6 @@
           </v-sheet>
         </v-col>
       </v-row>
-    </div>
 
     <v-dialog v-if="showMore" v-model="showMore" max-width="auto">
       <v-card min-height="800">
@@ -100,7 +84,6 @@
 export default {
   props: {
     data: Array,
-    isLoading: Boolean,
   },
   data() {
     return {

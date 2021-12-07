@@ -8,11 +8,27 @@
       />
       <!--      <filters :min="defaultFilters.priceRange.min" :max="defaultFilters.priceRange.max" @emitPriceRange="emitPriceRange" />-->
     </v-col>
-    <v-col cols="8">
+
+    <v-row
+        v-if="isLoading"
+        class="fill-height"
+        align-content="center"
+        justify="center"
+    >
+      <v-col class="text-subtitle-1 text-center" cols="12">
+        Getting your results
+      </v-col>
+      <v-col cols="6">
+        <v-progress-linear indeterminate rounded height="6"></v-progress-linear>
+      </v-col>
+    </v-row>
+    <v-col cols="8" v-else>
       <CategoryProductDisplay
+        v-if="hasCategory"
         :isLoading="isLoading"
         :data="resultsByCategories"
       />
+      <ProductDisplay v-if="!hasCategory" :products="filteredResult" />
     </v-col>
   </v-row>
 </template>
@@ -27,6 +43,7 @@ import bingSearchService from "../services/bingSearch.service";
 import gooogleSearchService from "../services/googleSearch.service";
 import { googleResultsToProductMapper } from "../utils/utils";
 import CategoryProductDisplay from "./CategoryProductDisplay.vue";
+import ProductDisplay from "./ProductDisplay.vue";
 import { BRANDS } from "../constants/constants";
 import { mapMutations, mapGetters } from "vuex";
 // import Filters from "./Filters";
@@ -35,6 +52,7 @@ import { reduceBingSearchResults } from "../utils/utils";
 
 export default {
   components: {
+    ProductDisplay,
     ImageCropper,
     CategoryProductDisplay,
     // Filters
@@ -47,6 +65,7 @@ export default {
       cropper: {},
       destination: {},
       image: {},
+      hasCategory: true,
       filters: {
         priceRangeSelection: {
           min: null,
@@ -76,6 +95,7 @@ export default {
   },
   methods: {
     onImageCrop(cropArea) {
+
       // const file = dataURLtoFile(value);
       const file = this.imageData.files;
       this.isLoading = true;
@@ -92,6 +112,7 @@ export default {
           cropArea,
         })
         .then((res) => {
+          this.hasCategory = false;
           this.resultsByCategories = res.categorizeSearchResults;
           let visualSearchResultsData;
           if ("bing" === this.searchOption) {
@@ -121,6 +142,7 @@ export default {
         })
         .finally(() => {
           this.isLoading = false;
+          console.log('isLoading',this.isLoading)
         });
     },
     emitPriceRange(range) {
@@ -133,6 +155,7 @@ export default {
     },
   },
   mounted() {
+    this.hasCategory = true;
     // console.log(this.imageData);
   },
   props: {

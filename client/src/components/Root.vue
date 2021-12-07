@@ -321,7 +321,6 @@ export default {
         .catch((e) => {
           this.isError = true;
           this.errorDetail = "Something Went Wrong";
-          console.log(e);
         })
         .finally(() => {
           this.isLoading = false;
