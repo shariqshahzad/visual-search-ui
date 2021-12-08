@@ -109,13 +109,16 @@
           >
           <v-spacer></v-spacer>
         </v-toolbar>
-        <ImageSearchTool
-          :results="resultsData"
-          :imageData="imageData"
-          :objectBoundaries="objectBoundaries"
-          :defaultFilters="this.filters"
-          :searchOption="searchOption"
-        />
+        <div style="padding:10px; overflow:hidden">
+          <ImageSearchTool
+            :results="resultsData"
+            :imageData="imageData"
+            :objectBoundaries="objectBoundaries"
+            :categorizeSearchResults="categorizeSearchResults"
+            :defaultFilters="this.filters"
+            :searchOption="searchOption"
+          />
+        </div>
       </v-card>
     </v-dialog>
   </v-app>
@@ -159,6 +162,7 @@ export default {
         },
       ],
       resultsData: [],
+      categorizeSearchResults: [],
       imageUrl: "",
       filters: {
         priceRange: {
@@ -284,6 +288,8 @@ export default {
               googleSearchService.getResultObjectBoundaries(
                 res.productGroupedResults
               );
+
+            this.categorizeSearchResults = res.categorizeSearchResults;
 
             this.resultsData = visualSearchResultsData;
             this.filters.priceRange = {

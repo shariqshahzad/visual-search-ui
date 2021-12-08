@@ -1,5 +1,5 @@
 export const BRANDS = {
-    WS: {
+    WE: {
         hostUrl : "https://www.westelm.com/",
         name: "West Elm"
     },
