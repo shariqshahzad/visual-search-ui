@@ -1,5 +1,5 @@
 import axios from "axios";
-import {googleResultsToProductMapper} from '../utils/utils';
+import { googleResultsToProductMapper } from "../utils/utils";
 import { BRANDS } from "../constants/constants";
 // const endpoint = process.env.VUE_APP_SERVER_URL + '/visual-search/google'
 const serverPath = process.env.VUE_APP_SERVER_URL;
@@ -10,10 +10,10 @@ export default {
   async getSearchResults(params) {
     let { isUrl, payload, selectedBrand } = params;
 
-    if(typeof selectedBrand === 'object') {
-      for(let key in BRANDS){
+    if (typeof selectedBrand === "object") {
+      for (let key in BRANDS) {
         let brand = BRANDS[key];
-        if (brand.hostUrl === selectedBrand.hostUrl){
+        if (brand.hostUrl === selectedBrand.hostUrl) {
           selectedBrand = key;
           break;
         }
@@ -22,7 +22,6 @@ export default {
 
     const resultsForCroppedArea = this.getResultsForCroppedArea(params);
     if (resultsForCroppedArea) return resultsForCroppedArea;
-
 
     let body = {},
       headers = {};
@@ -45,18 +44,25 @@ export default {
       headers: headers,
     });
     const result = this.mapResultParams(res.data);
-    if (!params.cropArea) // Avoid setting default search results for cropped area search
+    if (!params.cropArea)
+      // Avoid setting default search results for cropped area search
       this.searchResults = result;
     return result;
   },
   mapResultParams(result) {
     const productSearchResults =
-      result.responses_[0].productSearchResults_.results_,
+        result.responses_[0].productSearchResults_.results_,
       productGroupedResults =
-      result.responses_[0].productSearchResults_.productGroupedResults_,
-      categorizeSearchResults = this.categorizeSearchResults(productSearchResults);
+        result.responses_[0].productSearchResults_.productGroupedResults_,
+      categorizeSearchResults = this.categorizeSearchResults(
+        productSearchResults
+      );
 
-    return { productSearchResults, productGroupedResults, categorizeSearchResults };
+    return {
+      productSearchResults,
+      productGroupedResults,
+      categorizeSearchResults,
+    };
     // let productResults;
     // if (result?.responses_[0]?.productSearchResults_?.results_?.length) {
     //   productResults = result.responses_[0].productSearchResults_.results_.map(
@@ -101,24 +107,41 @@ export default {
           bottomLeft: { x: centerPoints.x, y: centerPoints.y },
         };
 
-      boundaries.push({displayName:null,rectangleBox,rectangleCenterSpot,boundingPolyIndex:i});
+      boundaries.push({
+        displayName: null,
+        rectangleBox,
+        rectangleCenterSpot,
+        boundingPolyIndex: i,
+      });
     });
     return boundaries;
   },
   getResultsForCroppedArea(params) {
-    if (params.cropArea && (typeof params.cropArea.boundingPolyIndex !== "undefined") && this.searchResults.productGroupedResults?.length) {
-      const productSearchResults = this.searchResults.productGroupedResults[params.cropArea.boundingPolyIndex]?.results_,
-          productGroupedResults = this.searchResults.productGroupedResults,
-          categorizeSearchResults = this.categorizeSearchResults(productSearchResults);
+    if (
+      params.cropArea &&
+      typeof params.cropArea.boundingPolyIndex !== "undefined" &&
+      this.searchResults.productGroupedResults?.length
+    ) {
+      const productSearchResults = this.searchResults.productGroupedResults[
+          params.cropArea.boundingPolyIndex
+        ]?.results_,
+        productGroupedResults = this.searchResults.productGroupedResults,
+        categorizeSearchResults = this.categorizeSearchResults(
+          productSearchResults
+        );
       // console.log('-l',this.searchResults.productGroupedResults[params.cropArea.boundingPolyIndex]?.objectAnnotations_)
-      return { productSearchResults , productGroupedResults, categorizeSearchResults };
+      return {
+        productSearchResults,
+        productGroupedResults,
+        categorizeSearchResults,
+      };
     }
     return null;
   },
   categorizeSearchResults(searchResult) {
     let categorizeSearchResults = [];
     if (searchResult.length) {
-      searchResult.forEach(result => {
+      searchResult.forEach((result) => {
         const product = googleResultsToProductMapper(result);
         if (product.category) {
           const dataObj = {
@@ -129,18 +152,21 @@ export default {
           };
           const categoryPusher = () => {
             categorizeSearchResults.push({
-              categoryName: product.category,
+              categoryName: product.category.split("|")[0],
               data: [dataObj],
-              previewData: [dataObj]
+              previewData: [dataObj],
             });
-          }
+          };
           if (!categorizeSearchResults.length) {
             categoryPusher();
           } else {
-            let categoryResult = categorizeSearchResults.find(r => r.categoryName === product.category);
+            let categoryResult = categorizeSearchResults.find((r) =>
+              product.category.includes(r.categoryName)
+            );
             if (categoryResult) {
               categoryResult.data.push(dataObj);
-              categoryResult.previewData.length < 15 && categoryResult.previewData.push(dataObj);
+              categoryResult.previewData.length < 15 &&
+                categoryResult.previewData.push(dataObj);
             } else {
               categoryPusher();
             }
@@ -150,5 +176,5 @@ export default {
     }
 
     return categorizeSearchResults;
-  }
+  },
 };
