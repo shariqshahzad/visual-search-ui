@@ -12,7 +12,7 @@
         v-for="(btn, index) in hotspotButtons"
         :key="index"
         v-bind:style="btn.btnStyle"
-        class="dot"
+        :class="`dot ${isLoading? 'disabled':''}`"
       ></span>
     </div>
 
@@ -40,6 +40,7 @@ export default {
   props: {
     imageData: Object,
     objectBoundaries: Array,
+    isLoading: Boolean
   },
   mounted() {
     const objectBoundaries = this.objectBoundaries;
@@ -119,6 +120,12 @@ export default {
       }, 100);
     },
   },
+  watch: {
+    isLoading: function(isLoading, oldVal) {
+      if (isLoading) this.cropper.disable();
+      else this.cropper.enable();
+    }
+  }
 };
 </script>
 
@@ -156,5 +163,11 @@ export default {
   height: 200px;
   float: left;
   margin-left: 10px;
+}
+
+.disabled{
+  pointer-events: none;
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 </style>

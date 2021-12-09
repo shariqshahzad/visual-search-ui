@@ -4,6 +4,7 @@
       <ImageCropper
         @crop="(e) => onImageCrop(e)"
         :imageData="imageData"
+        :isLoading="isLoading"
         :objectBoundaries="objectBoundaries"
       />
       <!--      <filters :min="defaultFilters.priceRange.min" :max="defaultFilters.priceRange.max" @emitPriceRange="emitPriceRange" />-->
@@ -142,7 +143,6 @@ export default {
         })
         .finally(() => {
           this.isLoading = false;
-          console.log('isLoading',this.isLoading)
         });
     },
     emitPriceRange(range) {
@@ -156,7 +156,6 @@ export default {
   },
   mounted() {
     this.hasCategory = true;
-    // console.log(this.imageData);
   },
   props: {
     results: Array,
