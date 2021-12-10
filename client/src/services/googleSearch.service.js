@@ -141,24 +141,48 @@ export default {
   },
   categorizeSearchResultsInitial(searchResult) {
     let categorizeSearchResults = [];
-    if (!searchResult.productGroupedResults_) {
-      return searchResult;
-    }
-    const productGroupedResults = searchResult.productGroupedResults_.map(
-      (pgr) => {
-        const res = _.cloneDeep(pgr);
-        res.results_ = (pgr.results_.map(googleResultsToProductMapper));
-        return res;
-      }
+    const mergedGroupResultsProducts = searchResult.productGroupedResults_.map(
+      (pgr) => [...pgr.results_]
     );
-    if (productGroupedResults.length) {
+    const data = [...mergedGroupResultsProducts, searchResult.results_];
+    var newArray = Array.prototype.concat.apply([], data);
+    const finalResults = _.unionBy(
+      newArray.map(googleResultsToProductMapper),
+      "pid"
+    );
+    if (finalResults.length) {
       // console.log(searchResult);
-      categorizeSearchResults = productGroupedResults.map((categoryResult) => {
-        return {
-          categoryName: categoryResult.objectAnnotations_[0].name_,
-          data: categoryResult.results_,
-          previewData: _.take(categoryResult.results_, 15),
-        };
+      finalResults.forEach((product) => {
+        // const product = googleResultsToProductMapper(result);
+        if (product.category) {
+          const dataObj = {
+            name: product.name,
+            image: product.image,
+            price: product.price,
+            hostPageUrl: product.hostPageUrl,
+          };
+          const categoryPusher = () => {
+            categorizeSearchResults.push({
+              categoryName: product.category.split("|")[0],
+              data: [dataObj],
+              previewData: [dataObj],
+            });
+          };
+          if (!categorizeSearchResults.length) {
+            categoryPusher();
+          } else {
+            let categoryResult = categorizeSearchResults.find((r) =>
+              product.category.includes(r.categoryName)
+            );
+            if (categoryResult) {
+              categoryResult.data.push(dataObj);
+              categoryResult.previewData.length < 15 &&
+                categoryResult.previewData.push(dataObj);
+            } else {
+              categoryPusher();
+            }
+          }
+        }
       });
     }
     return categorizeSearchResults;
