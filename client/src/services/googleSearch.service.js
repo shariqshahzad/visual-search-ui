@@ -1,6 +1,7 @@
 import axios from "axios";
 import { googleResultsToProductMapper } from "../utils/utils";
 import { BRANDS } from "../constants/constants";
+import _ from "lodash";
 // const endpoint = process.env.VUE_APP_SERVER_URL + '/visual-search/google'
 const serverPath = process.env.VUE_APP_SERVER_URL;
 let endpoint = null;
@@ -55,7 +56,7 @@ export default {
       productGroupedResults =
         result.responses_[0].productSearchResults_.productGroupedResults_,
       categorizeSearchResults = this.categorizeSearchResults(
-        productSearchResults
+        result.responses_[0].productSearchResults_
       );
 
     return {
@@ -140,9 +141,21 @@ export default {
   },
   categorizeSearchResults(searchResult) {
     let categorizeSearchResults = [];
-    if (searchResult.length) {
-      searchResult.forEach((result) => {
-        const product = googleResultsToProductMapper(result);
+    const mergedGroupResultsProducts = searchResult.productGroupedResults_.map(
+      (pgr) => [...pgr.results_]
+    );
+    const data = [...mergedGroupResultsProducts, searchResult.results_];
+    var newArray = Array.prototype.concat.apply([], data);
+    const finalResults = _.unionBy(
+      newArray.map(googleResultsToProductMapper),
+      "pid"
+    );
+    console.log(newArray.map(googleResultsToProductMapper));
+    console.log(_.unionBy(newArray.map(googleResultsToProductMapper), "pid"));
+    if (finalResults.length) {
+      // console.log(searchResult);
+      finalResults.forEach((product) => {
+        // const product = googleResultsToProductMapper(result);
         if (product.category) {
           const dataObj = {
             name: product.name,
@@ -174,7 +187,7 @@ export default {
         }
       });
     }
-
+    console.log(categorizeSearchResults);
     return categorizeSearchResults;
   },
 };
