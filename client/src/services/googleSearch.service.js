@@ -141,50 +141,23 @@ export default {
   },
   categorizeSearchResults(searchResult) {
     let categorizeSearchResults = [];
-    const mergedGroupResultsProducts = searchResult.productGroupedResults_.map(
-      (pgr) => [...pgr.results_]
+    if(!searchResult.productGroupedResults_){
+      return searchResult;
+    }
+    const productGroupedResults = searchResult.productGroupedResults_.map(
+      (pgr) => {
+        pgr.results_ = pgr.results_.map(googleResultsToProductMapper);
+        return pgr;
+      }
     );
-    const data = [...mergedGroupResultsProducts, searchResult.results_];
-    var newArray = Array.prototype.concat.apply([], data);
-    const finalResults = _.unionBy(
-      newArray.map(googleResultsToProductMapper),
-      "pid"
-    );
-    console.log(newArray.map(googleResultsToProductMapper));
-    console.log(_.unionBy(newArray.map(googleResultsToProductMapper), "pid"));
-    if (finalResults.length) {
+    if (productGroupedResults.length) {
       // console.log(searchResult);
-      finalResults.forEach((product) => {
-        // const product = googleResultsToProductMapper(result);
-        if (product.category) {
-          const dataObj = {
-            name: product.name,
-            image: product.image,
-            price: product.price,
-            hostPageUrl: product.hostPageUrl,
-          };
-          const categoryPusher = () => {
-            categorizeSearchResults.push({
-              categoryName: product.category.split("|")[0],
-              data: [dataObj],
-              previewData: [dataObj],
-            });
-          };
-          if (!categorizeSearchResults.length) {
-            categoryPusher();
-          } else {
-            let categoryResult = categorizeSearchResults.find((r) =>
-              product.category.includes(r.categoryName)
-            );
-            if (categoryResult) {
-              categoryResult.data.push(dataObj);
-              categoryResult.previewData.length < 15 &&
-                categoryResult.previewData.push(dataObj);
-            } else {
-              categoryPusher();
-            }
-          }
-        }
+      categorizeSearchResults = productGroupedResults.map((categoryResult) => {
+        return {
+          categoryName: categoryResult.objectAnnotations_[0].name_,
+          data: categoryResult.results_,
+          previewData: _.take(categoryResult.results_, 15),
+        };
       });
     }
     console.log(categorizeSearchResults);

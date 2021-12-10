@@ -113,6 +113,7 @@ export default {
           cropArea,
         })
         .then((res) => {
+          console.log(res);
           this.hasCategory = false;
           this.resultsByCategories = res.categorizeSearchResults;
           let visualSearchResultsData;
