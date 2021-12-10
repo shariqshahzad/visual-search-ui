@@ -125,7 +125,9 @@ export default {
               visualSearchResultsData
             );
           } else {
-            visualSearchResultsData = res.productSearchResults
+            visualSearchResultsData = res.productSearchResults.map(
+              googleResultsToProductMapper
+            );
           }
 
           if (visualSearchResultsData && visualSearchResultsData.length > 0) {

@@ -19,13 +19,10 @@ function saveInput() {
 }
 
 export const googleResultsToProductMapper = (res) => {
-  const product = res.product_.productLabels_.reduce(
-    (prevVal, element, index) => {
-      prevVal[element.key_] = [element.value_];
-      return prevVal;
-    },
-    {}
-  );
+  const product = res.product_.productLabels_.reduce((prevVal, element) => {
+    prevVal[element.key_] = [element.value_];
+    return prevVal;
+  }, {});
   product.name = res.product_.displayName_;
   product.image = `${product.bucketPath &&
     product.bucketPath[0]}${product.displayImgId && product.displayImgId[0]}`;

@@ -146,8 +146,9 @@ export default {
     }
     const productGroupedResults = searchResult.productGroupedResults_.map(
       (pgr) => {
-        pgr.results_ = pgr.results_.map(googleResultsToProductMapper);
-        return pgr;
+        const res = _.cloneDeep(pgr);
+        res.results_ = (pgr.results_.map(googleResultsToProductMapper));
+        return res;
       }
     );
     if (productGroupedResults.length) {
@@ -160,7 +161,6 @@ export default {
         };
       });
     }
-    console.log(categorizeSearchResults);
     return categorizeSearchResults;
   },
   categorizeSearchResults(searchResult) {
