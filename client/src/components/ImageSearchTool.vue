@@ -11,10 +11,10 @@
     </v-col>
 
     <v-row
-        v-if="isLoading"
-        class="fill-height"
-        align-content="center"
-        justify="center"
+      v-if="isLoading"
+      class="fill-height"
+      align-content="center"
+      justify="center"
     >
       <v-col class="text-subtitle-1 text-center" cols="12">
         Getting your results
@@ -96,7 +96,6 @@ export default {
   },
   methods: {
     onImageCrop(cropArea) {
-
       // const file = dataURLtoFile(value);
       const file = this.imageData.files;
       this.isLoading = true;
@@ -156,7 +155,9 @@ export default {
     },
   },
   mounted() {
-    this.hasCategory = true;
+    console.log(this.results);
+    this.hasCategory = !(this.results && this.results.length > 0);
+    // this.hasCategory = true;
   },
   props: {
     results: Array,

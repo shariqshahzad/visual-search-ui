@@ -291,7 +291,7 @@ export default {
 
             this.categorizeSearchResults = res.categorizeSearchResults;
 
-            this.resultsData = visualSearchResultsData;
+             this.resultsData = null;
             this.filters.priceRange = {
               ...this.filters.priceRange,
               min: Math.min.apply(
