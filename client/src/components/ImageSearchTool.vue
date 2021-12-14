@@ -96,7 +96,6 @@ export default {
   },
   methods: {
     onImageCrop(cropArea) {
-
       // const file = dataURLtoFile(value);
       const file = this.imageData.files;
       this.isLoading = true;
@@ -156,7 +155,7 @@ export default {
     },
   },
   mounted() {
-    this.hasCategory = true;
+    this.hasCategory = !(this.results && this.results.length > 0);
   },
   props: {
     results: Array,
