@@ -152,13 +152,23 @@ export default {
       }
     );
     if (productGroupedResults.length) {
-      // console.log(searchResult);
-      categorizeSearchResults = productGroupedResults.map((categoryResult) => {
-        return {
-          categoryName: categoryResult.objectAnnotations_[0].name_,
-          data: categoryResult.results_,
-          previewData: _.take(categoryResult.results_, 15),
-        };
+      productGroupedResults.forEach((categoryResult) => {
+        let prevCategoryGroup = categorizeSearchResults.find(o => o.categoryName === categoryResult.objectAnnotations_[0].name_);
+        if (prevCategoryGroup) {
+          prevCategoryGroup.data = _.merge(prevCategoryGroup.data, categoryResult.results_);
+        }
+        else {
+          categorizeSearchResults.push({
+            categoryName: categoryResult.objectAnnotations_[0].name_,
+            data: categoryResult.results_,
+            previewData: _.take(categoryResult.results_, 15),
+          });
+        }
+      });
+
+      categorizeSearchResults.forEach(result => {
+        result.data = _.unionBy(result.data, "pid");
+        result.data = _.orderBy(result.data, ['score'],['desc']);
       });
     }
     return categorizeSearchResults;

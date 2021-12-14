@@ -30,5 +30,6 @@ export const googleResultsToProductMapper = (res) => {
   product.pid = product.pid && product.pid[0];
   product.hostPageUrl = product.pip && product.pip[0];
   product.category = product.productCategory && product.productCategory[0];
+  product.score = res.score_;
   return product;
 };
