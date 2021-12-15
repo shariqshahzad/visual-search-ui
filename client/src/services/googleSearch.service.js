@@ -21,8 +21,8 @@ export default {
       }
     }
 
-    const resultsForCroppedArea = this.getResultsForCroppedArea(params);
-    if (resultsForCroppedArea) return resultsForCroppedArea;
+    // const resultsForCroppedArea = this.getResultsForCroppedArea(params);
+    // if (resultsForCroppedArea) return resultsForCroppedArea;
 
     let body = {},
       headers = {};
