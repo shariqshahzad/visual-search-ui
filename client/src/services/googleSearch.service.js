@@ -82,8 +82,8 @@ export default {
     //       return product;
     //     }
     //   );
-    //   const groupProudctResults = [];
-    //   return { productResults, groupProudctResults };
+    //   const groupProductResults = [];
+    //   return { productResults, groupProductResults };
     // } else return [];
   },
   getResultObjectBoundaries(result) {
@@ -155,7 +155,7 @@ export default {
       productGroupedResults.forEach((categoryResult) => {
         let prevCategoryGroup = categorizeSearchResults.find(o => o.categoryName === categoryResult.objectAnnotations_[0].name_);
         if (prevCategoryGroup) {
-          prevCategoryGroup.data = _.merge(prevCategoryGroup.data, categoryResult.results_);
+          categoryResult.results_.push(...prevCategoryGroup.data);
         }
         else {
           categorizeSearchResults.push({

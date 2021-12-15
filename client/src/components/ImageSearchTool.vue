@@ -156,6 +156,7 @@ export default {
   },
   mounted() {
     this.hasCategory = !(this.results && this.results.length > 0);
+    // if(this.objectBoundaries.length <= 1) this.hasCategory = false;
   },
   props: {
     results: Array,
