@@ -21,8 +21,14 @@ export default {
       }
     }
 
+    /**
+     * Below statement gets cropped result from initial search result
+     * :: Commenting this statement will make a separate request from google on the selection of each point
+     * @type {{productSearchResults: *, productGroupedResults: *, categorizeSearchResults: *}}
+     */
     // const resultsForCroppedArea = this.getResultsForCroppedArea(params);
     // if (resultsForCroppedArea) return resultsForCroppedArea;
+    /*****************************************************************************************/
 
     let body = {},
       headers = {};
