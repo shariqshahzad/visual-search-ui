@@ -58,13 +58,22 @@
               Bing
             </v-btn>
             <v-btn
-              @click="onGoogleSearch"
+              @click="onGoogleSearch()"
               type="submit"
               dark
               class="float-right mr-3"
               elevation="2"
             >
               <v-icon>mdi-google</v-icon>Google
+            </v-btn>
+            <v-btn
+              @click="onWSIMLSearch()"
+              type="submit"
+              dark
+              class="float-right mr-3"
+              elevation="2"
+            >
+              WSI ML SEARCH
             </v-btn>
           </v-col>
         </v-row>
@@ -96,6 +105,12 @@
           ></v-progress-linear>
         </v-col>
       </v-row>
+      <img
+        style="display: none"
+        ref="uploadedImage"
+        :src="imgBase64"
+        crossorigin
+      />
     </v-main>
     <v-dialog v-if="dialog" v-model="dialog" max-width="auto">
       <v-card min-height="800">
@@ -109,7 +124,7 @@
           >
           <v-spacer></v-spacer>
         </v-toolbar>
-        <div style="padding:10px; overflow:hidden">
+        <div style="padding: 10px; overflow: hidden">
           <ImageSearchTool
             :results="resultsData"
             :imageData="imageData"
@@ -127,8 +142,13 @@
 <script>
 import bingSearchService from "../services/bingSearch.service";
 import googleSearchService from "../services/googleSearch.service";
+import WSIMLSearchService from "../services/WSIMLSearch.service";
 import ImageSearchTool from "./ImageSearchTool.vue";
-import { googleResultsToProductMapper } from "../utils/utils";
+import Cropper from "cropperjs";
+import {
+  googleResultsToProductMapper,
+  encodeImageFileAsURL,
+} from "../utils/utils";
 import { BRANDS } from "../constants/constants";
 import { mapMutations, mapGetters } from "vuex";
 
@@ -136,8 +156,15 @@ export default {
   components: {
     ImageSearchTool,
   },
+  mounted() {
+    this.$refs.uploadedImage.onload = (img) => {
+      this.imageTarget = img.target;
+    };
+  },
   data() {
     return {
+      imageTarget: null,
+      imgBase64: null,
       selectedBrand: null,
       brands: Object.keys(BRANDS).map((key) => ({
         name: BRANDS[key].name,
@@ -200,6 +227,68 @@ export default {
       this.searchOption = "bing";
       this.objectBoundaries = [];
       this.bingSearch(this.radioGrp === "imageUrl");
+    },
+    async onWSIMLSearch() {
+      let base64str = await encodeImageFileAsURL(this.files);
+      this.imgBase64 = base64str;
+
+      base64str = base64str.split(",")[1];
+      await this.WSIMLSearch(base64str);
+      // this.setSelectedBrand(BRANDS[this.selectedBrand]);
+      // this.searchOption = "google";
+      // this.objectBoundaries = [];
+      // this.googleSearch(this.radioGrp === "imageUrl");
+    },
+    async WSIMLSearch(base64str) {
+      this.isLoading = true;
+      const yoloData = await WSIMLSearchService.getYoloResults(base64str);
+      const promises = [];
+      this.cropper = new Cropper(this.imageTarget, {
+        zoomable: false,
+        autoCropArea: 0,
+        autoCrop: false,
+      });
+
+      yoloData.data.forEach(async (element) => {
+        let base64 = await this.createBase64StringForBoundary(element);
+        console.log(base64);
+        base64 = base64.split(",")[1];
+        promises.push(
+          WSIMLSearchService.getSimilaritiesResults(element.class, base64)
+        );
+        this.objectBoundaries = yoloData.data;
+      });
+
+      setTimeout(async () => {
+        const productResults = await Promise.all(promises);
+        this.isLoading = false;
+        this.resultsData = [].concat(...productResults);
+        this.imageData = {
+          isUrl: this.radioGrp === "imageUrl",
+          src:
+            this.radioGrp === "imageUrl"
+              ? this.imageProxyUrl
+              : URL.createObjectURL(this.files),
+          files: this.files,
+        };
+        this.dialog = true;
+      }, 200);
+    },
+    createBase64StringForBoundary(element) {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          let cropperCoordinates = {
+            x: element.bbox[0],
+            y: element.bbox[1],
+            width: element.bbox[2] - element.bbox[0],
+            height: element.bbox[3] - element.bbox[1],
+          };
+          this.cropper.crop();
+          this.cropper.setData(cropperCoordinates);
+          let base64 = this.cropper.getCroppedCanvas().toDataURL("image/jpeg");
+          resolve(base64);
+        }, 100);
+      });
     },
     onGoogleSearch() {
       this.setSelectedBrand(BRANDS[this.selectedBrand]);
@@ -291,7 +380,7 @@ export default {
 
             this.categorizeSearchResults = res.categorizeSearchResults;
 
-             this.resultsData = null;
+            this.resultsData = null;
             this.filters.priceRange = {
               ...this.filters.priceRange,
               min: Math.min.apply(
@@ -329,16 +418,8 @@ export default {
   },
 };
 </script>
-<style scoped>
-.img-container {
-  width: 640px;
-  height: 480px;
-  float: left;
-}
-.img-preview {
-  width: 200px;
-  height: 200px;
-  float: left;
-  margin-left: 10px;
+<style >
+.v-main__wrap > .cropper-container  {
+  display: none !important;
 }
 </style>

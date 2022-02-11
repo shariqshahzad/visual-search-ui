@@ -155,7 +155,6 @@ export default {
     },
   },
   mounted() {
-    console.log(this.results);
     this.hasCategory = !(this.results && this.results.length > 0);
     // this.hasCategory = true;
   },

@@ -10,6 +10,16 @@ export function dataURLtoFile(dataUrl, fileName) {
   return new File([u8arr], fileName, { type: mime });
 }
 
+export async function encodeImageFileAsURL(file) {
+  var reader = new FileReader();
+  return new Promise((resolve, reject) => {
+    reader.onloadend = function(err) {
+      resolve(reader.result);
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
 export const isInt = (data) => {
   return data === parseInt(data, 10);
 };
@@ -24,8 +34,7 @@ export const googleResultsToProductMapper = (res) => {
     return prevVal;
   }, {});
   product.name = res.product_.displayName_;
-  product.image = `${product.bucketPath &&
-    product.bucketPath[0]}${product.displayImgId && product.displayImgId[0]}`;
+  product.image = `${product.bucketPath && product.bucketPath[0]}${product.displayImgId && product.displayImgId[0]}`;
   product.price = product.price && product.price[0];
   product.pid = product.pid && product.pid[0];
   product.hostPageUrl = product.pip && product.pip[0];
