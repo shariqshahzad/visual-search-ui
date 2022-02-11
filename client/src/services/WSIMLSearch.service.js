@@ -16,7 +16,7 @@ export default {
     try {
       res = await axios({
         method: "post",
-        url: `${baseUrl}/${WSI_ML_SIMILARITY_ENDPOINT}`,
+        url: `${baseUrl}${WSI_ML_SIMILARITY_ENDPOINT}`,
         data: body,
       });
     } catch (e) {
@@ -42,7 +42,7 @@ export default {
     try {
       res = await axios({
         method: "post",
-        url: `${baseUrl}/${WSI_ML_YOLO_ENDPOINT}`,
+        url: `${baseUrl}${WSI_ML_YOLO_ENDPOINT}`,
         data: body,
       });
     } catch (e) {
