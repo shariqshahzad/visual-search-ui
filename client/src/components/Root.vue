@@ -11,8 +11,17 @@
           style="height: 50px"
           src="https://assets.wsimgs.com/wsimgs/rk/images/i/202143/0006/images/common/logo.svg"
         />
-        <v-row no-gutters>
-          <v-col cols="5" align-self="end">
+        <v-row align="center" justify="center" no-gutters>
+          <v-col cols="5">
+            <v-btn
+              @click="onWSIMLSearch()"
+              type="submit"
+              dark
+              class="float-right ml-5 mb-3"
+              elevation="2"
+            >
+              WSI ML SEARCH
+            </v-btn>
             <v-text-field
               v-if="radioGrp === 'imageUrl'"
               required
@@ -33,8 +42,8 @@
               label="Image"
             ></v-file-input>
           </v-col>
-          <v-spacer></v-spacer>
-          <v-col cols="2">
+          <!-- <v-spacer></v-spacer> -->
+          <!-- <v-col cols="2">
             <v-select
               name="brand"
               required
@@ -45,8 +54,8 @@
               item-value="value"
               label="Brand"
             ></v-select>
-          </v-col>
-          <v-col cols="3">
+          </v-col> -->
+          <!-- <v-col cols="2">
             <v-btn
               @click="onBingSearch"
               type="submit"
@@ -66,16 +75,8 @@
             >
               <v-icon>mdi-google</v-icon>Google
             </v-btn>
-            <v-btn
-              @click="onWSIMLSearch()"
-              type="submit"
-              dark
-              class="float-right mr-3"
-              elevation="2"
-            >
-              WSI ML SEARCH
-            </v-btn>
-          </v-col>
+
+          </v-col> -->
         </v-row>
       </v-form>
     </v-app-bar>
@@ -419,7 +420,7 @@ export default {
 };
 </script>
 <style >
-.v-main__wrap > .cropper-container  {
+.v-main__wrap > .cropper-container {
   display: none !important;
 }
 </style>
