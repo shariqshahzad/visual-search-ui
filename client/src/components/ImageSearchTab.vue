@@ -5,9 +5,10 @@
       class="fill-height"
       align-content="center"
       justify="center"
+      style="margin: 200px"
     >
       <v-col class="text-subtitle-1 text-center" cols="12">
-        Getting your results
+        Getting your results...
       </v-col>
       <v-col cols="4">
         <v-progress-linear indeterminate rounded height="6"></v-progress-linear>

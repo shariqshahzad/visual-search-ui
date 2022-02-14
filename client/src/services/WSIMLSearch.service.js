@@ -30,6 +30,9 @@ export default {
       product.pid = r.pid;
       product.hostPageUrl = r.pid;
       product.category = r.category;
+      product.similarity = r.similarity;
+      product.skuid = r.skuid;
+      product.brand = r.brand;
       return product;
     });
     return { categoryName,categoryId,data: products, previewData: products };

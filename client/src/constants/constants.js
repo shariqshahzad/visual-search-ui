@@ -6,6 +6,22 @@ export const BRANDS = {
     PK: {
         hostUrl : "https://www.potterybarnkids.com/",
         name: "Pottery Barn Kids"
+    },
+    PT: {
+        hostUrl : "https://www.potterybarnkids.com/",
+        name: "Pottery Barn Teen"
+    },
+    PB: {
+        hostUrl : "https://www.potterybarnkids.com/",
+        name: "Pottery Barn"
+    },
+    WS: {
+        hostUrl : "https://www.potterybarnkids.com/",
+        name: "Williams Sonoma"
+    },
+    MG: {
+        hostUrl : "https://www.potterybarnkids.com/",
+        name: "Mark and Grahams"
     }
 }
 
