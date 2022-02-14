@@ -14,7 +14,7 @@
         <v-row align="center" justify="center" no-gutters>
           <v-col cols="5">
             <v-btn
-              @click="onWSIMLSearch()"
+              @click="onClickSearch()"
               type="submit"
               dark
               class="float-right ml-5 mb-3"
@@ -35,48 +35,13 @@
               v-if="radioGrp === 'imageUpload'"
               v-model="files"
               required
-              :rules="imgFileRules"
+              multiple
               accept="image/png, image/jpeg, image/bmp"
               placeholder="Select an Image"
               prepend-icon="mdi-camera"
               label="Image"
             ></v-file-input>
           </v-col>
-          <!-- <v-spacer></v-spacer> -->
-          <!-- <v-col cols="2">
-            <v-select
-              name="brand"
-              required
-              :items="brands"
-              :rules="brandRules"
-              v-model="selectedBrand"
-              item-text="name"
-              item-value="value"
-              label="Brand"
-            ></v-select>
-          </v-col> -->
-          <!-- <v-col cols="2">
-            <v-btn
-              @click="onBingSearch"
-              type="submit"
-              dark
-              class="float-right mr-3"
-              elevation="2"
-            >
-              <v-icon>mdi-microsoft-bing</v-icon>
-              Bing
-            </v-btn>
-            <v-btn
-              @click="onGoogleSearch()"
-              type="submit"
-              dark
-              class="float-right mr-3"
-              elevation="2"
-            >
-              <v-icon>mdi-google</v-icon>Google
-            </v-btn>
-
-          </v-col> -->
         </v-row>
       </v-form>
     </v-app-bar>
@@ -89,51 +54,17 @@
       </template>
     </v-snackbar>
     <v-main>
-      <v-row
-        v-if="isLoading"
-        class="fill-height"
-        align-content="center"
-        justify="center"
-      >
-        <v-col class="text-subtitle-1 text-center" cols="12">
-          Getting your results
-        </v-col>
-        <v-col cols="4">
-          <v-progress-linear
-            indeterminate
-            rounded
-            height="6"
-          ></v-progress-linear>
-        </v-col>
-      </v-row>
-      <img
-        style="display: none"
-        ref="uploadedImage"
-        :src="imgBase64"
-        crossorigin
-      />
-      <v-card v-if="dialog" min-height="800">
-        <!-- <v-toolbar dark color="primary">
-          <v-btn icon dark @click="dialog = false">
-            <v-icon>mdi-close</v-icon>
-          </v-btn>
-          <v-toolbar-title
-            ><span class="text-capitalize">{{ this.searchOption }}</span> Search
-            Results</v-toolbar-title
-          >
-          <v-spacer></v-spacer>
-        </v-toolbar> -->
-        <div style="padding: 10px; overflow: hidden">
-          <ImageSearchTool
-            :results="resultsData"
-            :imageData="imageData"
-            :objectBoundaries="objectBoundaries"
-            :categorizeSearchResults="categorizeSearchResults"
-            :defaultFilters="this.filters"
-            :searchOption="searchOption"
-          />
-        </div>
-      </v-card>
+        <v-tabs v-model="tab" background-color="transparent" color="basil" grow>
+          <v-tab v-for="item in tabs" :key="item.name">
+            {{ item.name }}
+          </v-tab>
+        </v-tabs>
+
+        <v-tabs-items v-model="tab">
+          <v-tab-item v-for="item in tabs" :key="item.name">
+            <ImageSearchTab :file="item" />
+          </v-tab-item>
+        </v-tabs-items>
     </v-main>
   </v-app>
 </template>
@@ -142,7 +73,7 @@
 import bingSearchService from "../services/bingSearch.service";
 import googleSearchService from "../services/googleSearch.service";
 import WSIMLSearchService from "../services/WSIMLSearch.service";
-import ImageSearchTool from "./ImageSearchTool.vue";
+import ImageSearchTab from "./ImageSearchTab.vue";
 import Cropper from "cropperjs";
 import {
   googleResultsToProductMapper,
@@ -153,19 +84,21 @@ import { mapMutations, mapGetters } from "vuex";
 
 export default {
   components: {
-    ImageSearchTool,
+    ImageSearchTab,
   },
   mounted() {
-    this.$refs.uploadedImage.onload = (img) => {
-      this.cropper = new Cropper(img.target, {
-        zoomable: false,
-        autoCropArea: 0,
-        autoCrop: false,
-      });
-    };
+    // this.$refs.uploadedImage.onload = (img) => {
+    //   this.cropper = new Cropper(img.target, {
+    //     zoomable: false,
+    //     autoCropArea: 0,
+    //     autoCrop: false,
+    //   });
+    // };
   },
   data() {
     return {
+      tabs: [],
+      tab : null,
       imgBase64: null,
       selectedBrand: null,
       brands: Object.keys(BRANDS).map((key) => ({
@@ -221,22 +154,12 @@ export default {
       this.isError = false;
       this.errorDetail = "";
     },
-
-    onBingSearch() {
-      this.setSelectedBrand(BRANDS[this.selectedBrand]);
-      this.searchOption = "bing";
-      this.objectBoundaries = [];
-      this.bingSearch(this.radioGrp === "imageUrl");
-    },
-    async onWSIMLSearch() {
-      let base64str = await encodeImageFileAsURL(this.files);
-      this.imgBase64 = base64str;
-      base64str = base64str.split(",")[1];
-      await this.WSIMLSearch(base64str);
-      // this.setSelectedBrand(BRANDS[this.selectedBrand]);
-      // this.searchOption = "google";
-      // this.objectBoundaries = [];
-      // this.googleSearch(this.radioGrp === "imageUrl");
+    async onClickSearch() {
+      if (this.files.length && this.files.length > 0) {
+        this.files.map((file) => {
+          this.tabs.push(file);
+        });
+      }
     },
     async WSIMLSearch(base64str) {
       this.isLoading = true;
@@ -410,7 +333,7 @@ export default {
 };
 </script>
 <style >
-.v-main__wrap > .cropper-container {
+#inspire > div > main > div > div.v-window.v-item-group.theme--light.v-tabs-items > div > div > div > div.cropper-container.cropper-bg {
   display: none !important;
 }
 </style>
