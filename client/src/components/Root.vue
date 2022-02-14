@@ -159,12 +159,15 @@ export default {
   },
   mounted() {
     this.$refs.uploadedImage.onload = (img) => {
-      this.imageTarget = img.target;
+      this.cropper = new Cropper(img.target, {
+        zoomable: false,
+        autoCropArea: 0,
+        autoCrop: false,
+      });
     };
   },
   data() {
     return {
-      imageTarget: null,
       imgBase64: null,
       selectedBrand: null,
       brands: Object.keys(BRANDS).map((key) => ({
@@ -178,7 +181,8 @@ export default {
       imageData: null,
       objectBoundaries: [],
       imgFileRules: [
-        (v) => v.size <= 2000000 || "Image size should be less than 1 MB!",
+        (v) =>
+          (v && v.size <= 2000000) || "Image size should be less than 1 MB!",
       ],
       brandRules: [(v) => !!v || "Brand is required"],
       rules: [
@@ -215,9 +219,6 @@ export default {
   },
   methods: {
     ...mapMutations(["setSelectedBrand"]),
-    // onChangeInputSelection() {
-    //   console.log(this.radioGrp);
-    // },
     onSnackBarClose() {
       this.isError = false;
       this.errorDetail = "";
@@ -232,7 +233,6 @@ export default {
     async onWSIMLSearch() {
       let base64str = await encodeImageFileAsURL(this.files);
       this.imgBase64 = base64str;
-
       base64str = base64str.split(",")[1];
       await this.WSIMLSearch(base64str);
       // this.setSelectedBrand(BRANDS[this.selectedBrand]);
@@ -244,52 +244,40 @@ export default {
       this.isLoading = true;
       const yoloData = await WSIMLSearchService.getYoloResults(base64str);
       const promises = [];
-      this.cropper = new Cropper(this.imageTarget, {
-        zoomable: false,
-        autoCropArea: 0,
-        autoCrop: false,
-      });
-
-      yoloData.data.forEach(async (element) => {
-        let base64 = await this.createBase64StringForBoundary(element);
-        console.log(base64);
-        base64 = base64.split(",")[1];
+      yoloData.forEach((element) => {
+        let base64 = this.createBase64StringForBoundary(element);
         promises.push(
-          WSIMLSearchService.getSimilaritiesResults(element.class, base64)
+          WSIMLSearchService.getSimilaritiesResults(element.class, base64,element.id)
         );
-        this.objectBoundaries = yoloData.data;
+        this.objectBoundaries = yoloData;
       });
+      const productResults = await Promise.all(promises);
+      this.isLoading = false;
+      this.categorizeSearchResults = productResults;
 
-      setTimeout(async () => {
-        const productResults = await Promise.all(promises);
-        this.isLoading = false;
-        this.resultsData = [].concat(...productResults);
-        this.imageData = {
-          isUrl: this.radioGrp === "imageUrl",
-          src:
-            this.radioGrp === "imageUrl"
-              ? this.imageProxyUrl
-              : URL.createObjectURL(this.files),
-          files: this.files,
-        };
-        this.dialog = true;
-      }, 200);
+      this.resultsData = null;
+      this.imageData = {
+        isUrl: this.radioGrp === "imageUrl",
+        src:
+          this.radioGrp === "imageUrl"
+            ? this.imageProxyUrl
+            : URL.createObjectURL(this.files),
+        files: this.files,
+      };
+      this.dialog = true;
     },
     createBase64StringForBoundary(element) {
-      return new Promise((resolve, reject) => {
-        setTimeout(() => {
-          let cropperCoordinates = {
-            x: element.bbox[0],
-            y: element.bbox[1],
-            width: element.bbox[2] - element.bbox[0],
-            height: element.bbox[3] - element.bbox[1],
-          };
-          this.cropper.crop();
-          this.cropper.setData(cropperCoordinates);
-          let base64 = this.cropper.getCroppedCanvas().toDataURL("image/jpeg");
-          resolve(base64);
-        }, 100);
-      });
+      let cropperCoordinates = {
+        x: element.bbox[0],
+        y: element.bbox[1],
+        width: element.bbox[2] - element.bbox[0],
+        height: element.bbox[3] - element.bbox[1],
+      };
+      this.cropper.crop();
+      this.cropper.setData(cropperCoordinates);
+      let base64 = this.cropper.getCroppedCanvas().toDataURL("image/jpeg");
+      base64 = base64.split(",")[1];
+      return base64;
     },
     onGoogleSearch() {
       this.setSelectedBrand(BRANDS[this.selectedBrand]);

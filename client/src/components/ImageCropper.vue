@@ -51,12 +51,13 @@ export default {
         height: img.target.naturalHeight,
       };
       this.hotspotButtons = objectBoundaries.map((bd) => {
+        console.log(bd);
         const top = (((bd.bbox[1]+bd.bbox[3])/2)/dimensions.height)*100;
         const left = ((bd.bbox[0]+bd.bbox[2])/2)/dimensions.width*100;
         return {
           btnStyle: {
-            top : `${top}%`,
-            left : `${left}%`
+            top : `calc(${top}% - 10px)`,
+            left : `calc(${left}% - 7px)`
           },
           cropperCoordinates: {
             x: bd.bbox[0],
@@ -64,6 +65,7 @@ export default {
             width: bd.bbox[2] - bd.bbox[0],
             height: bd.bbox[3] - bd.bbox[1],
           },
+          categoryId : bd.id
           // boundingPolyIndex: bd.boundingPolyIndex,
         };
       });
@@ -111,10 +113,8 @@ export default {
   methods: {
     emitSpotChange(e, setCropper = true) {
       this.cropper.crop();
-      setCropper &&
-        this.cropper.setData(e.cropperCoordinates);
-      console.log(this.cropper.getData());
-
+      setCropper && this.cropper.setData(e.cropperCoordinates);
+      this.$emit("crop", e.categoryId);
       // setTimeout(() => {
       //   const cropperData = this.cropper.getData(),
       //     { naturalWidth, naturalHeight } = this.$refs.uploadedImage,
@@ -137,7 +137,7 @@ export default {
       //   cropArea = { ...cropArea, cropAreaImage };
       //   // }
 
-      //   this.$emit("crop", cropArea);
+      //   
       // }, 100);
     },
   },

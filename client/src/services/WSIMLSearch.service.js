@@ -5,12 +5,12 @@ import _ from "lodash";
 const baseUrl = process.env.VUE_APP_MIDDLEWARE_URL;
 
 export default {
-  async getSimilaritiesResults(categoryName,base64Str) {
+  async getSimilaritiesResults(categoryName, base64Str, categoryId) {
     let body = {
       img: base64Str,
       one_per_pid: true,
       filter_prod_type: true,
-      name: categoryName
+      name: categoryName,
     };
     let res;
     try {
@@ -32,7 +32,7 @@ export default {
       product.category = r.category;
       return product;
     });
-    return products;
+    return { categoryName,categoryId,data: products, previewData: products };
   },
   async getYoloResults(base64Str) {
     let body = {
@@ -48,6 +48,9 @@ export default {
     } catch (e) {
       console.log(e);
     }
-    return res;
+    return res.data.map((yd,index)=>{
+      yd.id = index+1;
+      return yd;
+    });
   },
 };

@@ -95,55 +95,9 @@ export default {
     ]),
   },
   methods: {
-    onImageCrop(cropArea) {
-      // const file = dataURLtoFile(value);
-      const file = this.imageData.files;
-      this.isLoading = true;
-      const searchServices = {
-          bing: bingSearchService,
-          google: gooogleSearchService,
-        },
-        searchService = searchServices[this.searchOption];
-      searchService
-        .getSearchResults({
-          selectedBrand: this.selectedBrand,
-          isUrl: false,
-          payload: file,
-          cropArea,
-        })
-        .then((res) => {
-          console.log(res);
-          this.hasCategory = false;
-          this.resultsByCategories = res.categorizeSearchResults;
-          let visualSearchResultsData;
-          if ("bing" === this.searchOption) {
-            visualSearchResultsData = bingSearchService.reduceSearchResults(
-              res.tags
-            );
-            visualSearchResultsData = bingSearchService.mapResultParams(
-              visualSearchResultsData
-            );
-          } else {
-            visualSearchResultsData = res.productSearchResults.map(
-              googleResultsToProductMapper
-            );
-          }
-
-          if (visualSearchResultsData && visualSearchResultsData.length > 0) {
-            this.dataResults = visualSearchResultsData;
-            return;
-          }
-          this.isError = true;
-          this.errorDetail = "No results found";
-        })
-        .catch((e) => {
-          this.isError = true;
-          this.errorDetail = "Something Went Wrong";
-          console.log(e);
-        })
-        .finally(() => {
-          this.isLoading = false;
-        });
+    onImageCrop(id) {
+      console.log(id);
+      this.resultsByCategories = this.categorizeSearchResults.filter(cat=>cat.categoryId===id);
     },
     emitPriceRange(range) {
       this.filters.priceRangeSelection.min = range[0];
