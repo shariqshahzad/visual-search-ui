@@ -112,10 +112,8 @@
         :src="imgBase64"
         crossorigin
       />
-    </v-main>
-    <v-dialog v-if="dialog" v-model="dialog" max-width="auto">
-      <v-card min-height="800">
-        <v-toolbar dark color="primary">
+      <v-card v-if="dialog" min-height="800">
+        <!-- <v-toolbar dark color="primary">
           <v-btn icon dark @click="dialog = false">
             <v-icon>mdi-close</v-icon>
           </v-btn>
@@ -124,7 +122,7 @@
             Results</v-toolbar-title
           >
           <v-spacer></v-spacer>
-        </v-toolbar>
+        </v-toolbar> -->
         <div style="padding: 10px; overflow: hidden">
           <ImageSearchTool
             :results="resultsData"
@@ -136,7 +134,7 @@
           />
         </div>
       </v-card>
-    </v-dialog>
+    </v-main>
   </v-app>
 </template>
 
@@ -247,7 +245,11 @@ export default {
       yoloData.forEach((element) => {
         let base64 = this.createBase64StringForBoundary(element);
         promises.push(
-          WSIMLSearchService.getSimilaritiesResults(element.class, base64,element.id)
+          WSIMLSearchService.getSimilaritiesResults(
+            element.class,
+            base64,
+            element.id
+          )
         );
         this.objectBoundaries = yoloData;
       });
