@@ -25,30 +25,7 @@
               v-for="(product, index) in category.previewData"
               :key="index"
             >
-              <v-card
-                class="ma-4"
-                @click="onClickCard(product.hostPageUrl)"
-                height="400"
-                width="300"
-              >
-                <!-- <v-row class="fill-height"> -->
-                <v-img
-                  :src="product.image"
-                  height="200"
-                  max-width="300"
-                ></v-img>
-                <v-card-title height="40px">
-                  {{ product.name }}
-                </v-card-title>
-                <v-card-text>
-                  <div class="my-4 text-subtitle-1">
-                    {{ brands[product.brand].name }}
-                  </div>
-                  <div>SKU ID: {{ product.skuid }}</div>
-                  <div>Similarity Score: {{ product.similarity }}</div>
-                </v-card-text>
-                <!-- </v-row> -->
-              </v-card>
+              <ProductCard :product="product" />
             </v-slide-item>
           </v-slide-group>
         </v-sheet>
@@ -75,17 +52,7 @@
               v-for="(product, index) in selectedCategoryFullData"
               :key="index"
             >
-              <v-card @click="onClickCard(product.hostPageUrl)">
-                <v-img :src="product.image" height="auto"></v-img>
-                <v-card-title height="30px"> {{ product.name }} </v-card-title>
-                <v-card-text>
-                  <div class="my-4 text-subtitle-1">
-                    {{ brands[product.brand].name }}
-                  </div>
-                  <div>SKU ID: {{ product.skuid }}</div>
-                  <div>Similarity Score: {{ product.similarity }}</div>
-                </v-card-text>
-              </v-card>
+              <ProductCard :product="product" />
             </v-col>
           </v-row>
         </div>
@@ -93,21 +60,19 @@
     </v-dialog>
   </div>
 </template>
-<style scoped>
-.v-card__title {
-    height: 40px;
-}
-</style>
 
 <script>
-import { BRANDS } from "../constants/constants";
+
+import ProductCard from "./ProductCard.vue";
 export default {
+  components: {
+    ProductCard,
+  },
   props: {
     data: Array,
   },
   data() {
     return {
-      brands: BRANDS,
       showMore: false,
       selectedCategoryFullData: [],
       selectedCategoryHeading: "",

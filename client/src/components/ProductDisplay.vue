@@ -2,15 +2,8 @@
   <div>
     <div style="padding: 10px; overflow: hidden">
       <v-row class="mt-5">
-        <v-col
-            cols="4"
-            v-for="(product, index) in products"
-            :key="index"
-        >
-          <v-card @click="onClickCard(product.hostPageUrl)">
-            <v-img :src="product.image" height="auto"></v-img>
-            <v-card-title height="30px"> {{ product.name }} </v-card-title>
-          </v-card>
+        <v-col cols="4" v-for="(product, index) in products" :key="index">
+          <ProductCard  :product="product" />
         </v-col>
       </v-row>
     </div>
@@ -23,8 +16,7 @@ export default {
     products: Array,
   },
   data() {
-    return {
-    };
+    return {};
   },
   methods: {
     onClickCard(url) {
