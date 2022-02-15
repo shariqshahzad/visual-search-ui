@@ -15,6 +15,9 @@
         :class="`dot ${isLoading ? 'disabled' : ''}`"
       ></span>
     </div>
+    <div class="text-center">
+      <v-btn @click="onClickReset" color="primary">Reset</v-btn>
+    </div>
 
     <!-- <div class="img-container" style="display: hidden; justify-content: center">
       <img ref="image" :src="destination" crossorigin />
@@ -52,12 +55,12 @@ export default {
       };
       this.hotspotButtons = objectBoundaries.map((bd) => {
         console.log(bd);
-        const top = (((bd.bbox[1]+bd.bbox[3])/2)/dimensions.height)*100;
-        const left = ((bd.bbox[0]+bd.bbox[2])/2)/dimensions.width*100;
+        const top = ((bd.bbox[1] + bd.bbox[3]) / 2 / dimensions.height) * 100;
+        const left = ((bd.bbox[0] + bd.bbox[2]) / 2 / dimensions.width) * 100;
         return {
           btnStyle: {
-            top : `calc(${top}% - 10px)`,
-            left : `calc(${left}% - 7px)`
+            top: `calc(${top}% - 10px)`,
+            left: `calc(${left}% - 7px)`,
           },
           cropperCoordinates: {
             x: bd.bbox[0],
@@ -65,7 +68,7 @@ export default {
             width: bd.bbox[2] - bd.bbox[0],
             height: bd.bbox[3] - bd.bbox[1],
           },
-          categoryId : bd.id
+          categoryId: bd.id,
           // boundingPolyIndex: bd.boundingPolyIndex,
         };
       });
@@ -99,7 +102,11 @@ export default {
       //   y = rectangleBox.topLeft.y * dimensions.height,
       //   width = rectangleBox.topRight.x * dimensions.width - x,
       //   height = rectangleBox.bottomRight.y * dimensions.height - y;
-
+      this.initializeCropper();
+    };
+  },
+  methods: {
+    initializeCropper(){
       this.cropper = new Cropper(this.imageTarget, {
         zoomable: false,
         autoCropArea: 0,
@@ -108,37 +115,16 @@ export default {
           this.emitSpotChange(e, false);
         },
       });
-    };
-  },
-  methods: {
+    },
+    onClickReset() {
+      this.cropper.destroy();
+      this.initializeCropper();
+      this.$emit("crop", null);
+    },
     emitSpotChange(e, setCropper = true) {
       this.cropper.crop();
       setCropper && this.cropper.setData(e.cropperCoordinates);
       this.$emit("crop", e.categoryId);
-      // setTimeout(() => {
-      //   const cropperData = this.cropper.getData(),
-      //     { naturalWidth, naturalHeight } = this.$refs.uploadedImage,
-      //     coordinates = {
-      //       left: cropperData.x / naturalWidth,
-      //       right: (cropperData.x + cropperData.width) / naturalWidth,
-      //       top: cropperData.y / naturalHeight,
-      //       bottom: (cropperData.y + cropperData.height) / naturalHeight,
-      //     };
-
-      //   let cropArea = {
-      //     coordinates,
-      //     boundingPolyIndex: e.boundingPolyIndex,
-      //   };
-
-      //   // if (!setCropper) {
-      //   // Set cropped image for manual cropped part
-      //   const canvas = this.cropper.getCroppedCanvas(),
-      //     cropAreaImage = dataURLtoFile(canvas.toDataURL("image/png"));
-      //   cropArea = { ...cropArea, cropAreaImage };
-      //   // }
-
-      //   
-      // }, 100);
     },
   },
   watch: {

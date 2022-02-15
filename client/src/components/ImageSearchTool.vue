@@ -96,8 +96,12 @@ export default {
   },
   methods: {
     onImageCrop(id) {
-      console.log(id);
+      if(id===null){
+        this.resultsByCategories = this.categorizeSearchResults;
+        return;
+      }
       this.resultsByCategories = this.categorizeSearchResults.filter(cat=>cat.categoryId===id);
+      return;
     },
     emitPriceRange(range) {
       this.filters.priceRangeSelection.min = range[0];
