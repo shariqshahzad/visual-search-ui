@@ -55,6 +55,8 @@
     </v-snackbar>
     <v-main>
       <v-tabs
+        fixed-tabs
+        icons-and-text
         v-if="tabs.length"
         background-color="transparent"
         next-icon="mdi-arrow-right-bold-box-outline"
