@@ -54,17 +54,25 @@
       </template>
     </v-snackbar>
     <v-main>
-        <v-tabs v-model="tab" background-color="transparent" color="basil" grow>
-          <v-tab v-for="item in tabs" :key="item.name">
-            {{ item.name }}
-          </v-tab>
-        </v-tabs>
+      <v-tabs
+        v-if="tabs.length"
+        background-color="transparent"
+        next-icon="mdi-arrow-right-bold-box-outline"
+        prev-icon="mdi-arrow-left-bold-box-outline"
+        show-arrows
+        v-model="tab"
+      >
+        <v-tabs-slider color="primary lighten-3"></v-tabs-slider>
+        <v-tab v-for="item in tabs" :key="item.name">
+          {{ item.name }}
+        </v-tab>
+      </v-tabs>
 
-        <v-tabs-items v-model="tab">
-          <v-tab-item v-for="item in tabs" :key="item.name">
-            <ImageSearchTab :file="item" />
-          </v-tab-item>
-        </v-tabs-items>
+      <v-tabs-items v-model="tab">
+        <v-tab-item v-for="item in tabs" :key="item.name">
+          <ImageSearchTab :file="item" />
+        </v-tab-item>
+      </v-tabs-items>
     </v-main>
   </v-app>
 </template>
@@ -98,7 +106,7 @@ export default {
   data() {
     return {
       tabs: [],
-      tab : null,
+      tab: null,
       imgBase64: null,
       selectedBrand: null,
       brands: Object.keys(BRANDS).map((key) => ({
@@ -333,7 +341,15 @@ export default {
 };
 </script>
 <style >
-#inspire > div > main > div > div.v-window.v-item-group.theme--light.v-tabs-items > div > div > div > div.cropper-container.cropper-bg {
+#inspire
+  > div
+  > main
+  > div
+  > div.v-window.v-item-group.theme--light.v-tabs-items
+  > div
+  > div
+  > div
+  > div.cropper-container.cropper-bg {
   display: none !important;
 }
 </style>
