@@ -110,6 +110,7 @@ export default {
       this.cropper = new Cropper(this.imageTarget, {
         zoomable: false,
         autoCropArea: 0,
+        viewMode :3,
         autoCrop: false,
         cropend: (e) => {
           this.emitSpotChange(e, false);
