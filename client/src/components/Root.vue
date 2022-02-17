@@ -1,17 +1,19 @@
 <template>
   <v-app id="inspire">
-    <v-app-bar prominent app>
+    <v-app-bar app>
       <v-form
         ref="form"
         style="text-align: center; width: 100%"
         v-on:submit.prevent
       >
-        <img
-          class="center mt-2"
-          style="height: 50px"
-          src="https://assets.wsimgs.com/wsimgs/rk/images/i/202143/0006/images/common/logo.svg"
-        />
         <v-row align="center" justify="center" no-gutters>
+          <v-col col="5">
+            <img
+              class="float-left mt-1"
+              style="height: 50px"
+              src="https://assets.wsimgs.com/wsimgs/rk/images/i/202143/0006/images/common/logo.svg"
+            />
+          </v-col>
           <v-col cols="5">
             <v-btn
               @click="onClickSearch()"
@@ -20,7 +22,7 @@
               class="float-right ml-5 mb-3"
               elevation="2"
             >
-              WSI ML SEARCH
+              SEARCH
             </v-btn>
             <v-text-field
               v-if="radioGrp === 'imageUrl'"
