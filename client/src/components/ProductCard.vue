@@ -1,9 +1,8 @@
 <template>
-  <v-card class="ma-4" @click="onClickCard(product.hostPageUrl)" height="400" width="300">
-    <v-img :src="product.image" height="200" max-width="300"></v-img>
-    <v-card-title></v-card-title>
+  <v-card class="ma-2" @click="onClickCard(product.hostPageUrl)" height="260" width="200">
+    <v-img :src="product.image" height="160" max-width="300"></v-img>
     <v-card-text>
-      <div class="my-4 text-subtitle-1">
+      <div class="text-subtitle-1">
         {{ brands[product.brand].name }}
       </div>
       <div>SKU ID: {{ product.skuid }}</div>

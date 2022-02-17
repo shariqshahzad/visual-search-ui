@@ -2,32 +2,34 @@
   <div>
     <v-row v-for="(category, index) in data" :key="index">
       <v-col cols="12">
-        <span class="text-h5 font-weight-medium text-capitalize">
-          {{ category.categoryName }} :</span
-        >
-        <a
-          class="
-            text-h5
-            grey--text
-            text-darken-1
-            font-weight-medium
-            float-right
-          "
-          @click.prevent="(e) => onClickViewAll(category)"
-        >
-          View All<v-icon>mdi-arrow-right</v-icon>
-        </a>
-      </v-col>
-      <v-col cols="12">
-        <v-sheet class="mx-auto" elevation="8" max-width="1100">
-          <v-slide-group class="pa-4" active-class="success">
-            <v-slide-item
+        <v-sheet class="pa-2" elevation="8" max-width="1100" style="overflow:hidden">
+          <div>
+
+            <span cols="10" class="ml-5 text-h6 font-weight-medium text-capitalize">
+              {{ category.categoryName }} :</span
+            >
+            <a cols="12"
+              class="
+                mr-5
+                text-h6
+                grey--text
+                text-darken-1
+                font-weight-medium
+                float-right
+              "
+              @click.prevent="(e) => onClickViewAll(category)"
+            >
+              View All<v-icon>mdi-arrow-right</v-icon>
+            </a>
+          </div>
+
+          <div class="slider-bar">
+            <ProductCard
               v-for="(product, index) in category.previewData"
               :key="index"
-            >
-              <ProductCard :product="product" />
-            </v-slide-item>
-          </v-slide-group>
+              :product="product"
+            />
+          </div>
         </v-sheet>
       </v-col>
     </v-row>
@@ -60,9 +62,14 @@
     </v-dialog>
   </div>
 </template>
-
+<style scoped>
+.slider-bar {
+    flex-wrap: nowrap !important;
+    overflow-x: scroll !important;
+    display: flex;
+}
+</style>
 <script>
-
 import ProductCard from "./ProductCard.vue";
 export default {
   components: {

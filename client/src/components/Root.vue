@@ -7,14 +7,24 @@
         v-on:submit.prevent
       >
         <v-row align="center" justify="center" no-gutters>
-          <v-col col="5">
+          <v-col cols="3">
             <img
               class="float-left mt-1"
               style="height: 50px"
               src="https://assets.wsimgs.com/wsimgs/rk/images/i/202143/0006/images/common/logo.svg"
             />
           </v-col>
-          <v-col cols="5">
+          <v-col cols="4" class="mt-5">
+            <v-radio-group class="float-right" row v-model="radioGrp">
+              <v-radio
+                v-for="btn in radioButtons"
+                :key="btn.value"
+                :label="btn.label"
+                :value="btn.value"
+              ></v-radio>
+            </v-radio-group>
+          </v-col>
+          <v-col cols="5" class="mt-5">
             <v-btn
               @click="onClickSearch()"
               type="submit"
@@ -24,18 +34,19 @@
             >
               SEARCH
             </v-btn>
-            <v-text-field
-              v-if="radioGrp === 'imageUrl'"
+            <v-file-input
+              v-if="radioGrp === 'fileUpload'"
+              v-model="xlsxFile"
               required
-              :rules="rules"
-              label="Image Url"
-              name="imgUrl"
-              v-model="imageUrl"
-              placeholder="Please Enter your url here"
-            ></v-text-field>
+              :multiple="false"
+              accept="text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,	application/csv"
+              placeholder="Select an Excel File"
+              prepend-icon="mdi-file-excel-box"
+              label="Excel File"
+            ></v-file-input>
             <v-file-input
               v-if="radioGrp === 'imageUpload'"
-              v-model="files"
+              v-model="imageFiles"
               required
               multiple
               accept="image/png, image/jpeg, image/bmp"
@@ -58,7 +69,6 @@
     <v-main>
       <v-tabs
         fixed-tabs
-        icons-and-text
         v-if="tabs.length"
         background-color="transparent"
         next-icon="mdi-arrow-right-bold-box-outline"
@@ -82,15 +92,9 @@
 </template>
 
 <script>
-import bingSearchService from "../services/bingSearch.service";
-import googleSearchService from "../services/googleSearch.service";
-import WSIMLSearchService from "../services/WSIMLSearch.service";
 import ImageSearchTab from "./ImageSearchTab.vue";
 import Cropper from "cropperjs";
-import {
-  googleResultsToProductMapper,
-  encodeImageFileAsURL,
-} from "../utils/utils";
+import { googleResultsToProductMapper, parseExcel,toDataURL } from "../utils/utils";
 import { BRANDS } from "../constants/constants";
 import { mapMutations, mapGetters } from "vuex";
 
@@ -113,13 +117,18 @@ export default {
       tab: null,
       imgBase64: null,
       selectedBrand: null,
+      radioButtons: [
+        { value: "imageUpload", label: "Image Upload" },
+        { value: "fileUpload", label: "File Upload" },
+      ],
       brands: Object.keys(BRANDS).map((key) => ({
         name: BRANDS[key].name,
         value: key,
       })),
       radioGrp: "imageUpload",
       searchOption: null,
-      files: [],
+      imageFiles: [],
+      xlsxFile: null,
       dialog: false,
       imageData: null,
       objectBoundaries: [],
@@ -167,179 +176,23 @@ export default {
       this.errorDetail = "";
     },
     async onClickSearch() {
-      if (this.files.length && this.files.length > 0) {
-        this.files.map((file) => {
+      console.log(this.radioGrp);
+      const files =
+        this.radioGrp === "imageUpload"
+          ? this.imageFiles
+          : await this.getImageFilesFromExcel();
+      if (files.length && files.length > 0) {
+        files.map((file) => {
           this.tabs.push(file);
         });
       }
     },
-    async WSIMLSearch(base64str) {
-      this.isLoading = true;
-      const yoloData = await WSIMLSearchService.getYoloResults(base64str);
-      const promises = [];
-      yoloData.forEach((element) => {
-        let base64 = this.createBase64StringForBoundary(element);
-        promises.push(
-          WSIMLSearchService.getSimilaritiesResults(
-            element.class,
-            base64,
-            element.id
-          )
-        );
-        this.objectBoundaries = yoloData;
+    async getImageFilesFromExcel() {
+      let imagesData = JSON.parse(await parseExcel(this.xlsxFile));
+      imagesData.forEach(async (element) => {
+        const dataUrl = await toDataURL(element.Url);
+        console.log("Here is Base64 Url", dataUrl);
       });
-      const productResults = await Promise.all(promises);
-      this.isLoading = false;
-      this.categorizeSearchResults = productResults;
-
-      this.resultsData = null;
-      this.imageData = {
-        isUrl: this.radioGrp === "imageUrl",
-        src:
-          this.radioGrp === "imageUrl"
-            ? this.imageProxyUrl
-            : URL.createObjectURL(this.files),
-        files: this.files,
-      };
-      this.dialog = true;
-    },
-    createBase64StringForBoundary(element) {
-      let cropperCoordinates = {
-        x: element.bbox[0],
-        y: element.bbox[1],
-        width: element.bbox[2] - element.bbox[0],
-        height: element.bbox[3] - element.bbox[1],
-      };
-      this.cropper.crop();
-      this.cropper.setData(cropperCoordinates);
-      let base64 = this.cropper.getCroppedCanvas().toDataURL("image/jpeg");
-      base64 = base64.split(",")[1];
-      return base64;
-    },
-    onGoogleSearch() {
-      this.setSelectedBrand(BRANDS[this.selectedBrand]);
-      this.searchOption = "google";
-      this.objectBoundaries = [];
-      this.googleSearch(this.radioGrp === "imageUrl");
-    },
-    bingSearch(isUrl = false) {
-      if (!this.$refs.form.validate()) {
-        return;
-      }
-
-      this.isLoading = true;
-
-      bingSearchService
-        .getSearchResults({
-          selectedBrand: BRANDS[this.selectedBrand],
-          isUrl,
-          payload: isUrl ? this.imageUrl : this.files,
-        })
-        .then((res) => {
-          this.objectBoundaries =
-            bingSearchService.getResultObjectBoundaries(res);
-          let visualSearchResultsData = bingSearchService.reduceSearchResults(
-            res.tags
-          );
-          visualSearchResultsData = bingSearchService.mapResultParams(
-            visualSearchResultsData
-          );
-          if (visualSearchResultsData && visualSearchResultsData.length > 0) {
-            this.resultsData = visualSearchResultsData;
-
-            this.filters.priceRange = {
-              ...this.filters.priceRange,
-              min: Math.min.apply(
-                Math,
-                visualSearchResultsData.map((v) => (!v.price ? 0 : v.price))
-              ),
-              max: Math.max.apply(
-                Math,
-                visualSearchResultsData.map((v) => (!v.price ? 0 : v.price))
-              ),
-            };
-
-            this.imageData = {
-              isUrl: this.radioGrp === "imageUrl",
-              src:
-                this.radioGrp === "imageUrl"
-                  ? this.imageProxyUrl
-                  : URL.createObjectURL(this.files),
-              files: this.files,
-            };
-            this.dialog = true;
-            return;
-          }
-          this.isError = true;
-          this.errorDetail = "No results found";
-        })
-        .catch((e) => {
-          this.isError = true;
-          this.errorDetail = "Something Went Wrong";
-          console.log(e);
-        })
-        .finally(() => {
-          this.isLoading = false;
-        });
-    },
-    googleSearch(isUrl = false) {
-      if (!this.$refs.form.validate()) {
-        return;
-      }
-
-      this.isLoading = true;
-      googleSearchService
-        .getSearchResults({
-          selectedBrand: this.selectedBrand,
-          isUrl,
-          payload: isUrl ? this.imageUrl : this.files,
-        })
-        .then((res) => {
-          const visualSearchResultsData = res.productSearchResults.map(
-            googleResultsToProductMapper
-          );
-          if (visualSearchResultsData && visualSearchResultsData.length > 0) {
-            this.objectBoundaries =
-              googleSearchService.getResultObjectBoundaries(
-                res.productGroupedResults
-              );
-
-            this.categorizeSearchResults = res.categorizeSearchResults;
-
-            this.resultsData = null;
-            this.filters.priceRange = {
-              ...this.filters.priceRange,
-              min: Math.min.apply(
-                Math,
-                visualSearchResultsData.map((v) => (!v.price ? 0 : v.price))
-              ),
-              max: Math.max.apply(
-                Math,
-                visualSearchResultsData.map((v) => (!v.price ? 0 : v.price))
-              ),
-            };
-
-            this.imageData = {
-              isUrl: this.radioGrp === "imageUrl",
-              src:
-                this.radioGrp === "imageUrl"
-                  ? this.imageProxyUrl
-                  : URL.createObjectURL(this.files),
-              files: this.files,
-            };
-            this.dialog = true;
-            return;
-          }
-          this.isError = true;
-          this.errorDetail = "No results found";
-        })
-        .catch((e) => {
-          this.isError = true;
-          this.errorDetail = "Something Went Wrong";
-        })
-        .finally(() => {
-          this.isLoading = false;
-        });
     },
   },
 };

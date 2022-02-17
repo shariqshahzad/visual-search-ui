@@ -1,3 +1,28 @@
+var XLSX = require("xlsx");
+
+export const parseExcel = function(file) {
+  var reader = new FileReader();
+  return new Promise((resolve, reject) => {
+    reader.onload = function(e) {
+      var data = e.target.result;
+      var workbook = XLSX.read(data, {
+        type: "binary",
+      });
+
+      workbook.SheetNames.forEach(function(sheetName) {
+        // Here is your object
+        var XL_row_object = XLSX.utils.sheet_to_row_object_array(workbook.Sheets[sheetName]);
+        var json_object = JSON.stringify(XL_row_object);
+        resolve(json_object);
+      });
+    };
+    reader.onerror = function(ex) {
+      reject(ex);
+    };
+    reader.readAsBinaryString(file);
+  });
+};
+
 export function dataURLtoFile(dataUrl, fileName) {
   var arr = dataUrl.split(",");
   let mime = arr[0].match(/:(.*?);/)[1];
@@ -9,6 +34,19 @@ export function dataURLtoFile(dataUrl, fileName) {
   }
   return new File([u8arr], fileName, { type: mime });
 }
+
+export const toDataURL = (url) =>
+  fetch(url)
+    .then((response) => response.blob())
+    .then(
+      (blob) =>
+        new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        })
+    );
 
 export async function encodeImageFileAsURL(file) {
   var reader = new FileReader();

@@ -25,7 +25,8 @@
     "serve-static": "^1.14.1",
     "vue": "^2.6.11",
     "vuetify": "^2.4.0",
-    "vuex": "^3.6.2"
+    "vuex": "^3.6.2",
+    "xlsx": "^0.18.2"
   },
   "devDependencies": {
     "@mdi/font": "^6.4.95",
