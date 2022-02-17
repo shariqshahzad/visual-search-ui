@@ -1,5 +1,5 @@
 <template>
-  <v-row class="mt-5">
+  <v-row class="mt-2">
     <v-col cols="4">
       <ImageCropper
         @crop="(e) => onImageCrop(e)"

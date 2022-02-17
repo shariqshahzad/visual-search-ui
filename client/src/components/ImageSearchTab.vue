@@ -20,16 +20,16 @@
       :src="imgBase64"
       crossorigin
     />
-    <v-card v-if="resultsAvailable" min-height="800">
-      <div style="padding: 10px; overflow: hidden">
-        <ImageSearchTool
-          :results="resultsData"
-          :imageData="imageData"
-          :objectBoundaries="objectBoundaries"
-          :categorizeSearchResults="categorizeSearchResults"
-        />
-      </div>
-    </v-card>
+    <ImageSearchTool
+      v-if="resultsAvailable"
+      :results="resultsData"
+      :imageData="imageData"
+      :objectBoundaries="objectBoundaries"
+      :categorizeSearchResults="categorizeSearchResults"
+    />
+    <!-- <v-card>
+      <div style="padding: 10px; overflow: hidden"></div>
+    </v-card> -->
   </div>
 </template>
 <script>

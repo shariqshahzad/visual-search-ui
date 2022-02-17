@@ -15,7 +15,7 @@
             />
           </v-col>
           <v-col cols="4" class="mt-5">
-            <v-radio-group class="float-right" row v-model="radioGrp">
+            <v-radio-group             style="display:none" class="float-right" row v-model="radioGrp">
               <v-radio
                 v-for="btn in radioButtons"
                 :key="btn.value"
