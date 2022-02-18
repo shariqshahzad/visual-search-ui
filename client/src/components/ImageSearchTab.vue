@@ -42,7 +42,7 @@ export default {
     ImageSearchTool,
   },
   props: {
-    file: File,
+    searchProp : Object,
   },
   mounted() {
     this.$refs.uploadedImage.onload = (img) => {
@@ -74,7 +74,12 @@ export default {
   },
   methods: {
     async onWSIMLSearch() {
-      let base64str = await encodeImageFileAsURL(this.file);
+      debugger;
+      let base64str;
+      console.log(this.searchProp.dataURI);
+      base64str = this.searchProp.dataURI
+        ? this.searchProp.dataURI
+        : await encodeImageFileAsURL(this.searchProp.file);
       this.imgBase64 = base64str;
       base64str = base64str.split(",")[1];
       await this.WSIMLSearch(base64str);
@@ -114,10 +119,7 @@ export default {
       this.resultsData = null;
       this.imageData = {
         isUrl: false,
-        src:
-          this.radioGrp === "imageUrl"
-            ? this.imageProxyUrl
-            : URL.createObjectURL(this.file),
+        src: this.imgBase64,
         files: this.file,
       };
       this.resultsAvailable = true;

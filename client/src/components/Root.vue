@@ -10,12 +10,12 @@
           <v-col cols="3">
             <img
               class="float-left mt-1"
-              style="height: 50px"
+              style="height: 40px"
               src="https://assets.wsimgs.com/wsimgs/rk/images/i/202143/0006/images/common/logo.svg"
             />
           </v-col>
           <v-col cols="4" class="mt-5">
-            <v-radio-group             style="display:none" class="float-right" row v-model="radioGrp">
+            <v-radio-group class="float-right" row v-model="radioGrp">
               <v-radio
                 v-for="btn in radioButtons"
                 :key="btn.value"
@@ -84,7 +84,7 @@
 
       <v-tabs-items v-model="tab">
         <v-tab-item v-for="item in tabs" :key="item.name">
-          <ImageSearchTab :file="item" />
+          <ImageSearchTab :searchProp="item" />
         </v-tab-item>
       </v-tabs-items>
     </v-main>
@@ -94,7 +94,11 @@
 <script>
 import ImageSearchTab from "./ImageSearchTab.vue";
 import Cropper from "cropperjs";
-import { googleResultsToProductMapper, parseExcel,toDataURL } from "../utils/utils";
+import {
+  googleResultsToProductMapper,
+  parseExcel,
+  toDataURL,
+} from "../utils/utils";
 import { BRANDS } from "../constants/constants";
 import { mapMutations, mapGetters } from "vuex";
 
@@ -176,23 +180,41 @@ export default {
       this.errorDetail = "";
     },
     async onClickSearch() {
-      console.log(this.radioGrp);
-      const files =
-        this.radioGrp === "imageUpload"
-          ? this.imageFiles
-          : await this.getImageFilesFromExcel();
-      if (files.length && files.length > 0) {
-        files.map((file) => {
-          this.tabs.push(file);
-        });
+      let files;
+      if (this.radioGrp === "imageUpload") {
+        this.tabs = [];
+        this.tab = null;
+        files = this.imageFiles;
+        if (files.length && files.length > 0) {
+          files.forEach((file) => {
+            this.tabs.push({ name: file.name,  file });
+          });
+        }
+      } else {
+        files = await this.getImageFilesFromExcel();
+        if (files.length && files.length > 0) {
+          files.forEach((file) => {
+            this.tabs.push(file);
+          });
+        }
       }
     },
     async getImageFilesFromExcel() {
       let imagesData = JSON.parse(await parseExcel(this.xlsxFile));
-      imagesData.forEach(async (element) => {
-        const dataUrl = await toDataURL(element.Url);
-        console.log("Here is Base64 Url", dataUrl);
-      });
+      let imagesDataWithDataURI = await Promise.all(
+        imagesData.map(async (element) => {
+          const dataURI = await toDataURL(element.Url);
+          console.log({
+            name: element.Name,
+            dataURI,
+          });
+          return {
+            name: element.Name,
+            dataURI,
+          };
+        })
+      );
+      return imagesDataWithDataURI;
     },
   },
 };
