@@ -68,7 +68,6 @@
     </v-snackbar>
     <v-main>
       <v-tabs
-        fixed-tabs
         v-if="tabs.length"
         background-color="transparent"
         next-icon="mdi-arrow-right-bold-box-outline"
@@ -77,13 +76,13 @@
         v-model="tab"
       >
         <v-tabs-slider color="primary lighten-3"></v-tabs-slider>
-        <v-tab v-for="item in tabs" :key="item.name">
+        <v-tab v-for="item in tabs" :key="item.key">
           {{ item.name }}
         </v-tab>
       </v-tabs>
 
       <v-tabs-items v-model="tab">
-        <v-tab-item v-for="item in tabs" :key="item.name">
+        <v-tab-item v-for="item in tabs" :key="item.key">
           <ImageSearchTab :searchProp="item" />
         </v-tab-item>
       </v-tabs-items>
@@ -98,6 +97,7 @@ import {
   googleResultsToProductMapper,
   parseExcel,
   toDataURL,
+  generateUUID,
 } from "../utils/utils";
 import { BRANDS } from "../constants/constants";
 import { mapMutations, mapGetters } from "vuex";
@@ -186,8 +186,8 @@ export default {
       if (this.radioGrp === "imageUpload") {
         files = this.imageFiles;
         if (files.length && files.length > 0) {
-          files.forEach((file) => {
-            this.tabs.push({ name: file.name, file });
+          files.forEach((file,index) => {
+            this.tabs.push({ name: `Image ${index+1}`,key:generateUUID() , file });
           });
         }
       } else {
@@ -202,14 +202,11 @@ export default {
     async getImageFilesFromExcel() {
       let imagesData = JSON.parse(await parseExcel(this.xlsxFile));
       let imagesDataWithDataURI = await Promise.all(
-        imagesData.map(async (element) => {
+        imagesData.map(async (element,index) => {
           const dataURI = await toDataURL(element.Url);
-          console.log({
-            name: element.Name,
-            dataURI,
-          });
           return {
-            name: element.Name,
+            name: `Image ${index+1}`,
+            key : generateUUID(),
             dataURI,
           };
         })
