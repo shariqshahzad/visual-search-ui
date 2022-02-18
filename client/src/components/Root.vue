@@ -68,6 +68,7 @@
     </v-snackbar>
     <v-main>
       <v-tabs
+        centered
         v-if="tabs.length"
         background-color="transparent"
         next-icon="mdi-arrow-right-bold-box-outline"
