@@ -180,14 +180,14 @@ export default {
       this.errorDetail = "";
     },
     async onClickSearch() {
+      this.tabs = [];
+      this.tab = null;
       let files;
       if (this.radioGrp === "imageUpload") {
-        this.tabs = [];
-        this.tab = null;
         files = this.imageFiles;
         if (files.length && files.length > 0) {
           files.forEach((file) => {
-            this.tabs.push({ name: file.name,  file });
+            this.tabs.push({ name: file.name, file });
           });
         }
       } else {
