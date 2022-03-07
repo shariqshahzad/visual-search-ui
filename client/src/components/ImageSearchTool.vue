@@ -27,7 +27,7 @@
       <CategoryProductDisplay
         v-if="hasCategory"
         :isLoading="isLoading"
-        :data="resultsByCategories"
+        :categorizedData="resultsByCategories"
       />
       <ProductDisplay v-if="!hasCategory" :products="filteredResult" />
     </v-col>

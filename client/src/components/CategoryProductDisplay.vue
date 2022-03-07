@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-row v-for="(category, index) in data" :key="index">
+    <v-row v-for="(category, index) in categorizedData" :key="index">
       <v-col cols="12">
         <v-sheet
           class="pa-2"
@@ -100,7 +100,7 @@ export default {
     ProductCard,
   },
   props: {
-    data: Array,
+    categorizedData: Array,
   },
   data() {
     return {
@@ -108,16 +108,6 @@ export default {
       selectedCategoryFullData: [],
       selectedCategoryHeading: "",
     };
-  },
-  mounted() {
-    this.data.forEach(
-      (element) =>
-        (element.filters = _.uniqBy(element.data, "product_type").map((el) => ({
-          filterName: el.product_type,
-          isEnabled: false,
-        })))
-    );
-    console.log(this.data);
   },
   methods: {
     onChangeFilterCheckbox(e, category, filter) {
@@ -128,30 +118,23 @@ export default {
       this.updateDataAsPerFilters(category);
     },
     updateDataAsPerFilters(category) {
-      const conditionArray = category.filters.reduce(function (
-        conditions,
-        filter
-      ) {
+      const conditionArray = category.filters.reduce((filtered, filter) => {
         if (filter.isEnabled) {
-          conditions.push({ product_type: filter.filterName });
+          const filterItems =  category.data.filter(d=>d.product_type === filter.filterName)
+          filtered.push(...filterItems);
         }
-        return conditions;
-      },
-      []);
-      if (conditionArray.length > 0) {
-        category.previewData = category.data.filter((item) =>
-          conditionArray.every(
-            (val) => item.product_type.indexOf(val.product_type) > -1
-          )
-        );
-        // category.previewData = _.filter(
-        //   category.data,
-        //   conditionArray,
-        //   "product_type"
-        // );
-        return;
-      }
-      category.previewData = category.data;
+        return filtered;
+      }, []);
+      category.previewData = conditionArray;
+      // if (conditionArray.length > 0) {
+      //   category.previewData = category.data.filter((item) =>
+      //     conditionArray.every(
+      //       (val) => item.product_type.indexOf(val.product_type) > -1
+      //     )
+      //   );
+      //   return;
+      // }
+      // category.previewData = category.data;
 
       // category.filters.forEach((f) => {
       //   if (f.isEnabled) {
