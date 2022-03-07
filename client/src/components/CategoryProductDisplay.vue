@@ -33,7 +33,7 @@
               <div class="ma-2" style="width: 150px">
                 <v-checkbox
                   v-for="(filter, index) in category.filters"
-                  :key="index"
+                  :key="filter + index"
                   :label="filter.filterName"
                   @change="(e) => onChangeFilterCheckbox(e, category, filter)"
                   hide-details
@@ -140,7 +140,9 @@ export default {
       []);
       if (conditionArray.length > 0) {
         category.previewData = category.data.filter((item) =>
-          conditionArray.every((val) => item.product_type.indexOf(val.product_type) > -1)
+          conditionArray.every(
+            (val) => item.product_type.indexOf(val.product_type) > -1
+          )
         );
         // category.previewData = _.filter(
         //   category.data,

@@ -74,7 +74,6 @@ export default {
   },
   methods: {
     async onWSIMLSearch() {
-      debugger;
       let base64str;
       console.log(this.searchProp.dataURI);
       base64str = this.searchProp.dataURI
