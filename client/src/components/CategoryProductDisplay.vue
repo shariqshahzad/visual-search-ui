@@ -13,12 +13,10 @@
               cols="10"
               class="ml-5 text-h6 font-weight-medium text-capitalize"
             >
-              {{ category.categoryName }} :</span
-            >
+            </span>
             <a
               cols="12"
               class="
-                mr-5
                 text-h6
                 grey--text
                 text-darken-1
@@ -30,13 +28,25 @@
               View All<v-icon>mdi-arrow-right</v-icon>
             </a>
           </div>
-
-          <div class="slider-bar">
-            <ProductCard
-              v-for="(product, index) in category.previewData"
-              :key="index"
-              :product="product"
-            />
+          <div style="display: flex">
+            <div>
+              <div class="ma-2" style="width: 150px">
+                <v-checkbox
+                  v-for="(filter, index) in category.filters"
+                  :key="index"
+                  :label="filter.filterName"
+                  @change="(e) => onChangeFilterCheckbox(e, category, filter)"
+                  hide-details
+                ></v-checkbox>
+              </div>
+            </div>
+            <div class="slider-bar">
+              <ProductCard
+                v-for="(product, index) in category.previewData"
+                :key="index"
+                :product="product"
+              />
+            </div>
           </div>
         </v-sheet>
       </v-col>
@@ -79,9 +89,11 @@
   flex-wrap: nowrap !important;
   overflow-x: scroll !important;
   display: flex;
+  overflow-y: hidden;
 }
 </style>
 <script>
+import _ from "lodash";
 import ProductCard from "./ProductCard.vue";
 export default {
   components: {
@@ -97,7 +109,56 @@ export default {
       selectedCategoryHeading: "",
     };
   },
+  mounted() {
+    this.data.forEach(
+      (element) =>
+        (element.filters = _.uniqBy(element.data, "product_type").map((el) => ({
+          filterName: el.product_type,
+          isEnabled: false,
+        })))
+    );
+    console.log(this.data);
+  },
   methods: {
+    onChangeFilterCheckbox(e, category, filter) {
+      let selectedFilter = category.filters.find(
+        (f) => f.filterName === filter.filterName
+      );
+      selectedFilter.isEnabled = e;
+      this.updateDataAsPerFilters(category);
+    },
+    updateDataAsPerFilters(category) {
+      const conditionArray = category.filters.reduce(function (
+        conditions,
+        filter
+      ) {
+        if (filter.isEnabled) {
+          conditions.push({ product_type: filter.filterName });
+        }
+        return conditions;
+      },
+      []);
+      if (conditionArray.length > 0) {
+        category.previewData = category.data.filter((item) =>
+          conditionArray.every((val) => item.product_type.indexOf(val.product_type) > -1)
+        );
+        // category.previewData = _.filter(
+        //   category.data,
+        //   conditionArray,
+        //   "product_type"
+        // );
+        return;
+      }
+      category.previewData = category.data;
+
+      // category.filters.forEach((f) => {
+      //   if (f.isEnabled) {
+      //     category.previewData = category.data.filter(
+      //       (p) => p.product_type === f.filterName
+      //     );
+      //   }
+      // });
+    },
     onClickCard(url) {
       window.open(url);
     },

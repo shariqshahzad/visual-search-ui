@@ -24,7 +24,7 @@ export default {
     }
     let products = res.data.map((r) => {
       const product = {};
-      product.name = r.product_type;
+      product.product_type = r.product_type;
       product.image = r.thumb_image;
       product.price = 123.0;
       product.pid = r.pid;
