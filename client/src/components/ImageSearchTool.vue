@@ -108,7 +108,6 @@ export default {
       this.filters.priceRangeSelection.max = range[1];
     },
     onClickCard(url) {
-      console.log(url);
       window.open(url);
     },
   },

@@ -75,7 +75,6 @@ export default {
   methods: {
     async onWSIMLSearch() {
       let base64str;
-      console.log(this.searchProp.dataURI);
       base64str = this.searchProp.dataURI
         ? this.searchProp.dataURI
         : await encodeImageFileAsURL(this.searchProp.file);

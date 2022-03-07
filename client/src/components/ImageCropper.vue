@@ -54,7 +54,6 @@ export default {
         height: img.target.naturalHeight,
       };
       this.hotspotButtons = objectBoundaries.map((bd) => {
-        console.log(bd);
         const top = ((bd.bbox[1] + bd.bbox[3]) / 2 / dimensions.height) * 100;
         const left = ((bd.bbox[0] + bd.bbox[2]) / 2 / dimensions.width) * 100;
         return {
@@ -72,7 +71,6 @@ export default {
           // boundingPolyIndex: bd.boundingPolyIndex,
         };
       });
-      console.log(this.hotspotButtons);
 
       // objectBoundaries.map((bd) => {
       //   const x = bd.rectangleBox.topLeft.x * dimensions.width,

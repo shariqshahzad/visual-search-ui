@@ -118,14 +118,21 @@ export default {
       this.updateDataAsPerFilters(category);
     },
     updateDataAsPerFilters(category) {
-      const conditionArray = category.filters.reduce((filtered, filter) => {
-        if (filter.isEnabled) {
-          const filterItems =  category.data.filter(d=>d.product_type === filter.filterName)
-          filtered.push(...filterItems);
-        }
-        return filtered;
-      }, []);
-      category.previewData = conditionArray;
+      const filterCount = category.filters.filter((f) => f.isEnabled).length;
+      if (filterCount > 0) {
+        const conditionArray = category.filters.reduce((filtered, filter) => {
+          if (filter.isEnabled) {
+            const filterItems = category.data.filter(
+              (d) => d.product_type === filter.filterName
+            );
+            filtered.push(...filterItems);
+          }
+          return filtered;
+        }, []);
+        category.previewData = conditionArray;
+        return;
+      }
+      category.previewData = category.data;
       // if (conditionArray.length > 0) {
       //   category.previewData = category.data.filter((item) =>
       //     conditionArray.every(
