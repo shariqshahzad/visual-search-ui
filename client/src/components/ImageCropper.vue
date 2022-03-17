@@ -104,11 +104,11 @@ export default {
     };
   },
   methods: {
-    initializeCropper(){
+    initializeCropper(isReset) {
       this.cropper = new Cropper(this.imageTarget, {
         zoomable: false,
         autoCropArea: 0,
-        viewMode :3,
+        viewMode: 3,
         autoCrop: false,
         cropend: (e) => {
           this.emitSpotChange(e, false);
@@ -117,13 +117,17 @@ export default {
     },
     onClickReset() {
       this.cropper.destroy();
-      this.initializeCropper();
-      this.$emit("crop", null);
+      this.initializeCropper(true);
+      this.$emit("resetData", null);
     },
     emitSpotChange(e, setCropper = true) {
       this.cropper.crop();
-      setCropper && this.cropper.setData(e.cropperCoordinates);
-      this.$emit("crop", e.categoryId);
+      if (setCropper) {
+        this.cropper.setData(e.cropperCoordinates);
+        this.$emit("crop", e.categoryId);
+      } else {
+        this.$emit("customCrop",this.cropper.getCroppedCanvas().toDataURL('image/jpeg'));
+      }
     },
   },
   watch: {

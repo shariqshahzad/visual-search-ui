@@ -3,6 +3,8 @@
     <v-col cols="4">
       <ImageCropper
         @crop="(e) => onImageCrop(e)"
+        @resetData="onResetData"
+        @customCrop="onCustomCrop"
         :imageData="imageData"
         :isLoading="isLoading"
         :objectBoundaries="objectBoundaries"
@@ -41,7 +43,7 @@
 <script>
 import ImageCropper from "./ImageCropper.vue";
 import bingSearchService from "../services/bingSearch.service";
-import gooogleSearchService from "../services/googleSearch.service";
+import WSIMLSearchService from "../services/WSIMLSearch.service";
 import { googleResultsToProductMapper } from "../utils/utils";
 import CategoryProductDisplay from "./CategoryProductDisplay.vue";
 import ProductDisplay from "./ProductDisplay.vue";
@@ -95,12 +97,26 @@ export default {
     ]),
   },
   methods: {
+    async onCustomCrop(e) {
+      let base64 = e.split(",")[1];
+      this.isLoading = true
+      let result = await WSIMLSearchService.getSimilaritiesResults(
+        "chair",
+        base64,
+        'someId'
+      );
+      this.isLoading = false
+      this.resultsByCategories = [result];
+    },
+    onResetData() {
+      debugger;
+      this.resultsByCategories = this.categorizeSearchResults;
+    },
     onImageCrop(id) {
-      if(id===null){
-        this.resultsByCategories = this.categorizeSearchResults;
-        return;
-      }
-      this.resultsByCategories = this.categorizeSearchResults.filter(cat=>cat.categoryId===id);
+      debugger;
+      this.resultsByCategories = this.categorizeSearchResults.filter(
+        (cat) => cat.categoryId === id
+      );
       return;
     },
     emitPriceRange(range) {
