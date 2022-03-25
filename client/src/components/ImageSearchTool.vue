@@ -9,6 +9,22 @@
         :isLoading="isLoading"
         :objectBoundaries="objectBoundaries"
       />
+      <div class="mt-5">
+        <strong><v-icon>mdi-filter</v-icon>Filter By Brands :</strong>
+        <div class="ma-2" style="display: flex; flex-wrap: wrap">
+          <v-checkbox
+            v-for="brand of brands"
+            :key="brand.name"
+            class="mr-3"
+            @change="onChangeBrand(brand, $event)"
+            :label="brand.name"
+          ></v-checkbox>
+          <!-- <v-row>
+        <v-col> </v-col>
+        <v-col cols="2"> </v-col>
+      </v-row> -->
+        </div>
+      </div>
       <!--      <filters :min="defaultFilters.priceRange.min" :max="defaultFilters.priceRange.max" @emitPriceRange="emitPriceRange" />-->
     </v-col>
 
@@ -27,7 +43,8 @@
     </v-row>
     <v-col cols="8" v-else>
       <CategoryProductDisplay
-        v-if="hasCategory"
+        :categoryFilters="categoryFilters"
+        v-if="showProducts"
         :isLoading="isLoading"
         :categorizedData="resultsByCategories"
       />
@@ -42,6 +59,7 @@
 </style>
 <script>
 import ImageCropper from "./ImageCropper.vue";
+import _ from "lodash";
 import bingSearchService from "../services/bingSearch.service";
 import WSIMLSearchService from "../services/WSIMLSearch.service";
 import { googleResultsToProductMapper } from "../utils/utils";
@@ -62,8 +80,15 @@ export default {
   },
   data() {
     return {
+      showProducts : false,
+      selectedBrands: [],
+      brands: Object.keys(BRANDS).map((b) => ({
+        name: BRANDS[b].name,
+        key: b,
+      })),
       dataResults: this.results,
-      resultsByCategories: this.categorizeSearchResults,
+      categoryFilters : {},
+      resultsByCategories: _.cloneDeep(this.categorizeSearchResults),
       isLoading: false,
       cropper: {},
       destination: {},
@@ -97,23 +122,41 @@ export default {
     ]),
   },
   methods: {
+    onChangeBrand(brand, eventValue) {
+      eventValue
+        ? this.selectedBrands.push(brand.key)
+        : this.selectedBrands.splice(this.selectedBrands.indexOf(brand.key), 1);
+      if (this.selectedBrands.length > 0) {
+        this.resultsByCategories = this.categorizeSearchResults.reduce(
+          (prevCatResults, cat) => {
+            const prevCat = _.cloneDeep(cat);
+            prevCat.data = prevCat.previewData = cat.data.filter((pr) => {
+              return this.selectedBrands.includes(pr.brand);
+            });
+            prevCatResults.push(prevCat);
+            return prevCatResults;
+          },
+          []
+        );
+      } else {
+        this.resultsByCategories = _.cloneDeep(this.categorizeSearchResults);
+      }
+    },
     async onCustomCrop(e) {
       let base64 = e.split(",")[1];
-      this.isLoading = true
+      this.isLoading = true;
       let result = await WSIMLSearchService.getSimilaritiesResults(
         "chair",
         base64,
-        'someId'
+        "someId"
       );
-      this.isLoading = false
+      this.isLoading = false;
       this.resultsByCategories = [result];
     },
     onResetData() {
-      debugger;
-      this.resultsByCategories = this.categorizeSearchResults;
+      this.resultsByCategories = _.cloneDeep(this.categorizeSearchResults);
     },
     onImageCrop(id) {
-      debugger;
       this.resultsByCategories = this.categorizeSearchResults.filter(
         (cat) => cat.categoryId === id
       );
@@ -128,6 +171,14 @@ export default {
     },
   },
   mounted() {
+    this.categorizeSearchResults.forEach((cat) => {
+      const filters = _.uniqBy(cat.data, "product_type").map((el) => ({
+        filterName: el.product_type,
+        isEnabled: false,
+      }));
+      this.categoryFilters[`categoryId_${cat.categoryId}`] = filters;
+    });
+    this.showProducts = true;
     this.hasCategory = !(this.results && this.results.length > 0);
     // this.hasCategory = true;
   },

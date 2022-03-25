@@ -1,5 +1,8 @@
 <template>
   <div>
+    <div class="text-center">
+      <v-btn class="mt-2" @click="onClickReset" color="primary">Reset</v-btn>
+    </div>
     <div class="img-container ma-2">
       <img
         ref="uploadedImage"
@@ -15,9 +18,7 @@
         :class="`dot ${isLoading ? 'disabled' : ''}`"
       ></span>
     </div>
-    <div class="text-center">
-      <v-btn @click="onClickReset" color="primary">Reset</v-btn>
-    </div>
+
 
     <!-- <div class="img-container" style="display: hidden; justify-content: center">
       <img ref="image" :src="destination" crossorigin />
@@ -27,7 +28,7 @@
 
 <script>
 import Cropper from "cropperjs";
-import { dataURLtoFile } from "../utils/utils";
+
 export default {
   name: "ImageCropper",
   data() {
@@ -126,7 +127,10 @@ export default {
         this.cropper.setData(e.cropperCoordinates);
         this.$emit("crop", e.categoryId);
       } else {
-        this.$emit("customCrop",this.cropper.getCroppedCanvas().toDataURL('image/jpeg'));
+        this.$emit(
+          "customCrop",
+          this.cropper.getCroppedCanvas().toDataURL("image/jpeg")
+        );
       }
     },
   },

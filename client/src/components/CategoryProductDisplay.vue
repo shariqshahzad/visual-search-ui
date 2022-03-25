@@ -32,8 +32,9 @@
             <div>
               <div class="ma-2" style="width: 150px">
                 <v-checkbox
-                  v-for="(filter, index) in category.filters"
-                  :key="filter + index"
+                  v-for="(filter,index) in categoryFilters[`categoryId_${category.categoryId}`]"
+                  :value="filter.isEnabled"
+                  :key="`${index}_${filter.filterName}`"
                   :label="filter.filterName"
                   @change="(e) => onChangeFilterCheckbox(e, category, filter)"
                   hide-details
@@ -101,6 +102,12 @@ export default {
   },
   props: {
     categorizedData: Array,
+    categoryFilters: Object,
+  },
+  watch: {
+    categorizedData: function (newVal, oldVal) {
+      this.updateDataAsPerFilters();
+    },
   },
   data() {
     return {
@@ -111,28 +118,44 @@ export default {
   },
   methods: {
     onChangeFilterCheckbox(e, category, filter) {
-      let selectedFilter = category.filters.find(
-        (f) => f.filterName === filter.filterName
-      );
-      selectedFilter.isEnabled = e;
-      this.updateDataAsPerFilters(category);
+      filter.isEnabled = e;
+      this.updateDataAsPerFilters();
     },
-    updateDataAsPerFilters(category) {
-      const filterCount = category.filters.filter((f) => f.isEnabled).length;
-      if (filterCount > 0) {
-        const conditionArray = category.filters.reduce((filtered, filter) => {
-          if (filter.isEnabled) {
-            const filterItems = category.data.filter(
-              (d) => d.product_type === filter.filterName
-            );
-            filtered.push(...filterItems);
-          }
-          return filtered;
-        }, []);
-        category.previewData = conditionArray;
-        return;
-      }
-      category.previewData = category.data;
+    updateDataAsPerFilters() {
+      this.categorizedData.forEach((category) => {
+        const filterNames = this.categoryFilters[
+          `categoryId_${category.categoryId}`
+        ].filter(f=>f.isEnabled).map((f) => f.filterName);
+        if(filterNames.length>0){
+        category.previewData = category.data.filter((product) => {
+          return filterNames.includes(product.product_type);
+        });
+        }
+        else{
+          category.previewData = category.data;
+        }
+
+      });
+      // const filterCount = this.categoryFilters.filter(
+      //   (f) => f.isEnabled
+      // ).length;
+      // if (filterCount > 0) {
+      //   const conditionArray = this.categoryFilters.reduce(
+      //     (filtered, filter) => {
+      //       if (filter.isEnabled) {
+      //         const filterItems = category.data.filter(
+      //           (d) => d.product_type === filter.filterName
+      //         );
+      //         filtered.push(...filterItems);
+      //       }
+      //       return filtered;
+      //     },
+      //     []
+      //   );
+      //   category.previewData = conditionArray;
+      //   return;
+      // }
+      // category.previewData = category.data;
       // if (conditionArray.length > 0) {
       //   category.previewData = category.data.filter((item) =>
       //     conditionArray.every(

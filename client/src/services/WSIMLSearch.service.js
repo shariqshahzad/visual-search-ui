@@ -35,11 +35,8 @@ export default {
       product.brand = r.brand;
       return product;
     });
-    const filters = _.uniqBy(products, "product_type").map((el) => ({
-      filterName: el.product_type,
-      isEnabled: false,
-    }));
-    return { categoryName,categoryId,data: products, filters,  previewData: products };
+
+    return { categoryName,categoryId,data: products, previewData: products };
   },
   async getYoloResults(base64Str) {
     let body = {
