@@ -15,8 +15,10 @@
           <v-checkbox
             v-for="brand of brands"
             :key="brand.name"
+            v-model="selectedBrands"
             class="mr-3"
             @change="onChangeBrand(brand, $event)"
+            :value="brand.key"
             :label="brand.name"
           ></v-checkbox>
           <!-- <v-row>
@@ -80,14 +82,14 @@ export default {
   },
   data() {
     return {
-      showProducts : false,
+      showProducts: false,
       selectedBrands: [],
       brands: Object.keys(BRANDS).map((b) => ({
         name: BRANDS[b].name,
         key: b,
       })),
       dataResults: this.results,
-      categoryFilters : {},
+      categoryFilters: {},
       resultsByCategories: _.cloneDeep(this.categorizeSearchResults),
       isLoading: false,
       cropper: {},
@@ -122,10 +124,11 @@ export default {
     ]),
   },
   methods: {
-    onChangeBrand(brand, eventValue) {
-      eventValue
-        ? this.selectedBrands.push(brand.key)
-        : this.selectedBrands.splice(this.selectedBrands.indexOf(brand.key), 1);
+    onChangeBrand() {
+      console.log(this.selectedBrands);
+      this.applyFilters();
+    },
+    applyBrandFilter() {
       if (this.selectedBrands.length > 0) {
         this.resultsByCategories = this.categorizeSearchResults.reduce(
           (prevCatResults, cat) => {
@@ -153,14 +156,23 @@ export default {
       this.isLoading = false;
       this.resultsByCategories = [result];
     },
+    applyFilters() {
+      this.applyBrandFilter();
+      if (this.selectedCropAreaId) {
+        this.resultsByCategories = this.resultsByCategories.filter(
+          (cat) => cat.categoryId === this.selectedCropAreaId
+        );
+      }
+      return;
+    },
     onResetData() {
       this.resultsByCategories = _.cloneDeep(this.categorizeSearchResults);
+      this.selectedBrands = [];
+      this.selectedCropAreaId = null;
     },
     onImageCrop(id) {
-      this.resultsByCategories = this.categorizeSearchResults.filter(
-        (cat) => cat.categoryId === id
-      );
-      return;
+      this.selectedCropAreaId = id;
+      this.applyFilters();
     },
     emitPriceRange(range) {
       this.filters.priceRangeSelection.min = range[0];
