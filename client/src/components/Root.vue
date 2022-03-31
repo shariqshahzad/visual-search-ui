@@ -88,7 +88,14 @@
       >
         <v-tabs-slider color="primary lighten-3"></v-tabs-slider>
         <v-tab v-for="item in tabs" :key="item.key">
-          {{ item.name }}
+          <v-tooltip bottom color="primary">
+            <template v-slot:activator="{ on, attrs }">
+              <div v-bind="attrs" v-on="on">{{ item.name }}</div>
+            </template>
+            <div style="width: 200px">
+              <img :src="item.imgSrc" />
+            </div>
+          </v-tooltip>
         </v-tab>
       </v-tabs>
 
@@ -110,6 +117,7 @@ import {
   parseExcel,
   toDataURL,
   getMimeTypeOfFile,
+  encodeImageFileAsURL,
   generateUUID,
 } from "../utils/utils";
 import { BRANDS } from "../constants/constants";
@@ -201,12 +209,13 @@ export default {
       if (this.radioGrp === "imageUpload") {
         files = this.imageFiles;
         if (files.length && files.length > 0) {
-          files.forEach((file, index) => {
-            this.tabs.push({
+          files.forEach(async (file, index) => {
+            await this.addElementToTabs({
               name: `Image ${index + 1}`,
               key: generateUUID(),
               file,
             });
+            // this.tabs.push();
           });
         }
       } else if (this.radioGrp === "zipUpload") {
@@ -222,7 +231,7 @@ export default {
 
           if (file.type !== "unknown filetype") {
             knownFilesCount++;
-            this.tabs.push({
+            await this.addElementToTabs({
               name: `Image ${knownFilesCount}`,
               key: generateUUID(),
               file,
@@ -236,11 +245,19 @@ export default {
       } else {
         files = await this.getImageFilesFromExcel();
         if (files.length && files.length > 0) {
-          files.forEach((file) => {
-            this.tabs.push(file);
+          files.forEach(async (file) => {
+            await this.addElementToTabs(file);
           });
         }
       }
+    },
+    async addElementToTabs(element) {
+      let base64str;
+      base64str = element.dataURI
+        ? element.dataURI
+        : await encodeImageFileAsURL(element.file);
+      element.imgSrc = base64str;
+      this.tabs.push(element);
     },
     async getImageFilesFromExcel() {
       let imagesData = JSON.parse(await parseExcel(this.xlsxFile));
