@@ -1,5 +1,5 @@
 <template>
-  <v-card class="ma-2" @click="onClickCard(product.hostPageUrl)" height="260" width="200">
+  <v-card class="ma-2" height="260" width="200">
     <v-img :src="product.image" height="160" max-width="300"></v-img>
     <v-card-text>
       <div class="text-subtitle-1">

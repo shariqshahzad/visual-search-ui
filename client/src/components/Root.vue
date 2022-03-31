@@ -45,6 +45,16 @@
               label="Excel File"
             ></v-file-input>
             <v-file-input
+              v-if="radioGrp === 'zipUpload'"
+              v-model="zipFile"
+              required
+              :multiple="false"
+              accept="application/zip"
+              placeholder="Select a zip File"
+              prepend-icon="mdi-folder-zip-outline"
+              label="Zip File"
+            ></v-file-input>
+            <v-file-input
               v-if="radioGrp === 'imageUpload'"
               v-model="imageFiles"
               required
@@ -93,11 +103,13 @@
 
 <script>
 import ImageSearchTab from "./ImageSearchTab.vue";
+import JSZip from "jszip";
 import Cropper from "cropperjs";
 import {
   googleResultsToProductMapper,
   parseExcel,
   toDataURL,
+  getMimeTypeOfFile,
   generateUUID,
 } from "../utils/utils";
 import { BRANDS } from "../constants/constants";
@@ -124,6 +136,7 @@ export default {
       selectedBrand: null,
       radioButtons: [
         { value: "imageUpload", label: "Image Upload" },
+        { value: "zipUpload", label: "Upload a zip file" },
         { value: "fileUpload", label: "File Upload" },
       ],
       brands: Object.keys(BRANDS).map((key) => ({
@@ -134,6 +147,7 @@ export default {
       searchOption: null,
       imageFiles: [],
       xlsxFile: null,
+      zipFile: null,
       dialog: false,
       imageData: null,
       objectBoundaries: [],
@@ -187,10 +201,38 @@ export default {
       if (this.radioGrp === "imageUpload") {
         files = this.imageFiles;
         if (files.length && files.length > 0) {
-          files.forEach((file,index) => {
-            this.tabs.push({ name: `Image ${index+1}`,key:generateUUID() , file });
+          files.forEach((file, index) => {
+            this.tabs.push({
+              name: `Image ${index + 1}`,
+              key: generateUUID(),
+              file,
+            });
           });
         }
+      } else if (this.radioGrp === "zipUpload") {
+        var new_zip = new JSZip();
+        // more files !
+        const zip = await new_zip.loadAsync(this.zipFile);
+        const keys = Object.keys(zip.files);
+        let knownFilesCount = 0;
+        for (let i = 0; i < keys.length; i++) {
+          let fileData = await zip.files[keys[i]].async("blob");
+          const mimeType = await getMimeTypeOfFile(fileData);
+          const file = new File([fileData], keys[i], { type: mimeType });
+
+          if (file.type !== "unknown filetype") {
+            knownFilesCount++;
+            this.tabs.push({
+              name: `Image ${knownFilesCount}`,
+              key: generateUUID(),
+              file,
+            });
+          }
+
+          // console.log(file);
+        }
+        console.log(`${knownFilesCount} files are known`);
+        // Object.keys(zip.files).forEach(async (key, index) => {});
       } else {
         files = await this.getImageFilesFromExcel();
         if (files.length && files.length > 0) {
@@ -203,11 +245,11 @@ export default {
     async getImageFilesFromExcel() {
       let imagesData = JSON.parse(await parseExcel(this.xlsxFile));
       let imagesDataWithDataURI = await Promise.all(
-        imagesData.map(async (element,index) => {
+        imagesData.map(async (element, index) => {
           const dataURI = await toDataURL(element.Url);
           return {
-            name: `Image ${index+1}`,
-            key : generateUUID(),
+            name: `Image ${index + 1}`,
+            key: generateUUID(),
             dataURI,
           };
         })
