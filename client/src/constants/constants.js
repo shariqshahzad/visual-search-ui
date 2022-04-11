@@ -18,11 +18,11 @@ export const BRANDS = {
     WS: {
         hostUrl : "https://www.potterybarnkids.com/",
         name: "Williams Sonoma"
-    },
-    MG: {
-        hostUrl : "https://www.potterybarnkids.com/",
-        name: "Mark and Grahams"
     }
+    // MG: {
+    //     hostUrl : "https://www.potterybarnkids.com/",
+    //     name: "Mark and Grahams"
+    // }
 }
 
 export const WSI_ML_SIMILARITY_ENDPOINT = `ml-visual-search/similarity`;
