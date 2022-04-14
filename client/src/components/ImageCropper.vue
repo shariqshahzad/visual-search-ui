@@ -170,7 +170,7 @@ export default {
 
 .img-container {
   position: relative;
-  max-height: 600px;
+  /*max-height: 600px;*/
 }
 .img-preview {
   width: 200px;
