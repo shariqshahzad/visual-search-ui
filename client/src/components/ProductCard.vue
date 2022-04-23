@@ -6,10 +6,10 @@
         {{ brands[product.brand].name }}
       </div>
       <div>SKU ID: {{ product.skuid }}</div>
-      <v-tooltip v-if="product.pid.length > 33" bottom>
+      <v-tooltip v-if="product.pid.length > 30" bottom>
         <template v-slot:activator="{ on, attrs }">
           <span v-bind="attrs" v-on="on"
-            >PID: {{ product.pid.substring(0, 33) }} ...</span
+            >PID: {{ product.pid.substring(0, 30) }}...</span
           >
         </template>
         <span>{{ product.pid }}</span>

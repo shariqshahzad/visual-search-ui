@@ -53,7 +53,7 @@
       </v-col>
     </v-row>
 
-    <v-dialog v-if="showMore" v-model="showMore" max-width="auto">
+    <v-dialog v-if="showMore" v-model="showMore">
       <v-card min-height="800">
         <v-toolbar dark color="primary">
           <v-btn icon dark @click="showMore = false">
@@ -67,7 +67,7 @@
           <v-spacer></v-spacer>
         </v-toolbar>
         <div style="padding: 10px; overflow: hidden">
-          <v-row class="mt-5">
+          <v-row class="mt-5" style="justify-content: center;">
             <ProductCard
               v-for="(product, index) in selectedCategoryFullData"
               :key="index"
