@@ -36,13 +36,14 @@
 import WSIMLSearchService from "../services/WSIMLSearch.service";
 import { encodeImageFileAsURL } from "../utils/utils";
 import ImageSearchTool from "./ImageSearchTool.vue";
+import _ from "lodash";
 import Cropper from "cropperjs";
 export default {
   components: {
     ImageSearchTool,
   },
   props: {
-    searchProp : Object,
+    searchProp: Object,
   },
   mounted() {
     this.$refs.uploadedImage.onload = (img) => {
@@ -108,12 +109,13 @@ export default {
             element.id
           )
         );
-        this.objectBoundaries = yoloData;
       });
-      const productResults = await Promise.all(promises);
+      this.objectBoundaries = yoloData;
+      let productResults = await Promise.all(promises);
+      this.processSimilarResults(productResults, yoloData);
+      productResults = _.uniqBy(productResults, "categoryId");
       this.isLoading = false;
       this.categorizeSearchResults = productResults;
-
       this.resultsData = null;
       this.imageData = {
         isUrl: false,
@@ -121,6 +123,97 @@ export default {
         files: this.file,
       };
       this.resultsAvailable = true;
+    },
+    processSimilarResults(productResults, yoloData) {
+      const similarCagtegories = {};
+      const categories = productResults.map((p) => p.categoryName);
+      let categoryWiseResults = this.getCategoryWiseResults(
+        categories,
+        productResults
+      );
+      for (const [key, value] of Object.entries(categoryWiseResults)) {
+        if (value.data.length > 1) {
+          const data = value.data;
+          var combinations = data.flatMap((v, i) =>
+            data.slice(i + 1).map((w) => ({
+              combinedResults: [v.results, w.results],
+              categories: [v.categoryId, w.categoryId],
+            }))
+          );
+          combinations.map((combination) => {
+            const intersection = _.intersectionBy(
+              ...combination.combinedResults,
+              "skuid"
+            );
+
+            if (intersection.length > 0) {
+              yoloData.forEach((yd) => {
+                if (combination.categories.includes(yd.id)) {
+                  yd.hasSimilarity = true;
+                }
+              });
+            }
+          });
+          const similarItems = yoloData
+            .filter((yd) => yd.hasSimilarity && yd.class === key)
+            .map((yd) => yd.id);
+          if (similarItems.length > 0) similarCagtegories[key] = similarItems;
+        }
+      }
+      this.prioritizeSimilarProductDataset(
+        productResults,
+        similarCagtegories,
+        yoloData
+      );
+    },
+    prioritizeSimilarProductDataset(
+      productResults,
+      similarCagtegories,
+      yoloData
+    ) {
+      const prioritizedSimilarProductDataset = [];
+      for (const [key, value] of Object.entries(similarCagtegories)) {
+        const prsForSimilarCategory = productResults
+          .filter((pr) => pr.categoryName === key)
+          .map((pr) => ({
+            score: _.maxBy(pr.data, "similarity").similarity,
+            categoryId: pr.categoryId,
+            categoryName: key,
+          }));
+        const categoryToBePrioritized = _.maxBy(prsForSimilarCategory, "score");
+        _.remove(productResults, (pr) => {
+          const isPrToBeRemoved =
+            pr.categoryName === key &&
+            pr.categoryId !== categoryToBePrioritized.categoryId;
+          if (isPrToBeRemoved) {
+            const yoloitem = yoloData.find((yd) => yd.id === pr.categoryId);
+            yoloitem.id = categoryToBePrioritized.categoryId;
+          }
+          return isPrToBeRemoved;
+        });
+        prioritizedSimilarProductDataset.push(categoryToBePrioritized);
+      }
+    },
+    getCategoryWiseResults(categories, productResults) {
+      return categories.reduce((categoryWiseResults, element) => {
+        if (!categoryWiseResults.hasOwnProperty(element)) {
+          categoryWiseResults[element] = {};
+          categoryWiseResults[element].mergedCategories = [];
+          categoryWiseResults[element].data = productResults
+            .filter((p) => {
+              if (p.categoryName === element) {
+                categoryWiseResults[element].mergedCategories.push(
+                  p.categoryId
+                );
+                return true;
+              }
+              categoryWiseResults[element].mergedCategories;
+              return false;
+            })
+            .map((p) => ({ results: p.data, categoryId: p.categoryId }));
+        }
+        return categoryWiseResults;
+      }, {});
     },
   },
 };

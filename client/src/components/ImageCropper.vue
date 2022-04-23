@@ -19,7 +19,6 @@
       ></span>
     </div>
 
-
     <!-- <div class="img-container" style="display: hidden; justify-content: center">
       <img ref="image" :src="destination" crossorigin />
     </div> -->
@@ -57,10 +56,12 @@ export default {
       this.hotspotButtons = objectBoundaries.map((bd) => {
         const top = ((bd.bbox[1] + bd.bbox[3]) / 2 / dimensions.height) * 100;
         const left = ((bd.bbox[0] + bd.bbox[2]) / 2 / dimensions.width) * 100;
+        const bgColor = bd.hasSimilarity ? "#62f862" : "#05e9f5";
         return {
           btnStyle: {
             top: `calc(${top}% - 10px)`,
             left: `calc(${left}% - 7px)`,
+            background: bgColor,
           },
           cropperCoordinates: {
             x: bd.bbox[0],
@@ -149,7 +150,6 @@ export default {
   width: 18px;
   height: 18px;
   border: #fff 3px solid;
-  background: #05e9f5;
   border-radius: 50%;
   display: inline-block;
   cursor: pointer;
