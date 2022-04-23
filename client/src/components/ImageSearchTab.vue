@@ -174,7 +174,9 @@ export default {
       const prioritizedSimilarProductDataset = [];
       for (const [key, value] of Object.entries(similarCagtegories)) {
         const prsForSimilarCategory = productResults
-          .filter((pr) => pr.categoryName === key)
+          .filter(
+            (pr) => pr.categoryName === key && value.includes(pr.categoryId)
+          )
           .map((pr) => ({
             score: _.maxBy(pr.data, "similarity").similarity,
             categoryId: pr.categoryId,
@@ -183,6 +185,7 @@ export default {
         const categoryToBePrioritized = _.maxBy(prsForSimilarCategory, "score");
         _.remove(productResults, (pr) => {
           const isPrToBeRemoved =
+            value.includes(pr.categoryId) &&
             pr.categoryName === key &&
             pr.categoryId !== categoryToBePrioritized.categoryId;
           if (isPrToBeRemoved) {
