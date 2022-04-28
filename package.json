@@ -8,11 +8,13 @@
     "lint": "vue-cli-service lint",
     "postinstall": "npm run build",
     "start": "node server/index.js",
-    "dev": "concurrently --kill-others \"nodemon server/index.js\" \"nodemon server/proxy.js\""
+    "dev": "nodemon server/index.js",
+    "proxy": "concurrently --kill-others \"nodemon server/index.js\" \"nodemon server/proxy.js\""
   },
   "dependencies": {
     "@google-cloud/vision": "^2.4.0",
     "axios": "^0.23.0",
+    "cli-progress": "^3.10.0",
     "concurrently": "^6.3.0",
     "core-js": "^3.6.5",
     "cors": "^2.8.5",
