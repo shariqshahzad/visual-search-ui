@@ -5,13 +5,13 @@ import _ from "lodash";
 const baseUrl = process.env.VUE_APP_MIDDLEWARE_URL;
 
 export default {
-  async getSimilaritiesResults(categoryName, base64Str, categoryId) {
-    let body = {
-      img: base64Str,
+  async getSimilaritiesResults(params) {
+    const body = params.map((sp) => ({
+      img: sp.img,
       one_per_pid: true,
       filter_prod_type: true,
-      name: categoryName,
-    };
+      name: sp.name,
+    }));
     let res;
     try {
       res = await axios({
@@ -22,21 +22,23 @@ export default {
     } catch (e) {
       console.log(e);
     }
-    let products = res.data.map((r) => {
-      const product = {};
-      product.product_type = r.product_type;
-      product.image = r.thumb_image;
-      product.price = 123.0;
-      product.pid = r.pid;
-      product.hostPageUrl = r.pid;
-      product.category = r.category;
-      product.similarity = r.similarity;
-      product.skuid = r.skuid;
-      product.brand = r.brand;
-      return product;
+    const similarityResults = res.data.map((element,index) => {
+      let products = element.map((r) => {
+        const product = {};
+        product.product_type = r.product_type;
+        product.image = r.thumb_image;
+        product.price = 123.0;
+        product.pid = r.pid;
+        product.hostPageUrl = r.pid;
+        product.category = r.category;
+        product.similarity = r.similarity;
+        product.skuid = r.skuid;
+        product.brand = r.brand;
+        return product;
+      });
+      return { categoryName: params[index].name, categoryId: params[index].categoryId, data: products, previewData: products };
     });
-
-    return { categoryName,categoryId,data: products, previewData: products };
+    return similarityResults;
   },
   async getYoloResults(base64Str) {
     let body = {
@@ -52,8 +54,8 @@ export default {
     } catch (e) {
       console.log(e);
     }
-    return res.data.map((yd,index)=>{
-      yd.id = index+1;
+    return res.data.map((yd, index) => {
+      yd.id = index + 1;
       return yd;
     });
   },

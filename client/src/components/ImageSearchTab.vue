@@ -38,6 +38,7 @@ import { encodeImageFileAsURL } from "../utils/utils";
 import ImageSearchTool from "./ImageSearchTool.vue";
 import _ from "lodash";
 import Cropper from "cropperjs";
+import { multipleColors } from "../constants/constants";
 export default {
   components: {
     ImageSearchTool,
@@ -99,21 +100,24 @@ export default {
     async WSIMLSearch(base64str) {
       this.isLoading = true;
       const yoloData = await WSIMLSearchService.getYoloResults(base64str);
-      const promises = [];
-      yoloData.forEach((element) => {
+      const similarityParam = yoloData.map((element) => {
         let base64 = this.createBase64StringForBoundary(element);
-        promises.push(
-          WSIMLSearchService.getSimilaritiesResults(
-            element.class,
-            base64,
-            element.id
-          )
-        );
+        return {
+          img: base64,
+          one_per_pid: true,
+          filter_prod_type: true,
+          name: element.class,
+          categoryId: element.id,
+        };
       });
       this.objectBoundaries = yoloData;
-      let productResults = await Promise.all(promises);
+      let productResults = await WSIMLSearchService.getSimilaritiesResults(
+        similarityParam
+      );
+      console.log(JSON.parse(JSON.stringify(productResults)));
       this.processSimilarResults(productResults, yoloData);
-      productResults = _.uniqBy(productResults, "categoryId");
+      console.log(productResults, yoloData);
+      // productResults = _.uniqBy(productResults, "categoryId");
       this.isLoading = false;
       this.categorizeSearchResults = productResults;
       this.resultsData = null;
@@ -172,7 +176,9 @@ export default {
       yoloData
     ) {
       const prioritizedSimilarProductDataset = [];
-      for (const [key, value] of Object.entries(similarCagtegories)) {
+      for (const [index, [key, value]] of Object.entries(
+        Object.entries(similarCagtegories)
+      )) {
         const prsForSimilarCategory = productResults
           .filter(
             (pr) => pr.categoryName === key && value.includes(pr.categoryId)
@@ -188,9 +194,13 @@ export default {
             value.includes(pr.categoryId) &&
             pr.categoryName === key &&
             pr.categoryId !== categoryToBePrioritized.categoryId;
-          if (isPrToBeRemoved) {
+          if (
+            isPrToBeRemoved ||
+            pr.categoryId === categoryToBePrioritized.categoryId
+          ) {
             const yoloitem = yoloData.find((yd) => yd.id === pr.categoryId);
-            yoloitem.id = categoryToBePrioritized.categoryId;
+            yoloitem.mappedPrId = categoryToBePrioritized.categoryId;
+            yoloitem.bgColor = multipleColors[index];
           }
           return isPrToBeRemoved;
         });

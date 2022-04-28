@@ -27,7 +27,7 @@
 
 <script>
 import Cropper from "cropperjs";
-
+import { colors } from "../constants/constants";
 export default {
   name: "ImageCropper",
   data() {
@@ -53,15 +53,16 @@ export default {
         width: img.target.naturalWidth,
         height: img.target.naturalHeight,
       };
-      this.hotspotButtons = objectBoundaries.map((bd) => {
+      let colorIndex = 0;
+      console.log(objectBoundaries);
+      this.hotspotButtons = objectBoundaries.map((bd, index) => {
         const top = ((bd.bbox[1] + bd.bbox[3]) / 2 / dimensions.height) * 100;
         const left = ((bd.bbox[0] + bd.bbox[2]) / 2 / dimensions.width) * 100;
-        const bgColor = bd.hasSimilarity ? "#62f862" : "#05e9f5";
         return {
           btnStyle: {
             top: `calc(${top}% - 10px)`,
             left: `calc(${left}% - 7px)`,
-            background: bgColor,
+            background: bd.bgColor || '#05e9f5',
           },
           cropperCoordinates: {
             x: bd.bbox[0],
@@ -69,7 +70,8 @@ export default {
             width: bd.bbox[2] - bd.bbox[0],
             height: bd.bbox[3] - bd.bbox[1],
           },
-          categoryId: bd.id,
+          categoryId: bd.mappedPrId || bd.id,
+          id:bd.id
           // boundingPolyIndex: bd.boundingPolyIndex,
         };
       });
