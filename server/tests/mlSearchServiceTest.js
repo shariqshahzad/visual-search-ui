@@ -1,13 +1,13 @@
 const service = require('../services/mlSearchService');
 var fs = require('fs');
 
-const imagePath = '/Users/MAhmed4/Downloads/MicrosoftTeams-image-2.png',
+const imagePath = '/Users/pakkina/Downloads/img.jpeg',
     imageBase64 = fs.readFileSync(imagePath, 'base64');
 
 exports.initiate = async (req, res) => {
     let totalSimilarCalls = 0;
 
-    for (let iteration = 1; iteration <= 7; iteration++) {
+    for (let iteration = 1; iteration <= 1; iteration++) {
         console.log(`---------------------------- YOLO ITERATION-${iteration} STARTED ----------------------------`)
 
         service.getYoloResults({
@@ -23,10 +23,14 @@ exports.initiate = async (req, res) => {
                 }).then(r => {
                     totalSimilarCalls++;
                     console.log(`--Similar call response: ${totalSimilarCalls}--`);
+                }).catch((err)=>{
+                    console.log('error in similarity:',err.response.data)
                 });
                 console.log(`--------- SIMILAR ITERATION-${(parseInt(i) + 1)} --------`)
             }
-        });
+        }).catch((err)=>{
+            console.log('error in yolo:',err.response.data)
+        })
 
         console.log(`---------------------------- YOLO ITERATION-${iteration} COMPLETED ----------------------------`)
     }
