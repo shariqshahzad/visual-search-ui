@@ -1,16 +1,33 @@
 import axios from "axios";
 import { googleResultsToProductMapper } from "../utils/utils";
-import { BRANDS, WSI_ML_SIMILARITY_ENDPOINT, WSI_ML_YOLO_ENDPOINT, API_KEY } from "../constants/constants";
+import { BRANDS, WSI_ML_SIMILARITY_ENDPOINT, WSI_ML_EMBEDDINGS_ENDPOINT, WSI_ML_YOLO_ENDPOINT, API_KEY } from "../constants/constants";
 import _ from "lodash";
 const baseUrl = process.env.VUE_APP_MIDDLEWARE_URL;
 
 export default {
-  async getSimilaritiesResults(params) {
-    const body = params.map((sp) => ({
-      img: sp.img,
+  async getEmbbeddingsResults(categoryName, base64Str, categoryId) {
+    let body = {
+      img: base64Str,
+    };
+    let res;
+    try {
+      res = await axios({
+        method: "post",
+        url: `${baseUrl}${WSI_ML_EMBEDDINGS_ENDPOINT}`,
+        data: body,
+      });
+    } catch (e) {
+      console.log(e);
+    }
+
+    return { categoryName, embedding: res.data.embedding, categoryId };
+  },
+  async getSimilaritiesResults(embeddings) {
+    let body = embeddings.map((emb) => ({
+      img: emb.embedding,
       one_per_pid: true,
       filter_prod_type: true,
-      name: sp.name,
+      name: emb.categoryName,
     }));
     let res;
     try {
@@ -36,7 +53,7 @@ export default {
         product.brand = r.brand;
         return product;
       });
-      return { categoryName: params[index].name, categoryId: params[index].categoryId, data: products, previewData: products };
+      return { categoryName: embeddings[index].categoryName, categoryId: embeddings[index].categoryId, data: products, previewData: products };
     });
     return similarityResults;
   },
@@ -56,6 +73,7 @@ export default {
     }
     return res.data.map((yd, index) => {
       yd.id = index + 1;
+      yd.mappedPrId = yd.id;
       return yd;
     });
   },

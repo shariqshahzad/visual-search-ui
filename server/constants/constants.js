@@ -1,6 +1,10 @@
 module.exports = Object.freeze({
-  WSI_ML_IMAGE_SEARCH_URL: `http://110c48f1-4f61-40cf-9807-971c0f3ad47d.eastus.azurecontainer.io/score`,
-  WSI_ML_IMAGE_YOLO_URL: `http://92d05194-f26e-4f9f-a3fe-d810e8fb6b7d.eastus.azurecontainer.io/score`,
-  WSI_ML_IMAGE_SEARCH_API_KEY: `0flHfXFXclxh0Duyt1w04lub2bxdCt9G`,
-  WSI_ML_IMAGE_YOLO_API_KEY: `V68qFOznxLCq0NlBZXocnTxtNESFJ1hJ`,
+  WSI_ML_IMAGE_EMBEDDINGS_URL: `http://20.81.26.170:80/api/v1/service/emb-dev-cluster/score`,
+  WSI_ML_IMAGE_EMBEDDINGS_API_KEY: `tTVGggXQzSvP05akpcLoYaCPfEuKRz8E`,
+
+  WSI_ML_IMAGE_SEARCH_URL: `http://20.124.59.72:80/api/v1/service/sim-dev-cluster/score`,
+  WSI_ML_IMAGE_SEARCH_API_KEY: `vtHImJ7kC0MNoLwlBImMx1Fu3XCw59nn`,
+
+  WSI_ML_IMAGE_YOLO_URL: `http://20.102.12.78:80/api/v1/service/yolo-dev-cluster/score`,
+  WSI_ML_IMAGE_YOLO_API_KEY: `Ea73FTpgaAOWVcjCkmtAWAmbeyUbIYMA`,
 });

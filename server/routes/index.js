@@ -12,5 +12,6 @@ app.use(fileupload());
 app.post('/visual-search/:provider', visualSearchController.index);
 app.post('/ml-visual-search/yolo', mlSearchControlller.getYoloResults);
 app.post('/ml-visual-search/similarity', mlSearchControlller.getSimilaritiesResults);
+app.post('/ml-visual-search/embeddings', mlSearchControlller.getEmbeddingsResults);
 
 module.exports = app;

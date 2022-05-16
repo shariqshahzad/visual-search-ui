@@ -148,13 +148,10 @@ export default {
     async onCustomCrop(e) {
       let base64 = e.split(",")[1];
       this.isLoading = true;
-      let result = await WSIMLSearchService.getSimilaritiesResults(
-        "chair",
-        base64,
-        "someId"
-      );
+      let embeddings = await WSIMLSearchService.getEmbbeddingsResults('someCat',base64,'someId');
+      let result = await WSIMLSearchService.getSimilaritiesResults([embeddings]);
       this.isLoading = false;
-      this.resultsByCategories = [result];
+      this.resultsByCategories = result;
     },
     applyFilters() {
       this.applyBrandFilter();

@@ -19,3 +19,13 @@ exports.getSimilaritiesResults = async (req, res) => {
     res.status(500).send("Something Went wrong");
   }
 };
+
+exports.getEmbeddingsResults = async (req, res) => {
+  try {
+    const serviceResponse = await mlSearchService.getEmbeddingsResults(req.body);
+    res.status(200).send(serviceResponse.data);
+  } catch (e) {
+    console.log(e);
+    res.status(500).send("Something Went wrong");
+  }
+};
