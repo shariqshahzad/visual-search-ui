@@ -19,7 +19,6 @@
       ></span>
     </div>
 
-
     <!-- <div class="img-container" style="display: hidden; justify-content: center">
       <img ref="image" :src="destination" crossorigin />
     </div> -->
@@ -28,7 +27,7 @@
 
 <script>
 import Cropper from "cropperjs";
-
+import { singleColors } from "../constants/constants";
 export default {
   name: "ImageCropper",
   data() {
@@ -54,13 +53,17 @@ export default {
         width: img.target.naturalWidth,
         height: img.target.naturalHeight,
       };
+      let colorIndex = 0;
+      
       this.hotspotButtons = objectBoundaries.map((bd) => {
         const top = ((bd.bbox[1] + bd.bbox[3]) / 2 / dimensions.height) * 100;
         const left = ((bd.bbox[0] + bd.bbox[2]) / 2 / dimensions.width) * 100;
+        if(!bd.bgColor) colorIndex ++;
         return {
           btnStyle: {
             top: `calc(${top}% - 10px)`,
             left: `calc(${left}% - 7px)`,
+            background: bd.bgColor || singleColors[colorIndex],
           },
           cropperCoordinates: {
             x: bd.bbox[0],
@@ -68,7 +71,8 @@ export default {
             width: bd.bbox[2] - bd.bbox[0],
             height: bd.bbox[3] - bd.bbox[1],
           },
-          categoryId: bd.id,
+          categoryId: bd.mappedPrId,
+          id:bd.id
           // boundingPolyIndex: bd.boundingPolyIndex,
         };
       });
@@ -95,7 +99,7 @@ export default {
       // });
 
       // const objectBoundary = objectBoundaries[0];
-      // console.log(objectBoundary.displayName);
+      // 
       // const rectangleBox = objectBoundary.rectangleBox,
       //   x = rectangleBox.topLeft.x * dimensions.width,
       //   y = rectangleBox.topLeft.y * dimensions.height,
@@ -149,7 +153,6 @@ export default {
   width: 18px;
   height: 18px;
   border: #fff 3px solid;
-  background: #05e9f5;
   border-radius: 50%;
   display: inline-block;
   cursor: pointer;

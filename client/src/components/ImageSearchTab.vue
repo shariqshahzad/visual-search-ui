@@ -36,7 +36,9 @@
 import WSIMLSearchService from "../services/WSIMLSearch.service";
 import { encodeImageFileAsURL } from "../utils/utils";
 import ImageSearchTool from "./ImageSearchTool.vue";
+import _ from "lodash";
 import Cropper from "cropperjs";
+import { multipleColors } from "../constants/constants";
 export default {
   components: {
     ImageSearchTool,
@@ -112,9 +114,12 @@ export default {
       this.objectBoundaries = yoloData;
       let objectEmbeddings = await Promise.all(promises);
       let productResults = await WSIMLSearchService.getSimilaritiesResults(objectEmbeddings);
+      
+      
+      this.processSimilarResults(productResults, yoloData);
+      productResults = _.uniqBy(productResults, "categoryId");
       this.isLoading = false;
       this.categorizeSearchResults = productResults;
-
       this.resultsData = null;
       this.imageData = {
         isUrl: false,
@@ -122,6 +127,106 @@ export default {
         files: this.file,
       };
       this.resultsAvailable = true;
+    },
+    processSimilarResults(productResults, yoloData) {
+      
+      const similarCagtegories = {};
+      const categories = productResults.map((p) => p.categoryName);
+      let categoryWiseResults = this.getCategoryWiseResults(
+        categories,
+        productResults
+      );
+      
+      for (const [key, value] of Object.entries(categoryWiseResults)) {
+        if (value.data.length > 1) {
+          const data = value.data;
+          var combinations = data.flatMap((v, i) =>
+            data.slice(i + 1).map((w) => ({
+              combinedResults: [v.results, w.results],
+              categories: [v.categoryId, w.categoryId],
+            }))
+          );
+          combinations.map((combination) => {
+            const intersection = _.intersectionBy(
+              ...combination.combinedResults,
+              "skuid"
+            );
+
+            if (intersection.length > 0) {
+              // 
+              // 
+              yoloData.forEach((yd) => {
+                if (combination.categories.includes(yd.id)) {
+                  yd.hasSimilarity = true;
+                }
+              });
+            }
+          });
+          const similarItems = yoloData
+            .filter((yd) => yd.hasSimilarity && yd.class === key)
+            .map((yd) => yd.id);
+          if (similarItems.length > 0) similarCagtegories[key] = similarItems;
+          // 
+        }
+      }
+      this.prioritizeSimilarProductDataset(
+        productResults,
+        similarCagtegories,
+        yoloData
+      );
+    },
+    prioritizeSimilarProductDataset(
+      productResults,
+      similarCagtegories,
+      yoloData
+    ) {
+      const prioritizedSimilarProductDataset = [];
+      for (const [index,[key, value]] of Object.entries(Object.entries(similarCagtegories))) {
+        const prsForSimilarCategory = productResults
+          .filter(
+            (pr) => pr.categoryName === key && value.includes(pr.categoryId)
+          )
+          .map((pr) => ({
+            score: _.maxBy(pr.data, "similarity").similarity,
+            categoryId: pr.categoryId,
+            categoryName: key,
+          }));
+        const categoryToBePrioritized = _.maxBy(prsForSimilarCategory, "score");
+        _.remove(productResults, (pr) => {
+          const isPrToBeRemoved =
+            value.includes(pr.categoryId) &&
+            pr.categoryName === key &&
+            pr.categoryId !== categoryToBePrioritized.categoryId;
+          if (isPrToBeRemoved || pr.categoryId === categoryToBePrioritized.categoryId) {
+            const yoloitem = yoloData.find((yd) => yd.id === pr.categoryId);
+            yoloitem.mappedPrId = categoryToBePrioritized.categoryId;
+            yoloitem.bgColor = multipleColors[index]
+          }
+          return isPrToBeRemoved;
+        });
+        prioritizedSimilarProductDataset.push(categoryToBePrioritized);
+      }
+    },
+    getCategoryWiseResults(categories, productResults) {
+      return categories.reduce((categoryWiseResults, element) => {
+        if (!categoryWiseResults.hasOwnProperty(element)) {
+          categoryWiseResults[element] = {};
+          categoryWiseResults[element].mergedCategories = [];
+          categoryWiseResults[element].data = productResults
+            .filter((p) => {
+              if (p.categoryName === element) {
+                categoryWiseResults[element].mergedCategories.push(
+                  p.categoryId
+                );
+                return true;
+              }
+              categoryWiseResults[element].mergedCategories;
+              return false;
+            })
+            .map((p) => ({ results: p.data, categoryId: p.categoryId }));
+        }
+        return categoryWiseResults;
+      }, {});
     },
   },
 };
