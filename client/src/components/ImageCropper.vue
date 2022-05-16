@@ -1,13 +1,26 @@
 <template>
   <div>
     <div class="text-center">
-      <v-btn class="ma-2" @click="updateApproval" color="primary"
+      <v-btn
+        class="ma-2"
+        v-if="currentTabStatus === TAB_STATUSES.IN_PROGRESS"
+        @click="updateApproval"
+        color="primary"
         >Mark As Approved</v-btn
       >
-      <v-btn class="ma-2" @click="onClickReset" color="primary">Reset</v-btn>
-      <v-btn class="ma-2" @click="onClickExport" color="primary"
-        >Export Data</v-btn
+      <v-btn
+        class="ma-2"
+        v-if="currentTabStatus !== TAB_STATUSES.IN_PROGRESS"
+        :disabled="currentTabStatus !== TAB_STATUSES.PENDING_CHANGES"
+        @click="updateApproval"
+        color="primary"
+        >Save Changes</v-btn
       >
+
+      <v-btn class="ma-2" @click="onClickReset" color="primary">Reset</v-btn>
+      <!-- <v-btn class="ma-2" @click="onClickExport" color="primary"
+        >Export Data</v-btn
+      > -->
     </div>
     <div class="img-container mx-2">
       <img
@@ -34,12 +47,15 @@
 <script>
 import Cropper from "cropperjs";
 import { mapGetters } from "vuex";
-import { singleColors } from "../constants/constants";
+import { singleColors, TAB_STATUSES } from "../constants/constants";
+
 export default {
   name: "ImageCropper",
   data() {
     return {
       hotspotButtons: [],
+      TAB_STATUSES,
+      currentTabStatus: TAB_STATUSES.IN_PROGRESS,
       cropper: {},
       destination: {},
       imageTarget: null,
@@ -128,7 +144,7 @@ export default {
       });
     },
     updateApproval() {
-      this.$emit("updateApproval",this.objectBoundaries);
+      this.$emit("updateApproval", this.objectBoundaries);
     },
     onClickExport() {
       this.$emit("exportData", this.objectBoundaries);
@@ -154,10 +170,15 @@ export default {
   computed: {
     ...mapGetters([
       "currentTabKey",
+      "tabs",
       // ...
     ]),
   },
   watch: {
+    tabs(newValue, oldValue) {
+      const tab = this.tabs.find((tab) => tab.key === this.currentTabKey);
+      this.currentTabStatus = tab.status;
+    },
     isLoading: function (isLoading, oldVal) {
       if (isLoading) this.cropper.disable();
       else this.cropper.enable();

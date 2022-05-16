@@ -34,6 +34,7 @@
 
 <script>
 import { BRANDS } from "../constants/constants";
+import { mapMutations, mapGetters } from "vuex";
 export default {
   data() {
     return {
@@ -44,10 +45,12 @@ export default {
     product: Object,
   },
   methods: {
+    ...mapMutations(["markCurrentTabPendingChanges"]),
     onClickCard(url) {
       window.open(url);
     },
     onClickPrioritize() {
+      this.markCurrentTabPendingChanges();
       this.$emit("skuPrioritized", this.product.skuid);
     },
     onClickUnprioritize() {

@@ -39,12 +39,12 @@ export default {
     } catch (e) {
       console.log(e);
     }
-    const similarityResults = res.data.map((element,index) => {
-      let products = element.map((r) => {
+    const similarityResults = res.data.map((element, index) => {
+      let products = element.map((r, index) => {
         const product = {};
         product.product_type = r.product_type;
         product.image = r.thumb_image;
-        product.isPrioritySku = false;
+        product.isPrioritySku = index ? false : true;
         // product.price = 123.0;
         product.pid = r.pid;
         // product.hostPageUrl = r.pid;

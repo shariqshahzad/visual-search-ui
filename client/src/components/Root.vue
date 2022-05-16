@@ -103,15 +103,16 @@
             <template v-slot:activator="{ on, attrs }">
               <div v-bind="attrs" v-on="on">
                 {{ item.name }}
-                <v-icon v-if="item.status === TAB_STATUSES.APPROVED"
+                <v-icon color="green" v-if="item.status === TAB_STATUSES.APPROVED"
                   >mdi-checkbox-marked-circle</v-icon
                 >
-                <v-icon v-if="item.status === TAB_STATUSES.PENDING_CHANGES"
-                  >mdi-decagram</v-icon
-                >
-                <v-icon v-if="item.status === TAB_STATUSES.IN_PROGRESS"
+                <v-icon color="red" style="margin-bottom: 3px; font-size:18px" v-if="item.status === TAB_STATUSES.PENDING_CHANGES" >fa fa-asterisk</v-icon>
+                <!-- <span v-if="item.status === TAB_STATUSES.PENDING_CHANGES"
+                  >*</span
+                > -->
+                <!-- <v-icon v-if="item.status === TAB_STATUSES.IN_PROGRESS"
                   >mdi-alert-circle</v-icon
-                >
+                > -->
               </div>
             </template>
             <div style="width: 200px">
