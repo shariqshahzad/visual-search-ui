@@ -26,6 +26,15 @@
           </v-col>
           <v-col cols="5" class="mt-5">
             <v-btn
+              @click="onClickExport()"
+              type="button"
+              dark
+              class="float-right ml-5 mb-3"
+              elevation="2"
+            >
+              <v-icon>mdi-export</v-icon>
+            </v-btn>
+            <v-btn
               @click="onClickSearch()"
               type="submit"
               dark
@@ -34,6 +43,7 @@
             >
               SEARCH
             </v-btn>
+
             <v-file-input
               v-if="radioGrp === 'fileUpload'"
               v-model="xlsxFile"
@@ -78,6 +88,7 @@
     </v-snackbar>
     <v-main>
       <v-tabs
+        @change="onChangeTab($event)"
         centered
         v-if="tabs.length"
         background-color="transparent"
@@ -90,7 +101,18 @@
         <v-tab v-for="item in tabs" :key="item.key">
           <v-tooltip bottom color="primary">
             <template v-slot:activator="{ on, attrs }">
-              <div v-bind="attrs" v-on="on">{{ item.name }}</div>
+              <div v-bind="attrs" v-on="on">
+                {{ item.name }}
+                <v-icon v-if="item.status === TAB_STATUSES.APPROVED"
+                  >mdi-checkbox-marked-circle</v-icon
+                >
+                <v-icon v-if="item.status === TAB_STATUSES.PENDING_CHANGES"
+                  >mdi-decagram</v-icon
+                >
+                <v-icon v-if="item.status === TAB_STATUSES.IN_PROGRESS"
+                  >mdi-alert-circle</v-icon
+                >
+              </div>
             </template>
             <div style="width: 200px">
               <img :src="item.imgSrc" />
@@ -111,6 +133,7 @@
 <script>
 import ImageSearchTab from "./ImageSearchTab.vue";
 import JSZip from "jszip";
+import { createJsonFileAndDownload } from "../utils/utils";
 import Cropper from "cropperjs";
 import {
   googleResultsToProductMapper,
@@ -120,13 +143,15 @@ import {
   encodeImageFileAsURL,
   generateUUID,
 } from "../utils/utils";
-import { BRANDS } from "../constants/constants";
+import { BRANDS, TAB_STATUSES } from "../constants/constants";
+
 import { mapMutations, mapGetters } from "vuex";
 
 export default {
   components: {
     ImageSearchTab,
   },
+
   mounted() {
     // this.$refs.uploadedImage.onload = (img) => {
     //   this.cropper = new Cropper(img.target, {
@@ -136,9 +161,10 @@ export default {
     //   });
     // };
   },
+
   data() {
     return {
-      tabs: [],
+      TAB_STATUSES,
       tab: null,
       imgBase64: null,
       selectedBrand: null,
@@ -188,22 +214,39 @@ export default {
   },
 
   computed: {
-    // ...mapGetters([
-    //   "selectedBrand",
-    //   // ...
-    // ]),
+    ...mapGetters([
+      "tabs",
+      "approvedItems",
+      // ...
+    ]),
     imageProxyUrl: function () {
       return `${process.env.VUE_APP_PROXY_SERVER_URL}/${this.imageUrl}`;
     },
   },
   methods: {
     ...mapMutations(["setSelectedBrand"]),
+    ...mapMutations(["setTabs", "setCurrentTabKey"]),
     onSnackBarClose() {
       this.isError = false;
       this.errorDetail = "";
     },
+    onClickExport() {
+      createJsonFileAndDownload(this.approvedItems);
+    },
+    onChangeTab(e) {
+      if (!this.tabs[e].status) {
+        const payload = this.tabs.map((tab, index) => {
+          if (index === e) {
+            tab.status = TAB_STATUSES.IN_PROGRESS;
+          }
+          return tab;
+        });
+        this.setTabs(payload);
+      }
+      this.setCurrentTabKey(this.tabs[e].key);
+    },
     async onClickSearch() {
-      this.tabs = [];
+      this.setTabs([]);
       this.tab = null;
       let files;
       if (this.radioGrp === "imageUpload") {
@@ -257,7 +300,7 @@ export default {
         ? element.dataURI
         : await encodeImageFileAsURL(element.file);
       element.imgSrc = base64str;
-      this.tabs.push(element);
+      this.setTabs([...this.tabs, element]);
     },
     async getImageFilesFromExcel() {
       let imagesData = JSON.parse(await parseExcel(this.xlsxFile));

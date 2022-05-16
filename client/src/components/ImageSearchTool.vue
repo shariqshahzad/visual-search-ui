@@ -2,8 +2,10 @@
   <v-row class="mt-2">
     <v-col cols="4">
       <ImageCropper
+        @updateApproval="(e)=>onApprovalUpdate(e)"
         @crop="(e) => onImageCrop(e)"
         @resetData="onResetData"
+        @exportData="onExportData"
         @customCrop="onCustomCrop"
         :imageData="imageData"
         :isLoading="isLoading"
@@ -124,6 +126,12 @@ export default {
     ]),
   },
   methods: {
+    onApprovalUpdate(bboxes){
+      this.$emit("updateApproval",bboxes);
+    },
+    onExportData(bboxes) {
+
+    },
     onChangeBrand() {
       console.log(this.selectedBrands);
       this.applyFilters();
@@ -148,8 +156,14 @@ export default {
     async onCustomCrop(e) {
       let base64 = e.split(",")[1];
       this.isLoading = true;
-      let embeddings = await WSIMLSearchService.getEmbbeddingsResults('someCat',base64,'someId');
-      let result = await WSIMLSearchService.getSimilaritiesResults([embeddings]);
+      let embeddings = await WSIMLSearchService.getEmbbeddingsResults(
+        "someCat",
+        base64,
+        "someId"
+      );
+      let result = await WSIMLSearchService.getSimilaritiesResults([
+        embeddings,
+      ]);
       this.isLoading = false;
       this.resultsByCategories = result;
     },

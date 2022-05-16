@@ -1,9 +1,15 @@
 <template>
   <div>
     <div class="text-center">
-      <v-btn class="mt-2" @click="onClickReset" color="primary">Reset</v-btn>
+      <v-btn class="ma-2" @click="updateApproval" color="primary"
+        >Mark As Approved</v-btn
+      >
+      <v-btn class="ma-2" @click="onClickReset" color="primary">Reset</v-btn>
+      <v-btn class="ma-2" @click="onClickExport" color="primary"
+        >Export Data</v-btn
+      >
     </div>
-    <div class="img-container ma-2">
+    <div class="img-container mx-2">
       <img
         ref="uploadedImage"
         style="max-width: 100%"
@@ -27,6 +33,7 @@
 
 <script>
 import Cropper from "cropperjs";
+import { mapGetters } from "vuex";
 import { singleColors } from "../constants/constants";
 export default {
   name: "ImageCropper",
@@ -54,11 +61,11 @@ export default {
         height: img.target.naturalHeight,
       };
       let colorIndex = 0;
-      
+
       this.hotspotButtons = objectBoundaries.map((bd) => {
         const top = ((bd.bbox[1] + bd.bbox[3]) / 2 / dimensions.height) * 100;
         const left = ((bd.bbox[0] + bd.bbox[2]) / 2 / dimensions.width) * 100;
-        if(!bd.bgColor) colorIndex ++;
+        if (!bd.bgColor) colorIndex++;
         return {
           btnStyle: {
             top: `calc(${top}% - 10px)`,
@@ -72,7 +79,7 @@ export default {
             height: bd.bbox[3] - bd.bbox[1],
           },
           categoryId: bd.mappedPrId,
-          id:bd.id
+          id: bd.id,
           // boundingPolyIndex: bd.boundingPolyIndex,
         };
       });
@@ -99,7 +106,7 @@ export default {
       // });
 
       // const objectBoundary = objectBoundaries[0];
-      // 
+      //
       // const rectangleBox = objectBoundary.rectangleBox,
       //   x = rectangleBox.topLeft.x * dimensions.width,
       //   y = rectangleBox.topLeft.y * dimensions.height,
@@ -120,6 +127,12 @@ export default {
         },
       });
     },
+    updateApproval() {
+      this.$emit("updateApproval",this.objectBoundaries);
+    },
+    onClickExport() {
+      this.$emit("exportData", this.objectBoundaries);
+    },
     onClickReset() {
       this.cropper.destroy();
       this.initializeCropper(true);
@@ -137,6 +150,12 @@ export default {
         );
       }
     },
+  },
+  computed: {
+    ...mapGetters([
+      "currentTabKey",
+      // ...
+    ]),
   },
   watch: {
     isLoading: function (isLoading, oldVal) {

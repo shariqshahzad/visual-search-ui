@@ -99,52 +99,64 @@ export const googleResultsToProductMapper = (res) => {
   return product;
 };
 
-
 /**
  * Attempts to determine the mime type of a file or blob
  *
  * @param file
  * @returns {Promise<unknown>}
  */
- export async function getMimeTypeOfFile(file) {
+export async function getMimeTypeOfFile(file) {
   const getMimeType = (signature) => {
-      switch (signature) {
-          case '89504E47':
-              return 'image/png'
-          case '47494638':
-              return 'image/gif'
-          case '25504446':
-              return 'application/pdf'
-          case 'FFD8FFDB':
-          case 'FFD8FFE0':
-          case 'FFD8FFE1':
-              return 'image/jpeg'
-          case '504B0304':
-              return 'application/zip'
-          default:
-              return 'Unknown filetype'
-      }
-  }
+    switch (signature) {
+      case "89504E47":
+        return "image/png";
+      case "47494638":
+        return "image/gif";
+      case "25504446":
+        return "application/pdf";
+      case "FFD8FFDB":
+      case "FFD8FFE0":
+      case "FFD8FFE1":
+        return "image/jpeg";
+      case "504B0304":
+        return "application/zip";
+      default:
+        return "Unknown filetype";
+    }
+  };
 
   return await new Promise((resolve) => {
-      let fileReader = new FileReader();
+    let fileReader = new FileReader();
 
-      fileReader.onloadend = function (evt) {
-          if (evt.target.readyState === FileReader.DONE) {
-              const uint = new Uint8Array(evt.target.result);
-              let bytes = [];
+    fileReader.onloadend = function(evt) {
+      if (evt.target.readyState === FileReader.DONE) {
+        const uint = new Uint8Array(evt.target.result);
+        let bytes = [];
 
-              uint.forEach((byte) => {
-                  bytes.push(byte.toString(16))
-              })
+        uint.forEach((byte) => {
+          bytes.push(byte.toString(16));
+        });
 
-              const hex = bytes.join('').toUpperCase();
-              const mimeType = getMimeType(hex);
+        const hex = bytes.join("").toUpperCase();
+        const mimeType = getMimeType(hex);
 
-              resolve(mimeType);
-          }
+        resolve(mimeType);
       }
+    };
 
-      fileReader.readAsArrayBuffer(file.slice(0, 4));
+    fileReader.readAsArrayBuffer(file.slice(0, 4));
   });
+}
+
+export async function createJsonFileAndDownload(content,filename = `${Date.now()}_Visual_Meta.json`) {
+  var element = document.createElement("a");
+  element.setAttribute("href", "data:text/plain;charset=utf-8," + encodeURIComponent(JSON.stringify(content)));
+  element.setAttribute("download", filename);
+
+  element.style.display = "none";
+  document.body.appendChild(element);
+
+  element.click();
+
+  document.body.removeChild(element);
 }

@@ -24,6 +24,11 @@ export const BRANDS = {
   //     name: "Mark and Grahams"
   // }
 };
+export const TAB_STATUSES = {
+  APPROVED: "APPROVED",
+  PENDING_CHANGES: "PENDING_CHANGES",
+  IN_PROGRESS: "IN_PROGRESS",
+};
 export const singleColors = [
   "#E666B3",
   "#4DB380",

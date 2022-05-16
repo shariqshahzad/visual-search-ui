@@ -21,6 +21,7 @@
       crossorigin
     />
     <ImageSearchTool
+      @updateApproval="(e)=>onUpdateApproval(e)"
       v-if="resultsAvailable"
       :results="resultsData"
       :imageData="imageData"
@@ -34,12 +35,19 @@
 </template>
 <script>
 import WSIMLSearchService from "../services/WSIMLSearch.service";
+import { mapMutations, mapGetters } from "vuex";
 import { encodeImageFileAsURL } from "../utils/utils";
 import ImageSearchTool from "./ImageSearchTool.vue";
 import _ from "lodash";
 import Cropper from "cropperjs";
-import { multipleColors } from "../constants/constants";
+import { multipleColors, TAB_STATUSES } from "../constants/constants";
 export default {
+  computed: {
+    ...mapGetters([
+      "tabs",
+      // ...
+    ]),
+  },
   components: {
     ImageSearchTool,
   },
@@ -75,6 +83,29 @@ export default {
     };
   },
   methods: {
+    ...mapMutations(["setTabs","setApprovedItems"]),
+    onUpdateApproval(bboxes) {
+      const exportData = this.categorizeSearchResults.map((res) => {
+        const bbox = bboxes.find((bbox) => bbox.mappedPrId === res.categoryId);
+        return {
+          bbox: bbox.bbox,
+          class: bbox.class,
+          data: res.data,
+        };
+      });
+      const approvedItemsPayload =  {
+        fileName : this.searchProp.file.name,
+        data : exportData
+      }
+      const tabsPayload = this.tabs.map((tab) => {
+        if (tab.key === this.searchProp.key) {
+          tab.status = tab.status = TAB_STATUSES.APPROVED;
+        }
+        return tab;
+      });
+      this.setApprovedItems(approvedItemsPayload);
+      this.setTabs(tabsPayload);
+    },
     async onWSIMLSearch() {
       let base64str;
       base64str = this.searchProp.dataURI
@@ -113,9 +144,10 @@ export default {
       });
       this.objectBoundaries = yoloData;
       let objectEmbeddings = await Promise.all(promises);
-      let productResults = await WSIMLSearchService.getSimilaritiesResults(objectEmbeddings);
-      
-      
+      let productResults = await WSIMLSearchService.getSimilaritiesResults(
+        objectEmbeddings
+      );
+
       this.processSimilarResults(productResults, yoloData);
       productResults = _.uniqBy(productResults, "categoryId");
       this.isLoading = false;
@@ -129,14 +161,13 @@ export default {
       this.resultsAvailable = true;
     },
     processSimilarResults(productResults, yoloData) {
-      
       const similarCagtegories = {};
       const categories = productResults.map((p) => p.categoryName);
       let categoryWiseResults = this.getCategoryWiseResults(
         categories,
         productResults
       );
-      
+
       for (const [key, value] of Object.entries(categoryWiseResults)) {
         if (value.data.length > 1) {
           const data = value.data;
@@ -153,8 +184,8 @@ export default {
             );
 
             if (intersection.length > 0) {
-              // 
-              // 
+              //
+              //
               yoloData.forEach((yd) => {
                 if (combination.categories.includes(yd.id)) {
                   yd.hasSimilarity = true;
@@ -166,7 +197,7 @@ export default {
             .filter((yd) => yd.hasSimilarity && yd.class === key)
             .map((yd) => yd.id);
           if (similarItems.length > 0) similarCagtegories[key] = similarItems;
-          // 
+          //
         }
       }
       this.prioritizeSimilarProductDataset(
@@ -181,7 +212,9 @@ export default {
       yoloData
     ) {
       const prioritizedSimilarProductDataset = [];
-      for (const [index,[key, value]] of Object.entries(Object.entries(similarCagtegories))) {
+      for (const [index, [key, value]] of Object.entries(
+        Object.entries(similarCagtegories)
+      )) {
         const prsForSimilarCategory = productResults
           .filter(
             (pr) => pr.categoryName === key && value.includes(pr.categoryId)
@@ -197,10 +230,13 @@ export default {
             value.includes(pr.categoryId) &&
             pr.categoryName === key &&
             pr.categoryId !== categoryToBePrioritized.categoryId;
-          if (isPrToBeRemoved || pr.categoryId === categoryToBePrioritized.categoryId) {
+          if (
+            isPrToBeRemoved ||
+            pr.categoryId === categoryToBePrioritized.categoryId
+          ) {
             const yoloitem = yoloData.find((yd) => yd.id === pr.categoryId);
             yoloitem.mappedPrId = categoryToBePrioritized.categoryId;
-            yoloitem.bgColor = multipleColors[index]
+            yoloitem.bgColor = multipleColors[index];
           }
           return isPrToBeRemoved;
         });

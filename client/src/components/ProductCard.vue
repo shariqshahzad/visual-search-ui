@@ -1,6 +1,13 @@
 <template>
   <v-card class="ma-2" height="300" width="200">
-    <v-img :src="product.image" height="160" max-width="300"></v-img>
+    <v-img :src="product.image" height="160" max-width="300">
+      <v-btn v-if="!product.isPrioritySku" @click="onClickPrioritize" icon>
+        <v-icon>mdi-checkbox-blank-circle</v-icon>
+      </v-btn>
+      <v-btn v-else @click="onClickUnprioritize" icon>
+        <v-icon>mdi-checkbox-marked-circle</v-icon>
+      </v-btn>
+    </v-img>
     <v-card-text>
       <div class="text-subtitle-1">
         {{ brands[product.brand].name }}
@@ -39,6 +46,12 @@ export default {
   methods: {
     onClickCard(url) {
       window.open(url);
+    },
+    onClickPrioritize() {
+      this.$emit("skuPrioritized", this.product.skuid);
+    },
+    onClickUnprioritize() {
+      this.$emit("skuUnprioritized", this.product.skuid);
     },
   },
 };

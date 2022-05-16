@@ -44,9 +44,10 @@ export default {
         const product = {};
         product.product_type = r.product_type;
         product.image = r.thumb_image;
-        product.price = 123.0;
+        product.isPrioritySku = false;
+        // product.price = 123.0;
         product.pid = r.pid;
-        product.hostPageUrl = r.pid;
+        // product.hostPageUrl = r.pid;
         product.category = r.category;
         product.similarity = r.similarity;
         product.skuid = r.skuid;

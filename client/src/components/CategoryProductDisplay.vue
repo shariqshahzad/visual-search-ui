@@ -32,7 +32,9 @@
             <div>
               <div class="ma-2" style="width: 150px">
                 <v-checkbox
-                  v-for="(filter,index) in categoryFilters[`categoryId_${category.categoryId}`]"
+                  v-for="(filter, index) in categoryFilters[
+                    `categoryId_${category.categoryId}`
+                  ]"
                   :value="filter.isEnabled"
                   :key="`${index}_${filter.filterName}`"
                   :label="filter.filterName"
@@ -43,6 +45,8 @@
             </div>
             <div class="slider-bar">
               <ProductCard
+                @skuPrioritized="onSkuPrioritized($event, category)"
+                @skuUnprioritized="onSkuUnprioritized($event, category)"
                 v-for="(product, index) in category.previewData"
                 :key="index"
                 :product="product"
@@ -67,7 +71,7 @@
           <v-spacer></v-spacer>
         </v-toolbar>
         <div style="padding: 10px; overflow: hidden">
-          <v-row class="mt-5" style="justify-content: center;">
+          <v-row class="mt-5" style="justify-content: center">
             <ProductCard
               v-for="(product, index) in selectedCategoryFullData"
               :key="index"
@@ -117,24 +121,40 @@ export default {
     };
   },
   methods: {
+    onSkuPrioritized(skuid, category) {
+      category.previewData.map((pd,index) => {
+        if (pd.skuid === skuid) {
+          pd.isPrioritySku = true;
+        } else {
+          pd.isPrioritySku = false;
+        }
+      });
+      // product.isPrioritySku = true;
+    },
+    onSkuUnprioritized() {
+      debugger;
+      let product = category.previewData.find((pd) => pd.skuid === skuid);
+      product.isPrioritySku = true;
+    },
     onChangeFilterCheckbox(e, category, filter) {
       filter.isEnabled = e;
       this.updateDataAsPerFilters();
     },
     updateDataAsPerFilters() {
+      debugger;
       this.categorizedData.forEach((category) => {
         const filterNames = this.categoryFilters[
           `categoryId_${category.categoryId}`
-        ].filter(f=>f.isEnabled).map((f) => f.filterName);
-        if(filterNames.length>0){
-        category.previewData = category.data.filter((product) => {
-          return filterNames.includes(product.product_type);
-        });
-        }
-        else{
+        ]
+          .filter((f) => f.isEnabled)
+          .map((f) => f.filterName);
+        if (filterNames.length > 0) {
+          category.previewData = category.data.filter((product) => {
+            return filterNames.includes(product.product_type);
+          });
+        } else {
           category.previewData = category.data;
         }
-
       });
       // const filterCount = this.categoryFilters.filter(
       //   (f) => f.isEnabled
