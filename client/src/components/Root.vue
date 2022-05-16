@@ -106,7 +106,7 @@
                 <v-icon color="green" v-if="item.status === TAB_STATUSES.APPROVED"
                   >mdi-checkbox-marked-circle</v-icon
                 >
-                <v-icon color="red" style="margin-bottom: 3px; font-size:18px" v-if="item.status === TAB_STATUSES.PENDING_CHANGES" >fa fa-asterisk</v-icon>
+                <v-icon color="orange" style="margin-bottom: 3px; font-size:25px" v-if="item.status === TAB_STATUSES.PENDING_CHANGES" >mdi-clock-time-three</v-icon>
                 <!-- <span v-if="item.status === TAB_STATUSES.PENDING_CHANGES"
                   >*</span
                 > -->
