@@ -1,12 +1,16 @@
 <template>
   <v-card class="ma-2" height="340" width="200">
     <v-img :src="product.image" height="160" max-width="300">
-      <v-btn v-if="!product.isPrioritySku" @click="onClickPrioritize" icon>
-        <v-icon>mdi-checkbox-blank-circle-outline</v-icon>
-      </v-btn>
-      <v-btn v-else @click="onClickUnprioritize" icon>
-        <v-icon  color="green">mdi-check-circle</v-icon>
-      </v-btn>
+      <div style="display: flex">
+        <v-btn v-if="!product.isPrioritySku" @click="onClickPrioritize" icon>
+          <v-icon>mdi-checkbox-blank-circle-outline</v-icon>
+        </v-btn>
+        <v-btn v-else @click="onClickUnprioritize" icon>
+          <v-icon color="green">mdi-check-circle</v-icon>
+        </v-btn>
+        <v-spacer></v-spacer>
+        <SkuEditDialog @skuUpdated="onSkuUpdate($event)" :product="product" />
+      </div>
     </v-img>
     <v-card-text>
       <div class="text-subtitle-1">
@@ -22,8 +26,8 @@
         <span>{{ product.pid }}</span>
       </v-tooltip>
       <div v-else>PID: {{ product.pid }}</div>
-      <div>Product Type: {{ product.product_type }} </div>
-      <div>Similarity Score: {{ product.similarity.toFixed(2) }}</div>
+      <div>Product Type: {{ product.product_type }}</div>
+      <div>Similarity Score: {{ product.similarity && product.similarity.toFixed(2) }}</div>
     </v-card-text>
   </v-card>
 </template>
@@ -36,7 +40,13 @@
 <script>
 import { BRANDS } from "../constants/constants";
 import { mapMutations, mapGetters } from "vuex";
+import SkuEditDialog from "./SkuEditDialog.vue";
+
+
 export default {
+  components: {
+    SkuEditDialog,
+  },
   data() {
     return {
       brands: BRANDS,
@@ -56,6 +66,12 @@ export default {
     },
     onClickUnprioritize() {
       this.$emit("skuUnprioritized", this.product.skuid);
+    },
+    onSkuUpdate(skuDetails) {
+      this.product.skuid = skuDetails.skuid;
+      this.product.image = skuDetails.image;
+      this.product.product_type = skuDetails.product_type;
+      this.markCurrentTabPendingChanges();
     },
   },
 };

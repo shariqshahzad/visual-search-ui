@@ -2,7 +2,7 @@
   <v-row class="mt-2">
     <v-col cols="4">
       <ImageCropper
-        @updateApproval="(e)=>onApprovalUpdate(e)"
+        @updateApproval="(e) => onApprovalUpdate(e)"
         @crop="(e) => onImageCrop(e)"
         @resetData="onResetData"
         @exportData="onExportData"
@@ -64,16 +64,11 @@
 <script>
 import ImageCropper from "./ImageCropper.vue";
 import _ from "lodash";
-import bingSearchService from "../services/bingSearch.service";
 import WSIMLSearchService from "../services/WSIMLSearch.service";
-import { googleResultsToProductMapper } from "../utils/utils";
 import CategoryProductDisplay from "./CategoryProductDisplay.vue";
 import ProductDisplay from "./ProductDisplay.vue";
 import { BRANDS } from "../constants/constants";
-import { mapMutations, mapGetters } from "vuex";
-// import Filters from "./Filters";
-
-import { reduceBingSearchResults } from "../utils/utils";
+import { mapGetters } from "vuex";
 
 export default {
   components: {
@@ -126,12 +121,10 @@ export default {
     ]),
   },
   methods: {
-    onApprovalUpdate(bboxes){
-      this.$emit("updateApproval",bboxes);
+    onApprovalUpdate(bboxes) {
+      this.$emit("updateApproval", bboxes);
     },
-    onExportData(bboxes) {
-
-    },
+    onExportData(bboxes) {},
     onChangeBrand() {
       console.log(this.selectedBrands);
       this.applyFilters();

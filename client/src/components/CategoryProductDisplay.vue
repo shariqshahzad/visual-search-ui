@@ -8,26 +8,14 @@
           max-width="1100"
           style="overflow: hidden"
         >
-          <div>
+          <!-- <div>
             <span
               cols="10"
               class="ml-5 text-h6 font-weight-medium text-capitalize"
             >
             </span>
-            <a
-              cols="12"
-              class="
-                text-h6
-                grey--text
-                text-darken-1
-                font-weight-medium
-                float-right
-              "
-              @click.prevent="(e) => onClickViewAll(category)"
-            >
-              View All<v-icon>mdi-arrow-right</v-icon>
-            </a>
-          </div>
+            
+          </div> -->
           <div style="display: flex">
             <div>
               <div class="ma-2" style="width: 150px">
@@ -43,14 +31,20 @@
                 ></v-checkbox>
               </div>
             </div>
-            <div class="slider-bar">
-              <ProductCard
-                @skuPrioritized="onSkuPrioritized($event, category)"
-                @skuUnprioritized="onSkuUnprioritized($event, category)"
-                v-for="(product, index) in category.previewData"
-                :key="index"
-                :product="product"
-              />
+            <div class="slider-bar" style="flex-direction: column">
+              <div>
+                <SkuAddDialog @skuAdded="(e) => onSkuAdd(e, category)" />
+              </div>
+
+              <div class="slider-bar">
+                <ProductCard
+                  @skuPrioritized="onSkuPrioritized($event, category)"
+                  @skuUnprioritized="onSkuUnprioritized($event, category)"
+                  v-for="(product, index) in category.previewData"
+                  :key="index"
+                  :product="product"
+                />
+              </div>
             </div>
           </div>
         </v-sheet>
@@ -99,10 +93,13 @@
 </style>
 <script>
 import _ from "lodash";
+import SkuAddDialog from "./SkuAddDialog.vue";
 import ProductCard from "./ProductCard.vue";
+import { mapMutations } from "vuex";
 export default {
   components: {
     ProductCard,
+    SkuAddDialog,
   },
   props: {
     categorizedData: Array,
@@ -121,8 +118,13 @@ export default {
     };
   },
   methods: {
+    ...mapMutations(["markCurrentTabPendingChanges"]),
+    onSkuAdd(sku, category) {
+      category.previewData.push(sku);
+      this.markCurrentTabPendingChanges();
+    },
     onSkuPrioritized(skuid, category) {
-      category.previewData.map((pd,index) => {
+      category.previewData.map((pd, index) => {
         if (pd.skuid === skuid) {
           pd.isPrioritySku = true;
         } else {
