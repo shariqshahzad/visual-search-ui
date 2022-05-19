@@ -12,8 +12,8 @@ export const store = new Vuex.Store({
     tabs: (state) => {
       return state.tabs;
     },
-    currentTabKey: (state) => {
-      return state.currentTabKey;
+    currentTab: (state) => {
+      return state.currentTab;
     },
     approvedItems: (state) => {
       return state.approvedItems;
@@ -23,12 +23,12 @@ export const store = new Vuex.Store({
     approvedItems: {},
     selectedBrand: null,
     tabs: [],
-    currentTabKey: "",
+    currentTab: null,
   },
   mutations: {
     markCurrentTabPendingChanges(state, payload) {
       state.tabs = state.tabs.map((tab) => {
-        if (tab.key === state.currentTabKey) {
+        if (tab.key === state.currentTab.key) {
           tab.status = TAB_STATUSES.PENDING_CHANGES;
         }
         return tab;
@@ -43,8 +43,8 @@ export const store = new Vuex.Store({
     setSelectedBrand(state, payload) {
       state.selectedBrand = payload;
     },
-    setCurrentTabKey(state, payload) {
-      state.currentTabKey = payload;
+    setCurrentTab(state, payload) {
+      state.currentTab = payload;
     },
   },
   actions: {

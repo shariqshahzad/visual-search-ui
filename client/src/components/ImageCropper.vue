@@ -3,15 +3,15 @@
     <div class="text-center">
       <v-btn
         class="ma-2"
-        v-if="currentTabStatus === TAB_STATUSES.IN_PROGRESS"
+        v-if="currentTab.status === TAB_STATUSES.IN_PROGRESS"
         @click="updateApproval"
         color="primary"
         >Mark As Approved</v-btn
       >
       <v-btn
         class="ma-2"
-        v-if="currentTabStatus !== TAB_STATUSES.IN_PROGRESS"
-        :disabled="currentTabStatus !== TAB_STATUSES.PENDING_CHANGES"
+        v-if="currentTab.status !== TAB_STATUSES.IN_PROGRESS"
+        :disabled="currentTab.status !== TAB_STATUSES.PENDING_CHANGES"
         @click="updateApproval"
         color="primary"
         >Save Changes</v-btn
@@ -169,15 +169,14 @@ export default {
   },
   computed: {
     ...mapGetters([
-      "currentTabKey",
+      "currentTab",
       "tabs",
       // ...
     ]),
   },
   watch: {
     tabs(newValue, oldValue) {
-      const tab = this.tabs.find((tab) => tab.key === this.currentTabKey);
-      this.currentTabStatus = tab.status;
+      this.currentTabStatus = this.currentTab.status;
     },
     isLoading: function (isLoading, oldVal) {
       if (isLoading) this.cropper.disable();

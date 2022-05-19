@@ -35,7 +35,20 @@
               <div>
                 <SkuAddDialog @skuAdded="(e) => onSkuAdd(e, category)" />
               </div>
+              <v-snackbar top right v-model="skuAddSnackbar">
+                <v-icon color="green" class="mb-1">mdi-check</v-icon> Sku added successfully 
 
+                <!-- <template v-slot:action="{ attrs }">
+                  <v-btn
+                    color="green"
+                    text
+                    v-bind="attrs"
+                    @click="snackbar = false"
+                  >
+                    Close
+                  </v-btn>
+                </template> -->
+              </v-snackbar>
               <div class="slider-bar">
                 <ProductCard
                   @skuPrioritized="onSkuPrioritized($event, category)"
@@ -113,6 +126,7 @@ export default {
   data() {
     return {
       showMore: false,
+      skuAddSnackbar: false,
       selectedCategoryFullData: [],
       selectedCategoryHeading: "",
     };
@@ -120,7 +134,9 @@ export default {
   methods: {
     ...mapMutations(["markCurrentTabPendingChanges"]),
     onSkuAdd(sku, category) {
-      category.previewData.push(sku);
+      debugger;
+      category.previewData.unshift(sku);
+      this.skuAddSnackbar = true;
       this.markCurrentTabPendingChanges();
     },
     onSkuPrioritized(skuid, category) {
