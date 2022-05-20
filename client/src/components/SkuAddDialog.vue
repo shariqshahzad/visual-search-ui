@@ -56,7 +56,7 @@
                   required
                 ></v-text-field>
               </v-col>
-            </v-row>
+        </v-row>
           </v-container>
           <small>*indicates required field</small>
         </v-card-text>
