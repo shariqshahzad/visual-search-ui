@@ -103,10 +103,17 @@
             <template v-slot:activator="{ on, attrs }">
               <div v-bind="attrs" v-on="on">
                 {{ item.name }}
-                <v-icon color="green" v-if="item.status === TAB_STATUSES.APPROVED"
+                <v-icon
+                  color="green"
+                  v-if="item.status === TAB_STATUSES.APPROVED"
                   >mdi-checkbox-marked-circle</v-icon
                 >
-                <v-icon color="orange" style="margin-bottom: 3px; font-size:25px" v-if="item.status === TAB_STATUSES.PENDING_CHANGES" >mdi-clock-time-three</v-icon>
+                <v-icon
+                  color="orange"
+                  style="margin-bottom: 3px; font-size: 25px"
+                  v-if="item.status === TAB_STATUSES.PENDING_CHANGES"
+                  >mdi-clock-time-three</v-icon
+                >
                 <!-- <span v-if="item.status === TAB_STATUSES.PENDING_CHANGES"
                   >*</span
                 > -->
@@ -138,11 +145,13 @@ import { createJsonFileAndDownload } from "../utils/utils";
 import Cropper from "cropperjs";
 import {
   googleResultsToProductMapper,
+  convertApprovedItemsToBinaryObjects,
   parseExcel,
   toDataURL,
   getMimeTypeOfFile,
   encodeImageFileAsURL,
   generateUUID,
+  exportExcel,
 } from "../utils/utils";
 import { BRANDS, TAB_STATUSES } from "../constants/constants";
 
@@ -232,7 +241,8 @@ export default {
       this.errorDetail = "";
     },
     onClickExport() {
-      createJsonFileAndDownload(this.approvedItems);
+      exportExcel(convertApprovedItemsToBinaryObjects(this.approvedItems));
+      // createJsonFileAndDownload(this.approvedItems);
     },
     onChangeTab(e) {
       if (!this.tabs[e].status) {

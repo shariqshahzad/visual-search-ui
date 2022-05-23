@@ -21,7 +21,7 @@
       crossorigin
     />
     <ImageSearchTool
-      @updateApproval="(e)=>onUpdateApproval(e)"
+      @updateApproval="(e) => onUpdateApproval(e)"
       v-if="resultsAvailable"
       :results="resultsData"
       :imageData="imageData"
@@ -85,12 +85,13 @@ export default {
   methods: {
     ...mapMutations(["setTabs","setApprovedItems"]),
     onUpdateApproval(bboxes) {
+      debugger;
       const exportData = this.categorizeSearchResults.map((res) => {
         const bbox = bboxes.find((bbox) => bbox.mappedPrId === res.categoryId);
         return {
           bbox: bbox.bbox,
           class: bbox.class,
-          data: res.data,
+          data: res.previewData.filter(pd=>pd.isPrioritySku),
         };
       });
       const approvedItemsPayload =  {

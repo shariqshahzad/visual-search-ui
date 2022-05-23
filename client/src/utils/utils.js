@@ -148,7 +148,7 @@ export async function getMimeTypeOfFile(file) {
   });
 }
 
-export async function createJsonFileAndDownload(content,filename = `${Date.now()}_Visual_Meta.json`) {
+export async function createJsonFileAndDownload(content, filename = `${Date.now()}_Visual_Meta.json`) {
   var element = document.createElement("a");
   element.setAttribute("href", "data:text/plain;charset=utf-8," + encodeURIComponent(JSON.stringify(content)));
   element.setAttribute("download", filename);
@@ -160,3 +160,45 @@ export async function createJsonFileAndDownload(content,filename = `${Date.now()
 
   document.body.removeChild(element);
 }
+
+export const convertApprovedItemsToBinaryObjects = (approvedItems) => {
+  let xlsxPayload = [];
+  for (const [key, value] of Object.entries(approvedItems)) {
+    let excelArray = [["Bounding Boxes", "Brand", "PID", "Category", "Image URL", "Product Type", "SKU"]];
+    value.map((element) => {
+      element.data.map(({ brand, pid, category, image, product_type, skuid }) => {
+        excelArray.push([element.bbox.toString(), brand, pid, category, image, product_type, skuid]);
+      });
+    });
+    xlsxPayload.push({ fileName: key, excelArray });
+  }
+  return xlsxPayload;
+};
+
+export const exportExcel = (xlsxPayload) => {
+  // On Click Excel download button
+
+  // export json to Worksheet of Excel
+  // only array possible
+
+  var wb = XLSX.utils.book_new();
+
+  xlsxPayload.forEach((xpl) => {
+    var WS = XLSX.utils.aoa_to_sheet(xpl.excelArray);
+    //  XLSX.utils.json_to_sheet(jsonObject);
+
+    // A workbook is the name given to an Excel file
+    // make Workbook of Excel
+
+    // add Worksheet to Workbook
+    // Workbook contains one or more worksheets
+    XLSX.utils.book_append_sheet(wb, WS, xpl.fileName.substr(0, 30));
+  });
+
+  // sheetAName is name of Worksheet
+  // XLSX.utils.book_append_sheet(wb, pokemonWS, "pokemons");
+
+  // export Excel file
+  debugger;
+  XLSX.writeFile(wb, "resultsApprovedItems.xlsx"); // name of the file is 'book.xlsx'
+};

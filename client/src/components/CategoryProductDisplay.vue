@@ -36,7 +36,8 @@
                 <SkuAddDialog @skuAdded="(e) => onSkuAdd(e, category)" />
               </div>
               <v-snackbar top right v-model="skuAddSnackbar">
-                <v-icon color="green" class="mb-1">mdi-check</v-icon> Sku added successfully 
+                <v-icon color="green" class="mb-1">mdi-check</v-icon> Sku added
+                successfully
 
                 <!-- <template v-slot:action="{ attrs }">
                   <v-btn
@@ -49,7 +50,12 @@
                   </v-btn>
                 </template> -->
               </v-snackbar>
-              <div class="slider-bar">
+              <div
+                :class="{
+                  'slider-bar': categorizedData.length > 1,
+                  vertical: categorizedData.length === 1,
+                }"
+              >
                 <ProductCard
                   @skuPrioritized="onSkuPrioritized($event, category)"
                   @skuUnprioritized="onSkuUnprioritized($event, category)"
@@ -102,6 +108,10 @@
   overflow-x: scroll !important;
   display: flex;
   overflow-y: hidden;
+}
+.vertical {
+  display: flex;
+  flex-wrap: wrap;
 }
 </style>
 <script>

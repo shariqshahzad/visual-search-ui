@@ -1,5 +1,5 @@
 <template>
-  <v-card class="ma-2" height="340" width="200">
+  <v-card  @click="onClickProductCard(product)" class="ma-2" height="340" width="200">
     <v-img :src="product.image" height="160" max-width="300">
       <div style="display: flex">
         <v-btn v-if="!product.isPrioritySku" @click="onClickPrioritize" icon>
@@ -59,6 +59,9 @@ export default {
     ...mapMutations(["markCurrentTabPendingChanges"]),
     onClickCard(url) {
       window.open(url);
+    },
+    onClickProductCard(product){
+      window.open(`${this.brands[product.brand].hostUrl}/products/${product.pid}`);
     },
     onClickPrioritize() {
       this.markCurrentTabPendingChanges();
