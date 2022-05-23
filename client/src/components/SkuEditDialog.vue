@@ -2,12 +2,12 @@
   <v-dialog v-model="dialog" persistent max-width="600px">
     <template v-slot:activator="{ on, attrs }">
       <v-btn icon v-bind="attrs" v-on="on">
-        <v-icon>mdi-pencil</v-icon>
+        <v-icon size = "24px">mdi-information</v-icon>
       </v-btn>
     </template>
     <v-card>
       <v-card-title>
-        <span class="text-h5">SKU Editor</span>
+        <span class="text-h5">SKU Information</span>
       </v-card-title>
       <v-card-text>
         <v-container>
@@ -21,7 +21,6 @@
             </v-col>
             <v-col cols="12">
               <v-text-field
-                disabled
                 label="Product Id"
                 v-model="skuData.pid"
                 required
