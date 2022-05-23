@@ -26,14 +26,23 @@
           </v-col>
           <v-col cols="5" class="mt-5">
             <v-btn
+              class="float-right ml-5 mb-3"
+              color="teal"
               @click="onClickExport()"
+              :disabled="!(Object.keys(approvedItems).length > 0)"
+            >
+              <v-icon color="white"> mdi-file-excel-box </v-icon>
+            </v-btn>
+            <!-- <v-btn
+              @click="onClickExport()"
+              :disabled="!(Object.keys(approvedItems).length > 0)"
               type="button"
               dark
-              class="float-right ml-5 mb-3"
+              
               elevation="2"
             >
               <v-icon>mdi-export</v-icon>
-            </v-btn>
+            </v-btn> -->
             <v-btn
               @click="onClickSearch()"
               type="submit"
@@ -222,7 +231,11 @@ export default {
       errorDetail: "",
     };
   },
-
+  watch: {
+    // approvedItems(newValue, oldValue) {
+    //   this.
+    // },
+  },
   computed: {
     ...mapGetters([
       "tabs",
