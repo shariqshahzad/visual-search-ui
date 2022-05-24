@@ -17,7 +17,7 @@
             
           </div> -->
           <div style="display: flex">
-            <div>
+            <!-- <div>
               <div class="ma-2" style="width: 150px">
                 <v-checkbox
                   v-for="(filter, index) in categoryFilters[
@@ -30,7 +30,7 @@
                   hide-details
                 ></v-checkbox>
               </div>
-            </div>
+            </div> -->
             <div class="slider-bar" style="flex-direction: column">
               <div>
                 <SkuAddDialog @skuAdded="(e) => onSkuAdd(e, category)" />

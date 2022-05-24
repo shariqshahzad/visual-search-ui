@@ -8,15 +8,15 @@ export const BRANDS = {
     name: "Pottery Barn Kids",
   },
   PT: {
-    hostUrl: "https://www.potterybarnkids.com/",
+    hostUrl: "https://www.pbteen.com/",
     name: "Pottery Barn Teen",
   },
   PB: {
-    hostUrl: "https://www.potterybarnkids.com/",
+    hostUrl: "https://www.potterybarn.com/",
     name: "Pottery Barn",
   },
   WS: {
-    hostUrl: "https://www.potterybarnkids.com/",
+    hostUrl: "https://www.williams-sonoma.com/",
     name: "Williams Sonoma",
   },
   // MG: {

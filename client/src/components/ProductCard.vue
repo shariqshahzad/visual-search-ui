@@ -1,8 +1,8 @@
 <template>
-  <v-card  @click="onClickProductCard(product)" class="ma-2" height="340" width="200">
+  <v-card   class="ma-2" height="340" width="200">
     <v-img :src="product.image" height="160" max-width="300">
       <div style="display: flex">
-        <v-btn v-if="!product.isPrioritySku" @click="onClickPrioritize" icon>
+        <v-btn @click.prevent="onClickPrioritize" v-if="!product.isPrioritySku" icon>
           <v-icon>mdi-checkbox-blank-circle-outline</v-icon>
         </v-btn>
         <v-btn v-else @click="onClickUnprioritize" icon>
@@ -12,7 +12,7 @@
         <SkuEditDialog @skuUpdated="onSkuUpdate($event)" :product="product" />
       </div>
     </v-img>
-    <v-card-text>
+    <v-card-text style="cursor:pointer" @click="onClickProductCard(product)">
       <div class="text-subtitle-1">
         {{ brands[product.brand].name }}
       </div>
