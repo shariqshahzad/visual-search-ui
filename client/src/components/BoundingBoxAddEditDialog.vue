@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="open" scrollable max-width="1200px">
+  <v-dialog v-model="open" max-width="1200px">
     <v-card tile :key="dialogKey">
       <v-toolbar flat dark color="primary">
         <v-btn icon dark @click="open = false">
@@ -12,8 +12,8 @@
         </v-toolbar-items> -->
       </v-toolbar>
       <v-card-text>
-        <v-row>
-          <v-col cols="8" class="mt-5">
+        <v-row v-if="!isLoading">
+          <v-col cols="12" class="mt-5">
             <div class="img-container">
               <img
                 ref="uploadedImage"
@@ -32,20 +32,38 @@
               ></span>
             </div>
           </v-col>
-          <v-col cols="4" class="mt-5">
-            <v-text-field
-              :disabled="!isLoading"
+          <v-col cols="12" class="text-center mt-5">
+            <!-- <v-text-field
+              :disabled="!inProgress"
               label="Category Name"
               :v-model="categoryName"
-            ></v-text-field>
+            ></v-text-field> -->
             <v-btn
               @click="onClickSave"
-              :disabled="!isLoading"
-              :dark="isLoading ? true : false"
-              class="float-right"
+              :disabled="!inProgress"
+              :dark="inProgress ? true : false"
+              class="mr-2"
               >Save</v-btn
             >
-            <v-btn class="float-right mr-2">Cancel</v-btn>
+            <v-btn @click="onClickCancel">Cancel</v-btn>
+          </v-col>
+        </v-row>
+        <v-row
+          v-else
+          class="fill-height"
+          align-content="center"
+          justify="center"
+          style="margin: 200px"
+        >
+          <v-col class="text-subtitle-1 text-center" cols="12">
+            Fetching Results, please wait ...
+          </v-col>
+          <v-col cols="4">
+            <v-progress-linear
+              indeterminate
+              rounded
+              height="6"
+            ></v-progress-linear>
           </v-col>
         </v-row>
         <!-- <h1 class="my-4 text-center">Draw the boundary for new object</h1> -->
@@ -79,8 +97,8 @@ export default {
     hotspotButtonsProp: function (newVal, oldVal) {
       this.hotspotButtons = JSON.parse(JSON.stringify(newVal));
     },
-    isLoading: function (isLoading, oldVal) {
-      if (isLoading) {
+    inProgress: function (inProgress, oldVal) {
+      if (inProgress) {
         this.cropper.disable();
       } else {
         this.cropper.enable();
@@ -94,6 +112,7 @@ export default {
       img: null,
       yoloData: null,
       dialogKey: null,
+      inProgress: false,
       isLoading: false,
       open: true,
       hotspotButtons: null,
@@ -101,7 +120,11 @@ export default {
     };
   },
   methods: {
+    onClickCancel(){
+      this.open = false;
+    },
     async onClickSave() {
+      this.isLoading = true;
       this.yoloData.class = "someCat";
       console.log(this.yoloData);
       let embeddings = await WSIMLSearchService.getEmbbeddingsResults(
@@ -116,6 +139,7 @@ export default {
         categorizeSearchResults: productResults[0],
         objectBoundaries: this.yoloData,
       });
+      this.isLoading = false;
       this.open = false;
     },
     onCropEnd() {
@@ -162,7 +186,7 @@ export default {
       this.yoloData = yoloData;
       // this.cropper.destroy();
       // this.initializeCropper();
-      this.isLoading = true;
+      this.inProgress = true;
     },
     initializeCropper() {
       this.cropper = new Cropper(this.imageTarget, {
