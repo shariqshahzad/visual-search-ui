@@ -1,7 +1,26 @@
 <template>
   <v-row class="mt-2">
     <v-col cols="4">
+      <div>
+        <div class="ml-2 mb-2" style="display: flex; flex-wrap: wrap">
+          <strong class="mt-1"><v-icon>mdi-filter</v-icon>Filter By Brands :</strong>
+          <v-checkbox
+            v-for="brand of brands"
+            :key="brand.name"
+            v-model="selectedBrands"
+            class="mx-2 my-0"
+            @change="onChangeBrand(brand, $event)"
+            :value="brand.key"
+            :label="brand.key"
+          ></v-checkbox>
+          <!-- <v-row>
+        <v-col> </v-col>
+        <v-col cols="2"> </v-col>
+      </v-row> -->
+        </div>
+      </div>
       <ImageCropper
+        @newBboxAdded="onAddNewBbox($event)"
         @updateApproval="(e) => onApprovalUpdate(e)"
         @crop="(e) => onImageCrop(e)"
         @resetData="onResetData"
@@ -11,24 +30,7 @@
         :isLoading="isLoading"
         :objectBoundaries="objectBoundaries"
       />
-      <div class="mt-5">
-        <strong><v-icon>mdi-filter</v-icon>Filter By Brands :</strong>
-        <div class="ma-2" style="display: flex; flex-wrap: wrap">
-          <v-checkbox
-            v-for="brand of brands"
-            :key="brand.name"
-            v-model="selectedBrands"
-            class="mr-3"
-            @change="onChangeBrand(brand, $event)"
-            :value="brand.key"
-            :label="brand.name"
-          ></v-checkbox>
-          <!-- <v-row>
-        <v-col> </v-col>
-        <v-col cols="2"> </v-col>
-      </v-row> -->
-        </div>
-      </div>
+
       <!--      <filters :min="defaultFilters.priceRange.min" :max="defaultFilters.priceRange.max" @emitPriceRange="emitPriceRange" />-->
     </v-col>
 
@@ -123,6 +125,9 @@ export default {
   methods: {
     onApprovalUpdate(bboxes) {
       this.$emit("updateApproval", bboxes);
+    },
+    onAddNewBbox(e) {
+      this.$emit("newBboxAdded", e);
     },
     onExportData(bboxes) {},
     onChangeBrand() {

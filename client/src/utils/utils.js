@@ -200,5 +200,5 @@ export const exportExcel = (xlsxPayload) => {
 
   // export Excel file
   debugger;
-  XLSX.writeFile(wb, "resultsApprovedItems.xlsx"); // name of the file is 'book.xlsx'
+  XLSX.writeFile(wb, `${Date.now()}_Approved_Items.xlsx`); // name of the file is 'book.xlsx'
 };

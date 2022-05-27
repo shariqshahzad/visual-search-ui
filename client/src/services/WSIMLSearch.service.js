@@ -1,5 +1,5 @@
 import axios from "axios";
-import { googleResultsToProductMapper } from "../utils/utils";
+import { generateUUID } from "../utils/utils";
 import { BRANDS, WSI_ML_SIMILARITY_ENDPOINT, WSI_ML_EMBEDDINGS_ENDPOINT, WSI_ML_YOLO_ENDPOINT, API_KEY } from "../constants/constants";
 import _ from "lodash";
 const baseUrl = process.env.VUE_APP_MIDDLEWARE_URL;
@@ -72,8 +72,8 @@ export default {
     } catch (e) {
       console.log(e);
     }
-    return res.data.map((yd, index) => {
-      yd.id = index + 1;
+    return res.data.map((yd) => {
+      yd.id = generateUUID();
       yd.mappedPrId = yd.id;
       return yd;
     });

@@ -1,5 +1,20 @@
 <template>
   <div>
+    <div class="img-container mx-2">
+      <img
+        ref="uploadedImage"
+        style="max-width: 100%"
+        :src="imageData.src"
+        crossorigin
+      />
+      <span
+        @click="emitSpotChange(btn)"
+        v-for="(btn, index) in hotspotButtons"
+        :key="index"
+        v-bind:style="btn.btnStyle"
+        :class="`dot ${isLoading ? 'disabled' : ''}`"
+      ></span>
+    </div>
     <div class="text-center">
       <v-btn
         class="ma-2"
@@ -16,26 +31,20 @@
         color="primary"
         >Save Changes</v-btn
       >
+      <v-btn @click="onClickAddNewSpot" color="primary"> Add New Spot </v-btn>
+      <BoundingBoxAddEditDialog
+        @newBboxAdded="onAddNewBbox($event)"
+        @dialogClosed="onClickDialogClosed"
+        v-if="addNewSpotDialog"
+        :sourceImage="imageData.src"
+        :hotspotButtonsProp="hotspotButtons"
+      />
 
       <v-btn class="ma-2" @click="onClickReset" color="primary">Reset</v-btn>
+
       <!-- <v-btn class="ma-2" @click="onClickExport" color="primary"
         >Export Data</v-btn
       > -->
-    </div>
-    <div class="img-container mx-2">
-      <img
-        ref="uploadedImage"
-        style="max-width: 100%"
-        :src="imageData.src"
-        crossorigin
-      />
-      <span
-        @click="emitSpotChange(btn)"
-        v-for="(btn, index) in hotspotButtons"
-        :key="index"
-        v-bind:style="btn.btnStyle"
-        :class="`dot ${isLoading ? 'disabled' : ''}`"
-      ></span>
     </div>
 
     <!-- <div class="img-container" style="display: hidden; justify-content: center">
@@ -48,11 +57,13 @@
 import Cropper from "cropperjs";
 import { mapGetters } from "vuex";
 import { singleColors, TAB_STATUSES } from "../constants/constants";
+import BoundingBoxAddEditDialog from "../components/BoundingBoxAddEditDialog.vue";
 
 export default {
   name: "ImageCropper",
   data() {
     return {
+      addNewSpotDialog: false,
       hotspotButtons: [],
       TAB_STATUSES,
       currentTabStatus: TAB_STATUSES.IN_PROGRESS,
@@ -68,6 +79,12 @@ export default {
     objectBoundaries: Array,
     isLoading: Boolean,
   },
+  watch: {
+    objectBoundaries(newVal, oldVal) {
+      debugger;
+      this.onClickReset();
+    },
+  },
   mounted() {
     const objectBoundaries = this.objectBoundaries;
     this.$refs.uploadedImage.onload = (img) => {
@@ -78,9 +95,12 @@ export default {
       };
       let colorIndex = 0;
 
-      this.hotspotButtons = objectBoundaries.map((bd) => {
+      this.hotspotButtons = objectBoundaries.map((bd, index) => {
+        if (index === 0) console.log(bd.bbox);
         const top = ((bd.bbox[1] + bd.bbox[3]) / 2 / dimensions.height) * 100;
         const left = ((bd.bbox[0] + bd.bbox[2]) / 2 / dimensions.width) * 100;
+        // top = (y1+y2)/2/dimensions.height)*100
+        //
         if (!bd.bgColor) colorIndex++;
         return {
           btnStyle: {
@@ -132,6 +152,16 @@ export default {
     };
   },
   methods: {
+    onAddNewBbox(e) {
+      // this.onClickReset();
+      this.$emit("newBboxAdded", e);
+    },
+    onClickDialogClosed() {
+      this.addNewSpotDialog = false;
+    },
+    onClickAddNewSpot() {
+      this.addNewSpotDialog = true;
+    },
     initializeCropper(isReset) {
       this.cropper = new Cropper(this.imageTarget, {
         zoomable: false,
@@ -154,7 +184,7 @@ export default {
       this.initializeCropper(true);
       this.$emit("resetData", null);
     },
-    updateCurrentTabStatus(){
+    updateCurrentTabStatus() {
       const tab = this.tabs.find((tab) => tab.key === this.currentTabKey);
       this.currentTabStatus = tab.status;
     },
@@ -171,6 +201,9 @@ export default {
       }
     },
   },
+  components: {
+    BoundingBoxAddEditDialog,
+  },
   computed: {
     ...mapGetters([
       "currentTabKey",
@@ -181,7 +214,6 @@ export default {
   watch: {
     currentTabKey(newValue, oldValue) {
       this.updateCurrentTabStatus();
-
     },
     tabs(newValue, oldValue) {
       this.updateCurrentTabStatus();

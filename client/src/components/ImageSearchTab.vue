@@ -21,7 +21,9 @@
       crossorigin
     />
     <ImageSearchTool
+      @newBboxAdded="onAddNewBbox($event)"
       @updateApproval="(e) => onUpdateApproval(e)"
+      :key="key"
       v-if="resultsAvailable"
       :results="resultsData"
       :imageData="imageData"
@@ -36,7 +38,7 @@
 <script>
 import WSIMLSearchService from "../services/WSIMLSearch.service";
 import { mapMutations, mapGetters } from "vuex";
-import { encodeImageFileAsURL } from "../utils/utils";
+import { encodeImageFileAsURL, generateUUID } from "../utils/utils";
 import ImageSearchTool from "./ImageSearchTool.vue";
 import _ from "lodash";
 import Cropper from "cropperjs";
@@ -67,6 +69,7 @@ export default {
   data() {
     return {
       imgBase64: null,
+      key : null,
       resultsAvailable: false,
       imageData: null,
       objectBoundaries: [],
@@ -83,7 +86,7 @@ export default {
     };
   },
   methods: {
-    ...mapMutations(["setTabs","setApprovedItems"]),
+    ...mapMutations(["setTabs", "setApprovedItems"]),
     onUpdateApproval(bboxes) {
       debugger;
       const exportData = this.categorizeSearchResults.map((res) => {
@@ -91,13 +94,13 @@ export default {
         return {
           bbox: bbox.bbox,
           class: bbox.class,
-          data: res.previewData.filter(pd=>pd.isPrioritySku),
+          data: res.previewData.filter((pd) => pd.isPrioritySku),
         };
       });
-      const approvedItemsPayload =  {
-        fileName : this.searchProp.file.name,
-        data : exportData
-      }
+      const approvedItemsPayload = {
+        fileName: this.searchProp.file.name,
+        data: exportData,
+      };
       const tabsPayload = this.tabs.map((tab) => {
         if (tab.key === this.searchProp.key) {
           tab.status = tab.status = TAB_STATUSES.APPROVED;
@@ -106,6 +109,11 @@ export default {
       });
       this.setApprovedItems(approvedItemsPayload);
       this.setTabs(tabsPayload);
+    },
+    onAddNewBbox(e) {
+      this.categorizeSearchResults.unshift(e.categorizeSearchResults);
+      this.objectBoundaries.unshift(e.objectBoundaries);
+      this.key = generateUUID();
     },
     async onWSIMLSearch() {
       let base64str;
