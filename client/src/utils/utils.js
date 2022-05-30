@@ -1,4 +1,5 @@
 var XLSX = require("xlsx");
+import { singleColors } from "../constants/constants";
 
 export const parseExcel = function(file) {
   var reader = new FileReader();
@@ -201,4 +202,31 @@ export const exportExcel = (xlsxPayload) => {
   // export Excel file
   debugger;
   XLSX.writeFile(wb, `${Date.now()}_Approved_Items.xlsx`); // name of the file is 'book.xlsx'
+};
+
+export const createSpotsFromBoundaries = (objectBoundaries, height, width) => {
+  let colorIndex = 0;
+  const hotspotButtons = objectBoundaries.map((bd) => {
+    const top = ((bd.bbox[1] + bd.bbox[3]) / 2 / height) * 100;
+    const left = ((bd.bbox[0] + bd.bbox[2]) / 2 / width) * 100;
+
+    if (!bd.bgColor) colorIndex++;
+    return {
+      btnStyle: {
+        top: `calc(${top}% - 10px)`,
+        left: `calc(${left}% - 7px)`,
+        background: bd.bgColor || singleColors[colorIndex],
+      },
+      cropperCoordinates: {
+        x: bd.bbox[0],
+        y: bd.bbox[1],
+        width: bd.bbox[2] - bd.bbox[0],
+        height: bd.bbox[3] - bd.bbox[1],
+      },
+      categoryId: bd.mappedPrId,
+      id: bd.id,
+      // boundingPolyIndex: bd.boundingPolyIndex,
+    };
+  });
+  return hotspotButtons;
 };

@@ -37,7 +37,7 @@
         @dialogClosed="onClickDialogClosed"
         v-if="addNewSpotDialog"
         :sourceImage="imageData.src"
-        :hotspotButtonsProp="hotspotButtons"
+        :objectBoundaries="objectBoundaries"
       />
 
       <v-btn class="ma-2" @click="onClickReset" color="primary">Reset</v-btn>
@@ -57,6 +57,7 @@
 import Cropper from "cropperjs";
 import { mapGetters } from "vuex";
 import { singleColors, TAB_STATUSES } from "../constants/constants";
+import { createSpotsFromBoundaries } from "../utils/utils"
 import BoundingBoxAddEditDialog from "../components/BoundingBoxAddEditDialog.vue";
 
 export default {
@@ -93,61 +94,7 @@ export default {
         width: img.target.naturalWidth,
         height: img.target.naturalHeight,
       };
-      let colorIndex = 0;
-
-      this.hotspotButtons = objectBoundaries.map((bd, index) => {
-        if (index === 0) console.log(bd.bbox);
-        const top = ((bd.bbox[1] + bd.bbox[3]) / 2 / dimensions.height) * 100;
-        const left = ((bd.bbox[0] + bd.bbox[2]) / 2 / dimensions.width) * 100;
-        // top = (y1+y2)/2/dimensions.height)*100
-        //
-        if (!bd.bgColor) colorIndex++;
-        return {
-          btnStyle: {
-            top: `calc(${top}% - 10px)`,
-            left: `calc(${left}% - 7px)`,
-            background: bd.bgColor || singleColors[colorIndex],
-          },
-          cropperCoordinates: {
-            x: bd.bbox[0],
-            y: bd.bbox[1],
-            width: bd.bbox[2] - bd.bbox[0],
-            height: bd.bbox[3] - bd.bbox[1],
-          },
-          categoryId: bd.mappedPrId,
-          id: bd.id,
-          // boundingPolyIndex: bd.boundingPolyIndex,
-        };
-      });
-
-      // objectBoundaries.map((bd) => {
-      //   const x = bd.rectangleBox.topLeft.x * dimensions.width,
-      //     y = bd.rectangleBox.topLeft.y * dimensions.height;
-      //   return {
-      //     btnStyle: {
-      //       top: `${bd.rectangleCenterSpot.topLeft.y * 100}%`,
-      //       left: `${bd.rectangleCenterSpot.topLeft.x * 100}%`,
-      //       transform: `translate(-${
-      //         (bd.rectangleCenterSpot.topLeft.x * 100) / 2
-      //       }%, -${(bd.rectangleCenterSpot.topLeft.y * 100) / 2}%)`,
-      //     },
-      //     cropperCoordinates: {
-      //       x,
-      //       y,
-      //       width: bd.rectangleBox.topRight.x * dimensions.width - x,
-      //       height: bd.rectangleBox.bottomRight.y * dimensions.height - y,
-      //     },
-      //     boundingPolyIndex: bd.boundingPolyIndex,
-      //   };
-      // });
-
-      // const objectBoundary = objectBoundaries[0];
-      //
-      // const rectangleBox = objectBoundary.rectangleBox,
-      //   x = rectangleBox.topLeft.x * dimensions.width,
-      //   y = rectangleBox.topLeft.y * dimensions.height,
-      //   width = rectangleBox.topRight.x * dimensions.width - x,
-      //   height = rectangleBox.bottomRight.y * dimensions.height - y;
+      this.hotspotButtons = createSpotsFromBoundaries(objectBoundaries,dimensions.height,dimensions.width);
       this.initializeCropper();
     };
   },

@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="open" max-width="1200px">
+  <v-dialog v-model="open" width="700">
     <v-card tile :key="dialogKey">
       <v-toolbar flat dark color="primary">
         <v-btn icon dark @click="open = false">
@@ -12,32 +12,25 @@
         </v-toolbar-items> -->
       </v-toolbar>
       <v-card-text>
-        <v-row v-if="!isLoading">
-          <v-col cols="12" class="mt-5">
-            <div class="img-container">
-              <img
-                ref="uploadedImage"
-                style="max-width: 100%"
-                :src="sourceImage"
-                @load="onSourceImgLoad"
-                crossorigin
-                alt=""
-              />
-              <span
-                v-for="(btn, index) in hotspotButtons"
-                :key="index"
-                v-bind:style="btn.btnStyle"
-                class="dot"
-                @click="emitSpotChange(btn)"
-              ></span>
-            </div>
-          </v-col>
-          <v-col cols="12" class="text-center mt-5">
-            <!-- <v-text-field
-              :disabled="!inProgress"
-              label="Category Name"
-              :v-model="categoryName"
-            ></v-text-field> -->
+        <div v-if="!isLoading">
+          <div ref="container" class="img-container mt-5">
+            <img
+              ref="uploadedImage"
+              style="max-width: 100%"
+              :src="sourceImage"
+              @load="onSourceImgLoad"
+              crossorigin
+              alt=""
+            />
+            <span
+              v-for="(btn, index) in hotspotButtons"
+              :key="index"
+              v-bind:style="btn.btnStyle"
+              class="dot"
+              @click="emitSpotChange(btn)"
+            ></span>
+          </div>
+          <div class="text-center mt-5">
             <v-btn
               @click="onClickSave"
               :disabled="!inProgress"
@@ -46,8 +39,8 @@
               >Save</v-btn
             >
             <v-btn @click="onClickCancel">Cancel</v-btn>
-          </v-col>
-        </v-row>
+          </div>
+        </div>
         <v-row
           v-else
           class="fill-height"
@@ -76,14 +69,14 @@
 <script>
 import Cropper from "cropperjs";
 import { singleColors } from "../constants/constants";
-import { generateUUID } from "../utils/utils";
+import { generateUUID, createSpotsFromBoundaries } from "../utils/utils";
 import WSIMLSearchService from "../services/WSIMLSearch.service";
 
 export default {
   name: "BoundingBoxAddEditDialog",
   props: {
     sourceImage: String,
-    hotspotButtonsProp: Array,
+    objectBoundaries: Array,
   },
   computed: {},
   mounted() {
@@ -94,9 +87,9 @@ export default {
     open(newVal, oldVal) {
       !newVal && this.$emit("dialogClosed");
     },
-    hotspotButtonsProp: function (newVal, oldVal) {
-      this.hotspotButtons = JSON.parse(JSON.stringify(newVal));
-    },
+    // objectBoundaries: function (newVal, oldVal) {
+    //   this.hotspotButtons = JSON.parse(JSON.stringify(newVal));
+    // },
     inProgress: function (inProgress, oldVal) {
       if (inProgress) {
         this.cropper.disable();
@@ -119,8 +112,22 @@ export default {
       imageTarget: null,
     };
   },
+  mounted() {
+    this.$refs.uploadedImage.onload = (img) => {
+      this.imageTarget = img.target;
+      const dimensions = {
+        width: img.target.naturalWidth,
+        height: img.target.naturalHeight,
+      };
+      this.hotspotButtons = createSpotsFromBoundaries(
+        this.objectBoundaries,
+        dimensions.height,
+        dimensions.width
+      );
+    };
+  },
   methods: {
-    onClickCancel(){
+    onClickCancel() {
       this.open = false;
     },
     async onClickSave() {
@@ -143,7 +150,7 @@ export default {
       this.open = false;
     },
     onCropEnd() {
-      debugger;
+       debugger;
       this.croppedImageBase64 = this.cropper
         .getCroppedCanvas()
         .toDataURL("image/jpeg")
@@ -223,6 +230,7 @@ export default {
 <style scoped>
 .img-container {
   position: relative;
+  width: 600px;
   margin: auto !important;
   /*max-height: 600px;*/
 }
