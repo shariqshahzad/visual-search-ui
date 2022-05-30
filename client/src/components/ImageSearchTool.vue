@@ -88,6 +88,7 @@ export default {
   watch: {
     categorizeSearchResults: function (newVal) {
       this.resultsByCategories = _.cloneDeep(newVal);
+      this.applyFilters();
     },
   },
 

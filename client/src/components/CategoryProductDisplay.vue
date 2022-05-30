@@ -130,9 +130,9 @@ export default {
     categoryFilters: Object,
   },
   watch: {
-    categorizedData: function (newVal, oldVal) {
-      this.updateDataAsPerFilters();
-    },
+    // categorizedData: function (newVal, oldVal) {
+    //   this.updateDataAsPerFilters();
+    // },
   },
   data() {
     return {
