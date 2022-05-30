@@ -59,6 +59,7 @@
                 <ProductCard
                   @skuPrioritized="onSkuPrioritized($event, category)"
                   @skuUnprioritized="onSkuUnprioritized($event, category)"
+                  @skuUpdated="onSkuUpdate($event,category)"
                   v-for="(product, index) in category.previewData"
                   :key="index"
                   :product="product"
@@ -144,25 +145,28 @@ export default {
   methods: {
     ...mapMutations(["markCurrentTabPendingChanges"]),
     onSkuAdd(sku, category) {
-      debugger;
-      category.previewData.unshift(sku);
+      this.$emit("skuAdded", {
+        product:sku,
+        categoryId: category.categoryId,
+      });
+      // category.previewData.unshift(sku);
       this.skuAddSnackbar = true;
       this.markCurrentTabPendingChanges();
     },
-    onSkuPrioritized(skuid, category) {
-      category.previewData.map((pd, index) => {
-        if (pd.skuid === skuid) {
-          pd.isPrioritySku = true;
-        } else {
-          pd.isPrioritySku = false;
-        }
+    onSkuUpdate(product,category) {
+      this.$emit("skuUpdated", {
+        product,
+        categoryId: category.categoryId,
       });
-      // product.isPrioritySku = true;
+    },
+    onSkuPrioritized(skuid, category) {
+      this.$emit("skuPrioritized", { skuid, categoryId: category.categoryId });
     },
     onSkuUnprioritized() {
-      debugger;
-      let product = category.previewData.find((pd) => pd.skuid === skuid);
-      product.isPrioritySku = true;
+      this.$emit("skuUnprioritized", {
+        skuid,
+        categoryId: category.categoryId,
+      });
     },
     onChangeFilterCheckbox(e, category, filter) {
       filter.isEnabled = e;

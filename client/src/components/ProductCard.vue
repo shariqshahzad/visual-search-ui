@@ -74,6 +74,7 @@ export default {
       this.product.skuid = skuDetails.skuid;
       this.product.image = skuDetails.image;
       this.product.product_type = skuDetails.product_type;
+      this.$emit("skuUpdated",this.product);
       this.markCurrentTabPendingChanges();
     },
   },

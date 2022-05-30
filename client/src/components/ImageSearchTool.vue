@@ -3,7 +3,9 @@
     <v-col cols="4">
       <div>
         <div class="ml-2 mb-2" style="display: flex; flex-wrap: wrap">
-          <strong class="mt-1"><v-icon>mdi-filter</v-icon>Filter By Brands :</strong>
+          <strong class="mt-1"
+            ><v-icon>mdi-filter</v-icon>Filter By Brands :</strong
+          >
           <v-checkbox
             v-for="brand of brands"
             :key="brand.name"
@@ -49,6 +51,10 @@
     </v-row>
     <v-col cols="8" v-else>
       <CategoryProductDisplay
+        @skuUpdated="onSkuUpdate($event)"
+        @skuAdded="onSkuAdd($event)"
+        @skuPrioritized="onSkuPrioritized($event)"
+        @skuUnprioritized="onSkuUnprioritized($event)"
         :categoryFilters="categoryFilters"
         v-if="showProducts"
         :isLoading="isLoading"
@@ -79,6 +85,12 @@ export default {
     CategoryProductDisplay,
     // Filters
   },
+  watch: {
+    categorizeSearchResults: function (newVal) {
+      this.resultsByCategories = _.cloneDeep(newVal);
+    },
+  },
+
   data() {
     return {
       showProducts: false,
@@ -131,8 +143,19 @@ export default {
     },
     onExportData(bboxes) {},
     onChangeBrand() {
-      console.log(this.selectedBrands);
       this.applyFilters();
+    },
+    onSkuAdd($event) {
+      this.$emit("skuAdded", $event);
+    },
+    onSkuUpdate($event) {
+      this.$emit("skuUpdated", $event);
+    },
+    onSkuPrioritized(event) {
+      this.$emit("skuPrioritized", event);
+    },
+    onSkuUnprioritized(event) {
+      this.$emit("skuUnprioritized", event);
     },
     applyBrandFilter() {
       if (this.selectedBrands.length > 0) {

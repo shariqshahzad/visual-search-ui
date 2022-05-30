@@ -23,6 +23,10 @@
     <ImageSearchTool
       @newBboxAdded="onAddNewBbox($event)"
       @updateApproval="(e) => onUpdateApproval(e)"
+      @skuPrioritized="onSkuPrioritized($event)"
+      @skuUnprioritized="onSkuUnprioritized($event)"
+      @skuUpdated="onSkuUpdate($event)"
+      @skuAdded="onSkuAdd($event)"
       :key="key"
       v-if="resultsAvailable"
       :results="resultsData"
@@ -69,7 +73,7 @@ export default {
   data() {
     return {
       imgBase64: null,
-      key : null,
+      key: null,
       resultsAvailable: false,
       imageData: null,
       objectBoundaries: [],
@@ -88,7 +92,6 @@ export default {
   methods: {
     ...mapMutations(["setTabs", "setApprovedItems"]),
     onUpdateApproval(bboxes) {
-      debugger;
       const exportData = this.categorizeSearchResults.map((res) => {
         const bbox = bboxes.find((bbox) => bbox.mappedPrId === res.categoryId);
         return {
@@ -115,6 +118,30 @@ export default {
       this.objectBoundaries.unshift(e.objectBoundaries);
       this.key = generateUUID();
     },
+    onSkuAdd($event) {
+      let { categoryId, product } = $event;
+      this.categorizeSearchResults = this.categorizeSearchResults.map((res) => {
+        if (res.categoryId === categoryId) {
+          res.previewData.unshift(product);
+        }
+        return res;
+      });
+      // this.$emit("skuUpdated", $event);
+    },
+
+    onSkuUpdate($event) {
+      let { categoryId, product } = $event;
+      this.categorizeSearchResults = this.categorizeSearchResults.map((res) => {
+        if (res.categoryId === categoryId) {
+          const replaceIndex = res.previewData.findIndex(
+            (pd) => pd.skuid === product.skuid
+          );
+          if (replaceIndex !== -1) res.previewData[replaceIndex] = product;
+        }
+        return res;
+      });
+      // this.$emit("skuUpdated", $event);
+    },
     async onWSIMLSearch() {
       let base64str;
       base64str = this.searchProp.dataURI
@@ -123,6 +150,30 @@ export default {
       this.imgBase64 = base64str;
       base64str = base64str.split(",")[1];
       await this.WSIMLSearch(base64str);
+    },
+    onSkuPrioritized(event) {
+      this.categorizeSearchResults = this.categorizeSearchResults.map((res) => {
+        if (res.categoryId === event.categoryId) {
+          res.previewData.map((pd) => {
+            if (pd.skuid === event.skuid) {
+              pd.isPrioritySku = true;
+            } else {
+              pd.isPrioritySku = false;
+            }
+          });
+        }
+        return res;
+      });
+      // product.isPrioritySku = true;
+    },
+    onSkuUnprioritized(event) {
+      this.categorizeSearchResults = this.categorizeSearchResults.map((res) => {
+        if (res.categoryId === event.categoryId) {
+          let product = res.previewData.find((pd) => pd.skuid === event.skuid);
+          product.isPrioritySku = true;
+        }
+        return res;
+      });
     },
     createBase64StringForBoundary(element) {
       let cropperCoordinates = {
