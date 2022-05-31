@@ -13,7 +13,9 @@
         :key="index"
         v-bind:style="btn.btnStyle"
         :class="`dot ${isLoading ? 'disabled' : ''}`"
-      ></span>
+      >
+        <span class="dot-number">{{btn.sno}}</span>
+      </span>
     </div>
     <div class="text-center">
       <v-btn
@@ -57,7 +59,7 @@
 import Cropper from "cropperjs";
 import { mapGetters } from "vuex";
 import { singleColors, TAB_STATUSES } from "../constants/constants";
-import { createSpotsFromBoundaries } from "../utils/utils"
+import { createSpotsFromBoundaries, setSNoToBoundaries } from "../utils/utils"
 import BoundingBoxAddEditDialog from "../components/BoundingBoxAddEditDialog.vue";
 
 export default {
@@ -94,6 +96,7 @@ export default {
         width: img.target.naturalWidth,
         height: img.target.naturalHeight,
       };
+      this.hotspotButtons = setSNoToBoundaries(objectBoundaries);
       this.hotspotButtons = createSpotsFromBoundaries(objectBoundaries,dimensions.height,dimensions.width);
       this.initializeCropper();
     };
@@ -183,23 +186,34 @@ export default {
   display: inline-block;
   cursor: pointer;
 }
-.btn {
-  top: 50%;
+
+.dot-number {
+  font-size: 0.6rem;
+  margin-top: 13px;
   left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: #555;
-  color: white;
-  font-size: 16px;
-  padding: 12px 24px;
-  border: none;
-  cursor: pointer;
-  border-radius: 5px;
-  text-align: center;
+  transform: translate(-50%, -98%);
+  position: absolute;
+  color: #fff;
+  /* text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black; */
+}
+
+.btn {
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%);
+background-color: #555;
+color: white;
+font-size: 16px;
+padding: 12px 24px;
+border: none;
+cursor: pointer;
+border-radius: 5px;
+text-align: center;
 }
 
 .img-container {
-  position: relative;
-  /*max-height: 600px;*/
+position: relative;
+/*max-height: 600px;*/
 }
 .img-preview {
   width: 200px;

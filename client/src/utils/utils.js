@@ -225,8 +225,28 @@ export const createSpotsFromBoundaries = (objectBoundaries, height, width) => {
       },
       categoryId: bd.mappedPrId,
       id: bd.id,
+      sno: bd.sno
       // boundingPolyIndex: bd.boundingPolyIndex,
     };
   });
+
+
+
   return hotspotButtons;
 };
+
+export const setSNoToBoundaries = (objectBoundaries) => {
+  let categorySnoMapper = {}, currentSno = 1;
+  return objectBoundaries.map((bd) => {
+    if(!categorySnoMapper[bd.mappedPrId]) {
+      categorySnoMapper[bd.mappedPrId] = currentSno;
+      bd.sno = currentSno;
+      currentSno++;
+    } else {
+      bd.sno = categorySnoMapper[bd.mappedPrId];
+    }
+
+    return bd;
+  });
+}
+

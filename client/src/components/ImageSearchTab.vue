@@ -33,6 +33,7 @@
       :imageData="imageData"
       :objectBoundaries="objectBoundaries"
       :categorizeSearchResults="categorizeSearchResults"
+      :fileName="searchProp.file.name"
     />
     <!-- <v-card>
       <div style="padding: 10px; overflow: hidden"></div>
@@ -42,7 +43,7 @@
 <script>
 import WSIMLSearchService from "../services/WSIMLSearch.service";
 import { mapMutations, mapGetters } from "vuex";
-import { encodeImageFileAsURL, generateUUID } from "../utils/utils";
+import { encodeImageFileAsURL, generateUUID, setSNoToBoundaries } from "../utils/utils";
 import ImageSearchTool from "./ImageSearchTool.vue";
 import _ from "lodash";
 import Cropper from "cropperjs";
@@ -92,11 +93,13 @@ export default {
   methods: {
     ...mapMutations(["setTabs", "setApprovedItems"]),
     onUpdateApproval(bboxes) {
+      bboxes = setSNoToBoundaries(bboxes);
       const exportData = this.categorizeSearchResults.map((res) => {
         const bbox = bboxes.find((bbox) => bbox.mappedPrId === res.categoryId);
         return {
           bbox: bbox.bbox,
           class: bbox.class,
+          sno: bbox.sno,
           data: res.previewData.filter((pd) => pd.isPrioritySku),
         };
       });
@@ -300,6 +303,7 @@ export default {
           }
           return isPrToBeRemoved;
         });
+
         prioritizedSimilarProductDataset.push(categoryToBePrioritized);
       }
     },

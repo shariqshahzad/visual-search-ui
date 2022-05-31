@@ -33,6 +33,14 @@
         :objectBoundaries="objectBoundaries"
       />
 
+      <div v-if="approvedItemsList && approvedItemsList.length">
+        <h3 class="mt-3 text-center">List of approved items</h3>
+
+        <ul class="mt-2 subtitle-1">
+          <li v-for="item in approvedItemsList">Spot no. {{item.sno}} {{item.data.length ? `-> Sku #${item.data[0].skuid}` : '(Not Marked)'}}</li>
+        </ul>
+      </div>
+
       <!--      <filters :min="defaultFilters.priceRange.min" :max="defaultFilters.priceRange.max" @emitPriceRange="emitPriceRange" />-->
     </v-col>
 
@@ -89,9 +97,8 @@ export default {
     categorizeSearchResults: function (newVal) {
       this.resultsByCategories = _.cloneDeep(newVal);
       this.applyFilters();
-    },
+    }
   },
-
   data() {
     return {
       showProducts: false,
@@ -114,10 +121,14 @@ export default {
           max: null,
         },
       },
+      approvedItemsList: []
     };
   },
   computed: {
+    ...mapGetters(['selectedBrand', 'approvedItems']),
     filteredResult: function () {
+      if (!this.dataResults)
+        return this.dataResults;
       return this.dataResults.filter((value) => {
         const price = value.price;
         if (price) {
@@ -129,15 +140,12 @@ export default {
         return true;
       });
     },
-    ...mapGetters([
-      "selectedBrand",
-      // "dummyCategoryData",
-      // ...
-    ]),
   },
   methods: {
     onApprovalUpdate(bboxes) {
       this.$emit("updateApproval", bboxes);
+
+      this.approvedItemsList = this.approvedItems[this.fileName];
     },
     onAddNewBbox(e) {
       this.$emit("newBboxAdded", e);
@@ -233,6 +241,7 @@ export default {
     objectBoundaries: Array,
     searchOption: String,
     categorizeSearchResults: Array,
+    fileName: String,
   },
 };
 </script>

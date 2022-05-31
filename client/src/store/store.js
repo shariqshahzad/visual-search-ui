@@ -1,4 +1,5 @@
 import Vuex from "vuex";
+import _ from "lodash";
 import { TAB_STATUSES } from "../constants/constants";
 
 export const store = new Vuex.Store({
@@ -35,7 +36,7 @@ export const store = new Vuex.Store({
       });
     },
     setApprovedItems(state, payload) {
-      state.approvedItems[payload.fileName] = payload.data;
+      state.approvedItems[payload.fileName] = _.orderBy(payload.data,['sno'],['asc']);
     },
     setTabs(state, payload) {
       state.tabs = payload;
