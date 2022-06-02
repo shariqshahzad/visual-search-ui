@@ -37,7 +37,8 @@
         <h3 class="mt-3 text-center">List of approved items</h3>
 
         <ul class="mt-2 subtitle-1">
-          <li v-for="item in approvedItemsList">
+          <li v-for="(index,item) in approvedItemsList"
+          :key="index+`${item.toString()}`">
             Spot no. {{item.sno}}
             <span v-if="item.data.length"> -> Sku #{{item.data[0].skuid}}</span>
             <span v-else>(Not Marked)</span>

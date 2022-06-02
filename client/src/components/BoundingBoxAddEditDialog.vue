@@ -150,7 +150,6 @@ export default {
       this.open = false;
     },
     onCropEnd() {
-       debugger;
       this.croppedImageBase64 = this.cropper
         .getCroppedCanvas()
         .toDataURL("image/jpeg")

@@ -1,5 +1,6 @@
 var XLSX = require("xlsx");
 import { singleColors } from "../constants/constants";
+import { excelMetaData } from "./excelMetaData";
 
 export const parseExcel = function(file) {
   var reader = new FileReader();
@@ -165,10 +166,15 @@ export async function createJsonFileAndDownload(content, filename = `${Date.now(
 export const convertApprovedItemsToBinaryObjects = (approvedItems) => {
   let xlsxPayload = [];
   for (const [key, value] of Object.entries(approvedItems)) {
-    let excelArray = [["Bounding Boxes", "Brand", "PID", "Category", "Image URL", "Product Type", "SKU"]];
+    let excelArray = [];
+    let columns = excelMetaData.map((e) => e.columnName);
+    // console.log(columns);
+    // throw "lets stop here";
+    excelArray.push(columns);
+    // let values = [];
     value.map((element) => {
-      element.data.map(({ brand, pid, category, image, product_type, skuid }) => {
-        excelArray.push([element.bbox.toString(), brand, pid, category, image, product_type, skuid]);
+      element.data.map((element) => {
+        excelArray.push(excelMetaData.map((e) => (element[e.propertyName] ? element[e.propertyName].toString() : "-")));
       });
     });
     xlsxPayload.push({ fileName: key, excelArray });
@@ -200,7 +206,6 @@ export const exportExcel = (xlsxPayload) => {
   // XLSX.utils.book_append_sheet(wb, pokemonWS, "pokemons");
 
   // export Excel file
-  debugger;
   XLSX.writeFile(wb, `${Date.now()}_Approved_Items.xlsx`); // name of the file is 'book.xlsx'
 };
 
@@ -213,8 +218,8 @@ export const createSpotsFromBoundaries = (objectBoundaries, height, width) => {
     if (!bd.bgColor) colorIndex++;
     return {
       btnStyle: {
-        top: `calc(${top}% - 10px)`,
-        left: `calc(${left}% - 7px)`,
+        top: `calc(${top}% - 13px)`,
+        left: `calc(${left}% - 11px)`,
         background: bd.bgColor || singleColors[colorIndex],
       },
       cropperCoordinates: {
@@ -225,20 +230,19 @@ export const createSpotsFromBoundaries = (objectBoundaries, height, width) => {
       },
       categoryId: bd.mappedPrId,
       id: bd.id,
-      sno: bd.sno
+      sno: bd.sno,
       // boundingPolyIndex: bd.boundingPolyIndex,
     };
   });
-
-
 
   return hotspotButtons;
 };
 
 export const setSNoToBoundaries = (objectBoundaries) => {
-  let categorySnoMapper = {}, currentSno = 1;
+  let categorySnoMapper = {},
+    currentSno = 1;
   return objectBoundaries.map((bd) => {
-    if(!categorySnoMapper[bd.mappedPrId]) {
+    if (!categorySnoMapper[bd.mappedPrId]) {
       categorySnoMapper[bd.mappedPrId] = currentSno;
       bd.sno = currentSno;
       currentSno++;
@@ -248,5 +252,4 @@ export const setSNoToBoundaries = (objectBoundaries) => {
 
     return bd;
   });
-}
-
+};

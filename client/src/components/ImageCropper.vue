@@ -14,7 +14,7 @@
         v-bind:style="btn.btnStyle"
         :class="`dot ${isLoading ? 'disabled' : ''}`"
       >
-        <span class="dot-number">{{btn.sno}}</span>
+        <span class="dot-number">{{ btn.sno }}</span>
       </span>
     </div>
     <div class="text-center">
@@ -59,7 +59,7 @@
 import Cropper from "cropperjs";
 import { mapGetters } from "vuex";
 import { singleColors, TAB_STATUSES } from "../constants/constants";
-import { createSpotsFromBoundaries, setSNoToBoundaries } from "../utils/utils"
+import { createSpotsFromBoundaries, setSNoToBoundaries } from "../utils/utils";
 import BoundingBoxAddEditDialog from "../components/BoundingBoxAddEditDialog.vue";
 
 export default {
@@ -84,7 +84,6 @@ export default {
   },
   watch: {
     objectBoundaries(newVal, oldVal) {
-      debugger;
       this.onClickReset();
     },
   },
@@ -97,7 +96,11 @@ export default {
         height: img.target.naturalHeight,
       };
       this.hotspotButtons = setSNoToBoundaries(objectBoundaries);
-      this.hotspotButtons = createSpotsFromBoundaries(objectBoundaries,dimensions.height,dimensions.width);
+      this.hotspotButtons = createSpotsFromBoundaries(
+        objectBoundaries,
+        dimensions.height,
+        dimensions.width
+      );
       this.initializeCropper();
     };
   },
@@ -179,8 +182,8 @@ export default {
 <style scoped>
 .dot {
   position: absolute;
-  width: 18px;
-  height: 18px;
+  width: 25px;
+  height: 25px;
   border: #fff 3px solid;
   border-radius: 50%;
   display: inline-block;
@@ -188,32 +191,30 @@ export default {
 }
 
 .dot-number {
-  font-size: 0.6rem;
-  margin-top: 13px;
-  left: 50%;
-  transform: translate(-50%, -98%);
-  position: absolute;
+  font-size: 1rem;
+  position: relative;
+  left: 25%;
   color: #fff;
-  /* text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black; */
+  bottom: 12%;
 }
 
 .btn {
-top: 50%;
-left: 50%;
-transform: translate(-50%, -50%);
-background-color: #555;
-color: white;
-font-size: 16px;
-padding: 12px 24px;
-border: none;
-cursor: pointer;
-border-radius: 5px;
-text-align: center;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #555;
+  color: white;
+  font-size: 16px;
+  padding: 12px 24px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  text-align: center;
 }
 
 .img-container {
-position: relative;
-/*max-height: 600px;*/
+  position: relative;
+  /*max-height: 600px;*/
 }
 .img-preview {
   width: 200px;

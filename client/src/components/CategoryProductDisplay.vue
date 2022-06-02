@@ -173,7 +173,6 @@ export default {
       this.updateDataAsPerFilters();
     },
     updateDataAsPerFilters() {
-      debugger;
       this.categorizedData.forEach((category) => {
         const filterNames = this.categoryFilters[
           `categoryId_${category.categoryId}`
