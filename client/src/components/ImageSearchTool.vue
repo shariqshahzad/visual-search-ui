@@ -33,7 +33,53 @@
         :objectBoundaries="objectBoundaries"
       />
 
-      <div v-if="approvedItemsList && approvedItemsList.length">
+      <v-card class="ma-2">
+        <v-simple-table v-if="approvedItemsList && approvedItemsList.length">
+          <template v-slot:default>
+            <thead>
+              <tr>
+                <th class="text-left">S No.</th>
+                <th class="text-left">SKU</th>
+                <th class="text-left">ProductID</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                v-for="(item, index) in approvedItemsList"
+                :key="index + `${item.toString()}`"
+              >
+                <td>
+                  <span v-bind:style="{ background: item.bgColor }" class="dot">
+                    <span class="dot-number">{{ item.sno }}</span>
+                  </span>
+                </td>
+                <td>
+                  <span v-if="item.data && item.data.length">
+                    {{ item.data[0].skuid }}</span
+                  >
+                  <span v-else>-</span>
+                </td>
+                <td>
+                  <span v-if="item.data && item.data.length">
+                    <v-tooltip v-if="item.data[0].pid.length > 40" bottom>
+                      <template v-slot:activator="{ on, attrs }">
+                        <span v-bind="attrs" v-on="on"
+                          >{{ item.data[0].pid.substring(0, 40) }}...</span
+                        >
+                      </template>
+                      <span>{{ item.data[0].pid }}</span>
+                    </v-tooltip>
+                    <div v-else>{{ item.data[0].pid }}</div>
+                  </span>
+                  <span v-else>-</span>
+                </td>
+              </tr>
+            </tbody>
+          </template>
+        </v-simple-table>
+      </v-card>
+
+      <!-- <div v-if="approvedItemsList && approvedItemsList.length">
         <h3 class="mt-3 text-center">List of approved items</h3>
 
         <ul class="mt-2 subtitle-1">
@@ -44,7 +90,7 @@
             <span v-else>(Not Marked)</span>
           </li>
         </ul>
-      </div>
+      </div> -->
 
       <!--      <filters :min="defaultFilters.priceRange.min" :max="defaultFilters.priceRange.max" @emitPriceRange="emitPriceRange" />-->
     </v-col>
@@ -77,7 +123,23 @@
     </v-col>
   </v-row>
 </template>
-<style>
+<style scoped>
+.dot {
+  width: 25px;
+  height: 25px;
+  border: #fff 3px solid;
+  border-radius: 50%;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.dot-number {
+  font-size: 1rem;
+  position: relative;
+  left: 25%;
+  color: #fff;
+  bottom: 12%;
+}
 .v-card__title {
   height: 126px;
 }
@@ -102,7 +164,7 @@ export default {
     categorizeSearchResults: function (newVal) {
       this.resultsByCategories = _.cloneDeep(newVal);
       this.applyFilters();
-    }
+    },
   },
   data() {
     return {
@@ -126,14 +188,13 @@ export default {
           max: null,
         },
       },
-      approvedItemsList: []
+      approvedItemsList: [],
     };
   },
   computed: {
-    ...mapGetters(['selectedBrand', 'approvedItems']),
+    ...mapGetters(["selectedBrand", "approvedItems"]),
     filteredResult: function () {
-      if (!this.dataResults)
-        return this.dataResults;
+      if (!this.dataResults) return this.dataResults;
       return this.dataResults.filter((value) => {
         const price = value.price;
         if (price) {

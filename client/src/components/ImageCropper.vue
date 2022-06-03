@@ -59,7 +59,7 @@
 import Cropper from "cropperjs";
 import { mapGetters } from "vuex";
 import { singleColors, TAB_STATUSES } from "../constants/constants";
-import { createSpotsFromBoundaries, setSNoToBoundaries } from "../utils/utils";
+import { createSpotsFromBoundaries } from "../utils/utils";
 import BoundingBoxAddEditDialog from "../components/BoundingBoxAddEditDialog.vue";
 
 export default {
@@ -95,7 +95,6 @@ export default {
         width: img.target.naturalWidth,
         height: img.target.naturalHeight,
       };
-      this.hotspotButtons = setSNoToBoundaries(objectBoundaries);
       this.hotspotButtons = createSpotsFromBoundaries(
         objectBoundaries,
         dimensions.height,

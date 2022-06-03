@@ -43,11 +43,18 @@
 <script>
 import WSIMLSearchService from "../services/WSIMLSearch.service";
 import { mapMutations, mapGetters } from "vuex";
-import { encodeImageFileAsURL, generateUUID, setSNoToBoundaries } from "../utils/utils";
+import {
+  encodeImageFileAsURL,
+  generateUUID,
+  setSNoAndBgColorToBoundaries,
+} from "../utils/utils";
 import ImageSearchTool from "./ImageSearchTool.vue";
 import _ from "lodash";
 import Cropper from "cropperjs";
-import { multipleColors, TAB_STATUSES } from "../constants/constants";
+import {
+  multipleColors,
+  TAB_STATUSES,
+} from "../constants/constants";
 export default {
   computed: {
     ...mapGetters([
@@ -93,13 +100,13 @@ export default {
   methods: {
     ...mapMutations(["setTabs", "setApprovedItems"]),
     onUpdateApproval(bboxes) {
-      bboxes = setSNoToBoundaries(bboxes);
       const exportData = this.categorizeSearchResults.map((res) => {
         const bbox = bboxes.find((bbox) => bbox.mappedPrId === res.categoryId);
         return {
           bbox: bbox.bbox,
           class: bbox.class,
           sno: bbox.sno,
+          bgColor: bbox.bgColor,
           data: res.previewData.filter((pd) => pd.isPrioritySku),
         };
       });
@@ -212,6 +219,7 @@ export default {
       );
 
       this.processSimilarResults(productResults, yoloData);
+      this.objectBoundaries = setSNoAndBgColorToBoundaries(yoloData);
       productResults = _.uniqBy(productResults, "categoryId");
       this.isLoading = false;
       this.categorizeSearchResults = productResults;
@@ -224,7 +232,7 @@ export default {
       this.resultsAvailable = true;
     },
     processSimilarResults(productResults, yoloData) {
-      const similarCagtegories = {};
+      const similarCategories = {};
       const categories = productResults.map((p) => p.categoryName);
       let categoryWiseResults = this.getCategoryWiseResults(
         categories,
@@ -259,24 +267,24 @@ export default {
           const similarItems = yoloData
             .filter((yd) => yd.hasSimilarity && yd.class === key)
             .map((yd) => yd.id);
-          if (similarItems.length > 0) similarCagtegories[key] = similarItems;
+          if (similarItems.length > 0) similarCategories[key] = similarItems;
           //
         }
       }
       this.prioritizeSimilarProductDataset(
         productResults,
-        similarCagtegories,
+        similarCategories,
         yoloData
       );
     },
     prioritizeSimilarProductDataset(
       productResults,
-      similarCagtegories,
+      similarCategories,
       yoloData
     ) {
       const prioritizedSimilarProductDataset = [];
       for (const [index, [key, value]] of Object.entries(
-        Object.entries(similarCagtegories)
+        Object.entries(similarCategories)
       )) {
         const prsForSimilarCategory = productResults
           .filter(
@@ -293,11 +301,11 @@ export default {
             value.includes(pr.categoryId) &&
             pr.categoryName === key &&
             pr.categoryId !== categoryToBePrioritized.categoryId;
+          const yoloitem = yoloData.find((yd) => yd.id === pr.categoryId);
           if (
             isPrToBeRemoved ||
             pr.categoryId === categoryToBePrioritized.categoryId
           ) {
-            const yoloitem = yoloData.find((yd) => yd.id === pr.categoryId);
             yoloitem.mappedPrId = categoryToBePrioritized.categoryId;
             yoloitem.bgColor = multipleColors[index];
           }

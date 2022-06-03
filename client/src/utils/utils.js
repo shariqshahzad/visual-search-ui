@@ -238,18 +238,20 @@ export const createSpotsFromBoundaries = (objectBoundaries, height, width) => {
   return hotspotButtons;
 };
 
-export const setSNoToBoundaries = (objectBoundaries) => {
+export const setSNoAndBgColorToBoundaries = (objectBoundaries) => {
   let categorySnoMapper = {},
     currentSno = 1;
-  return objectBoundaries.map((bd) => {
-    if (!categorySnoMapper[bd.mappedPrId]) {
+  return objectBoundaries.map((bd, index) => {
+    if (!bd.bgColor) {
+      bd.bgColor = bd.bgColor = singleColors[index];
+    }
+    if (categorySnoMapper[bd.mappedPrId]) {
+      bd.sno = categorySnoMapper[bd.mappedPrId];
+    } else {
       categorySnoMapper[bd.mappedPrId] = currentSno;
       bd.sno = currentSno;
       currentSno++;
-    } else {
-      bd.sno = categorySnoMapper[bd.mappedPrId];
     }
-
     return bd;
   });
 };
