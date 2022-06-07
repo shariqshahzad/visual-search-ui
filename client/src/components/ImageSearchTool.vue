@@ -191,6 +191,18 @@ export default {
       approvedItemsList: [],
     };
   },
+  // watch: {
+  //   // resultsByCategories() {
+  //   //   this.approvedItemsList = this.resultsByCategories.map((rbc) => {
+  //   //     const prWithPrioritySku = rbc.previewData.find(pd.isPrioritySku);
+  //   //     if (prWithPrioritySku) {
+  //   //       const this.objectBoundaries.filter(ob=>ob.mappedPrId===rbc.categoryId)
+  //   //       return {
+  //   //       }
+  //   //     }
+  //   //   });
+  //   // },
+  // },
   computed: {
     ...mapGetters(["selectedBrand", "approvedItems"]),
     filteredResult: function () {

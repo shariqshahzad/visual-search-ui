@@ -165,20 +165,34 @@ export async function createJsonFileAndDownload(content, filename = `${Date.now(
 
 export const convertApprovedItemsToBinaryObjects = (approvedItems) => {
   let xlsxPayload = [];
-  for (const [key, value] of Object.entries(approvedItems)) {
-    let excelArray = [];
+  let excelArray = [];
+  for (const [index, [key, value]] of Object.entries(Object.entries(approvedItems))) {
     let columns = excelMetaData.map((e) => e.columnName);
     // console.log(columns);
     // throw "lets stop here";
     excelArray.push(columns);
     // let values = [];
+    debugger;
+    let skus;
     value.map((element) => {
-      element.data.map((element) => {
-        excelArray.push(excelMetaData.map((e) => (element[e.propertyName] ? element[e.propertyName].toString() : "-")));
-      });
+      skus = !skus ? element.data[0].skuid : `${skus} | ${element.data[0].skuid}`;
+      // element.data.map((element) => {
+
+      //   if(skus){
+
+      //   }
+      // });
     });
-    xlsxPayload.push({ fileName: key, excelArray });
+    let assetPath = [
+      `/content/dam/west-elm/production/testing/2022-06-02-metadatatesting-tpurdy/8886231-Olive-Trre-151-450x450`,
+      `/content/dam/west-elm/production/testing/2022-06-02-metadatatesting-tpurdy/pdi-709193-mp-cold-brew-sustainable-coffee-press-8-cup-34oz-with-yohki-lid-ho21-main-011-450x450`,
+    ];
+    let element = { skus ,assetPath: assetPath[index] };
+    console.log(element);
+    // excelArray.push(excelMetaData.map((e) => (element[e.propertyName] ? element[e.propertyName].toString() : "-")));
+    excelArray.push(excelMetaData.map((e) => (element[e.propertyName] ? element[e.propertyName].toString() : "-")));
   }
+  xlsxPayload.push({ excelArray });
   return xlsxPayload;
 };
 
@@ -199,14 +213,14 @@ export const exportExcel = (xlsxPayload) => {
 
     // add Worksheet to Workbook
     // Workbook contains one or more worksheets
-    XLSX.utils.book_append_sheet(wb, WS, xpl.fileName.substr(0, 30));
+    XLSX.utils.book_append_sheet(wb, WS, "QiunnMetaData");
   });
 
   // sheetAName is name of Worksheet
   // XLSX.utils.book_append_sheet(wb, pokemonWS, "pokemons");
 
   // export Excel file
-  XLSX.writeFile(wb, `${Date.now()}_Approved_Items.xlsx`); // name of the file is 'book.xlsx'
+  XLSX.writeFile(wb, `${Date.now()}_Approved_Items.csv`); // name of the file is 'book.xlsx'
 };
 
 export const createSpotsFromBoundaries = (objectBoundaries, height, width) => {

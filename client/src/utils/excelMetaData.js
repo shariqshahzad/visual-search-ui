@@ -1,5 +1,5 @@
 export const excelMetaData = [
-  { columnName: "assetPaths", propertyName: "image" },
+  { columnName: "assetPaths", propertyName: "assetPath" },
   { columnName: "wsi:status", propertyName: "" },
   { columnName: "wsi:workflow-status", propertyName: "" },
   { columnName: "wsi:channels", propertyName: "" },
@@ -15,7 +15,7 @@ export const excelMetaData = [
   { columnName: "wsi:aesthetic", propertyName: "" },
   { columnName: "wsi:room", propertyName: "" },
   { columnName: "wsi:backgrounds", propertyName: "" },
-  { columnName: "wsi:skus", propertyName: "" },
+  { columnName: "wsi:skus", propertyName: "skus" },
   { columnName: "wsi:group-ids", propertyName: "" },
   { columnName: "wsi:category", propertyName: "" },
   { columnName: "wsi:department", propertyName: "" },

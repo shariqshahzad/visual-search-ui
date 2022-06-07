@@ -68,6 +68,7 @@
 
 <script>
 import Cropper from "cropperjs";
+import _ from "lodash";
 import { singleColors } from "../constants/constants";
 import { generateUUID, createSpotsFromBoundaries } from "../utils/utils";
 import WSIMLSearchService from "../services/WSIMLSearch.service";
@@ -142,6 +143,8 @@ export default {
       let productResults = await WSIMLSearchService.getSimilaritiesResults([
         embeddings,
       ]);
+      this.yoloData.sno = _.maxBy(this.objectBoundaries, "sno").sno + 1;
+      this.yoloData.bgColor = singleColors[this.objectBoundaries.length];
       this.$emit("newBboxAdded", {
         categorizeSearchResults: productResults[0],
         objectBoundaries: this.yoloData,
