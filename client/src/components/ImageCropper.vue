@@ -36,13 +36,20 @@
       <v-btn @click="onClickAddNewSpot" color="primary"> Add New Spot </v-btn>
       <BoundingBoxAddEditDialog
         @newBboxAdded="onAddNewBbox($event)"
-        @dialogClosed="onClickDialogClosed"
+        @dialogClosed="onAddDialogClosed"
         v-if="addNewSpotDialog"
         :sourceImage="imageData.src"
         :objectBoundaries="objectBoundaries"
       />
-
       <v-btn class="ma-2" @click="onClickReset" color="primary">Reset</v-btn>
+      <v-btn @click="onClickDeleteSpot" color="primary"> Delete Spots </v-btn>
+      <BoundingBoxDeleteDialog
+        @bboxDeleted="onDeleteBbox($event)"
+        @dialogClosed="onDeleteDialogClosed"
+        v-if="deleteSpotDialog"
+        :sourceImage="imageData.src"
+        :objectBoundaries="objectBoundaries"
+      />
 
       <!-- <v-btn class="ma-2" @click="onClickExport" color="primary"
         >Export Data</v-btn
@@ -60,12 +67,14 @@ import Cropper from "cropperjs";
 import { mapGetters } from "vuex";
 import { singleColors, TAB_STATUSES } from "../constants/constants";
 import { createSpotsFromBoundaries } from "../utils/utils";
-import BoundingBoxAddEditDialog from "../components/BoundingBoxAddEditDialog.vue";
+import BoundingBoxAddEditDialog from "./BoundingBoxAddEditDialog.vue";
+import BoundingBoxDeleteDialog from "./BoundingBoxDeleteDialog.vue";
 
 export default {
   name: "ImageCropper",
   data() {
     return {
+      deleteSpotDialog: false,
       addNewSpotDialog: false,
       hotspotButtons: [],
       TAB_STATUSES,
@@ -81,11 +90,6 @@ export default {
     imageData: Object,
     objectBoundaries: Array,
     isLoading: Boolean,
-  },
-  watch: {
-    objectBoundaries(newVal, oldVal) {
-      this.onClickReset();
-    },
   },
   mounted() {
     const objectBoundaries = this.objectBoundaries;
@@ -104,15 +108,25 @@ export default {
     };
   },
   methods: {
+    setHotspotButtons(img) {},
     onAddNewBbox(e) {
       // this.onClickReset();
       this.$emit("newBboxAdded", e);
     },
-    onClickDialogClosed() {
+    onDeleteBbox(e) {
+      this.$emit("bboxDeleted", e);
+    },
+    onAddDialogClosed() {
       this.addNewSpotDialog = false;
+    },
+    onDeleteDialogClosed() {
+      this.deleteSpotDialog = false;
     },
     onClickAddNewSpot() {
       this.addNewSpotDialog = true;
+    },
+    onClickDeleteSpot() {
+      this.deleteSpotDialog = true;
     },
     initializeCropper(isReset) {
       this.cropper = new Cropper(this.imageTarget, {
@@ -155,6 +169,7 @@ export default {
   },
   components: {
     BoundingBoxAddEditDialog,
+    BoundingBoxDeleteDialog,
   },
   computed: {
     ...mapGetters([
@@ -164,6 +179,14 @@ export default {
     ]),
   },
   watch: {
+    objectBoundaries(newVal, oldVal) {
+      debugger;
+      this.hotspotButtons = this.hotspotButtons.filter(
+        (hb) => newVal.findIndex((ob) => ob.id === hb.id) !== -1
+      );
+      console.log(this.hotspotButtons);
+      console.log(newVal);
+    },
     currentTabKey(newValue, oldValue) {
       this.updateCurrentTabStatus();
     },

@@ -21,6 +21,7 @@
       crossorigin
     />
     <ImageSearchTool
+      @bboxDeleted="onDeleteBbox($event)"
       @newBboxAdded="onAddNewBbox($event)"
       @updateApproval="(e) => onUpdateApproval(e)"
       @skuPrioritized="onSkuPrioritized($event)"
@@ -51,10 +52,7 @@ import {
 import ImageSearchTool from "./ImageSearchTool.vue";
 import _ from "lodash";
 import Cropper from "cropperjs";
-import {
-  multipleColors,
-  TAB_STATUSES,
-} from "../constants/constants";
+import { multipleColors, TAB_STATUSES } from "../constants/constants";
 export default {
   computed: {
     ...mapGetters([
@@ -127,6 +125,17 @@ export default {
       this.categorizeSearchResults.unshift(e.categorizeSearchResults);
       this.objectBoundaries.unshift(e.objectBoundaries);
       this.key = generateUUID();
+    },
+    onDeleteBbox(e) {
+      this.objectBoundaries = this.objectBoundaries.filter(
+        (bd) => !e.includes(bd.id)
+      );
+      this.categorizeSearchResults = this.categorizeSearchResults.filter(
+        (csr) =>
+          this.objectBoundaries.findIndex(
+            (bd) => bd.mappedPrId === csr.categoryId
+          ) !== -1
+      );
     },
     onSkuAdd($event) {
       let { categoryId, product } = $event;

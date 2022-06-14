@@ -5,7 +5,7 @@
         <v-btn icon dark @click="open = false">
           <v-icon>mdi-close</v-icon>
         </v-btn>
-        <v-toolbar-title>Add new boundary box</v-toolbar-title>
+        <v-toolbar-title>Delete boundary box</v-toolbar-title>
         <v-spacer></v-spacer>
         <!-- <v-toolbar-items>
           <v-btn dark text @click="dialog = false"> Save </v-btn>
@@ -22,13 +22,21 @@
               crossorigin
               alt=""
             />
-            <span
+            <div
               v-for="(btn, index) in hotspotButtons"
               :key="index"
               v-bind:style="btn.btnStyle"
               class="dot"
-              @click="emitSpotChange(btn)"
-            ></span>
+              @click.self="emitSpotChange(btn)"
+            >
+              <v-icon
+                class="spot-delete-btn"
+                color="red"
+                @click.prevent="onClickDelete(btn)"
+                style="font-size: 15px"
+                >mdi-close-circle</v-icon
+              >
+            </div>
           </div>
           <div class="text-center mt-5">
             <v-btn
@@ -38,7 +46,7 @@
               class="mr-2"
               >Save</v-btn
             >
-            <v-btn @click="onClickCancel">Cancel</v-btn>
+            <v-btn class="mr-2" @click="onClickCancel">Cancel</v-btn>
           </div>
         </div>
         <v-row
@@ -74,12 +82,16 @@ import { generateUUID, createSpotsFromBoundaries } from "../utils/utils";
 import WSIMLSearchService from "../services/WSIMLSearch.service";
 
 export default {
-  name: "BoundingBoxAddEditDialog",
+  name: "BoundingBoxDeleteDialog",
   props: {
     sourceImage: String,
     objectBoundaries: Array,
   },
   computed: {},
+  mounted() {
+    this.hotspotButtons = JSON.parse(JSON.stringify(this.hotspotButtonsProp));
+    console.log(this.hotspotButtonsProp);
+  },
   watch: {
     open(newVal, oldVal) {
       !newVal && this.$emit("dialogClosed");
@@ -97,6 +109,8 @@ export default {
   },
   data() {
     return {
+      selectedSpot: null,
+      deletedSpotsIds: [],
       croppedImageBase64: null,
       categoryName: "",
       img: null,
@@ -124,74 +138,20 @@ export default {
     };
   },
   methods: {
+    onClickDelete(btn) {
+      this.deletedSpotsIds.push(btn.id);
+      this.hotspotButtons = this.hotspotButtons.filter(
+        (bd) => bd.id !== btn.id
+      );
+      this.inProgress = true;
+    },
     onClickCancel() {
       this.open = false;
     },
     async onClickSave() {
-      this.isLoading = true;
-      this.yoloData.class = "someCat";
-      console.log(this.yoloData);
-      let embeddings = await WSIMLSearchService.getEmbbeddingsResults(
-        this.yoloData.class,
-        this.croppedImageBase64,
-        this.yoloData.id
-      );
-      let productResults = await WSIMLSearchService.getSimilaritiesResults([
-        embeddings,
-      ]);
-      this.yoloData.sno = _.maxBy(this.objectBoundaries, "sno").sno + 1;
-      this.yoloData.bgColor = singleColors[this.objectBoundaries.length];
-      this.$emit("newBboxAdded", {
-        categorizeSearchResults: productResults[0],
-        objectBoundaries: this.yoloData,
-      });
+      this.$emit("bboxDeleted", this.deletedSpotsIds);
       this.isLoading = false;
       this.open = false;
-    },
-    onCropEnd() {
-      this.croppedImageBase64 = this.cropper
-        .getCroppedCanvas()
-        .toDataURL("image/jpeg")
-        .split(",")[1];
-      const { naturalWidth: imageWidth, naturalHeight: imageHeight } =
-        this.cropper.imageData;
-      console.log(this.cropper.getData());
-      const { height, width, y: y1, x: x1 } = this.cropper.getData();
-      const x2 = x1 + width;
-      const y2 = y1 + height;
-
-      const cropperCoordinates = {
-        height,
-        width,
-        y: y1,
-        x: x1,
-      };
-      const top = ((y1 + y2) / 2 / imageHeight) * 100;
-      const left = ((x1 + x2) / 2 / imageWidth) * 100;
-
-      const btnStyle = {
-        top: `calc(${top}% - 10px)`,
-        left: `calc(${left}% - 7px)`,
-        background: singleColors[this.hotspotButtons.length],
-      };
-      const id = generateUUID();
-      const yoloData = {
-        bbox: [x1, y1, x2, y2],
-        conf: 1,
-        id,
-        class: "Some Class",
-        mappedPrId: id,
-      };
-      this.hotspotButtons.push({
-        cropperCoordinates,
-        btnStyle,
-        id: yoloData.id,
-        categoryId: yoloData.mappedPrId,
-      });
-      this.yoloData = yoloData;
-      // this.cropper.destroy();
-      // this.initializeCropper();
-      this.inProgress = true;
     },
     initializeCropper() {
       this.cropper = new Cropper(this.imageTarget, {
@@ -207,19 +167,15 @@ export default {
     emitSpotChange(e, setCropper = true) {
       this.cropper.crop();
       if (setCropper) {
-        console.log(e.cropperCoordinates);
+        this.selectedSpot = e;
         this.cropper.setData(e.cropperCoordinates);
-        this.$emit("crop", e.categoryId);
-      } else {
-        this.$emit(
-          "customCrop",
-          this.cropper.getCroppedCanvas().toDataURL("image/jpeg")
-        );
       }
+      return;
     },
     onSourceImgLoad(img) {
       this.imageTarget = img.target;
       this.initializeCropper();
+      this.cropper.disable();
     },
   },
 };
@@ -242,7 +198,12 @@ export default {
   display: inline-block;
   cursor: pointer;
 }
-
+.spot-delete-btn {
+  font-size: 15px;
+  bottom: 16px;
+  left: 9px;
+  cursor: pointer;
+}
 .disabled {
   pointer-events: none;
   background: #dddddd;

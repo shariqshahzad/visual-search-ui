@@ -12,7 +12,6 @@ export const parseExcel = function(file) {
       });
 
       workbook.SheetNames.forEach(function(sheetName) {
-        // Here is your object
         var XL_row_object = XLSX.utils.sheet_to_row_object_array(workbook.Sheets[sheetName]);
         var json_object = JSON.stringify(XL_row_object);
         resolve(json_object);
@@ -184,11 +183,10 @@ export const convertApprovedItemsToBinaryObjects = (approvedItems) => {
       // });
     });
     let assetPath = [
-      `/content/dam/west-elm/production/testing/2022-06-02-metadatatesting-tpurdy/8886231-Olive-Trre-151-450x450`,
-      `/content/dam/west-elm/production/testing/2022-06-02-metadatatesting-tpurdy/pdi-709193-mp-cold-brew-sustainable-coffee-press-8-cup-34oz-with-yohki-lid-ho21-main-011-450x450`,
+      `/content/dam/west-elm/production/testing/2022-06-02-metadatatesting-tpurdy/8886231-Olive-Trre-151-450x450.png`,
+      `/content/dam/west-elm/production/testing/2022-06-02-metadatatesting-tpurdy/pdi-709193-mp-cold-brew-sustainable-coffee-press-8-cup-34oz-with-yohki-lid-ho21-main-011-450x450.png`,
     ];
-    let element = { skus ,assetPath: assetPath[index] };
-    console.log(element);
+    let element = { skus ,assetPath: assetPath[index] , assetType:'pdi', assetYear: '2022' };
     // excelArray.push(excelMetaData.map((e) => (element[e.propertyName] ? element[e.propertyName].toString() : "-")));
     excelArray.push(excelMetaData.map((e) => (element[e.propertyName] ? element[e.propertyName].toString() : "-")));
   }
@@ -213,6 +211,17 @@ export const exportExcel = (xlsxPayload) => {
 
     // add Worksheet to Workbook
     // Workbook contains one or more worksheets
+    let csv = XLSX.utils.sheet_to_csv(WS);
+    let csvContent = "data:text/csv;charset=utf-8," + csv;
+    var encodedUri = encodeURI(csvContent);
+    var link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", 'test.csv');
+    document.body.appendChild(link); // Required for FF
+    link.click();
+    document.removeChild(link);
+
+
     XLSX.utils.book_append_sheet(wb, WS, "QiunnMetaData");
   });
 

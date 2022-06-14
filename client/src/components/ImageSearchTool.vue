@@ -22,6 +22,7 @@
         </div>
       </div>
       <ImageCropper
+        @bboxDeleted="onDeleteBbox($event)"
         @newBboxAdded="onAddNewBbox($event)"
         @updateApproval="(e) => onApprovalUpdate(e)"
         @crop="(e) => onImageCrop(e)"
@@ -220,9 +221,11 @@ export default {
     },
   },
   methods: {
+    onDeleteBbox(e) {
+      this.$emit("bboxDeleted", e);
+    },
     onApprovalUpdate(bboxes) {
       this.$emit("updateApproval", bboxes);
-
       this.approvedItemsList = this.approvedItems[this.fileName];
     },
     onAddNewBbox(e) {
