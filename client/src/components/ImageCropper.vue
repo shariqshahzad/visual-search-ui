@@ -23,7 +23,7 @@
         v-if="currentTabStatus === TAB_STATUSES.IN_PROGRESS"
         @click="updateApproval"
         color="primary"
-        >Mark As Approved</v-btn
+        >Approve</v-btn
       >
       <v-btn
         class="ma-2"
@@ -41,7 +41,7 @@
         :sourceImage="imageData.src"
         :objectBoundaries="objectBoundaries"
       />
-      <v-btn class="ma-2" @click="onClickReset" color="primary">Reset</v-btn>
+      <v-btn class="ma-2" @click="onClickReset" color="primary">Back</v-btn>
       <v-btn @click="onClickDeleteSpot" color="primary"> Delete Spots </v-btn>
       <BoundingBoxDeleteDialog
         @bboxDeleted="onDeleteBbox($event)"
@@ -51,6 +51,10 @@
         :objectBoundaries="objectBoundaries"
       />
 
+      <div
+        id="cropper-preview"
+        style="visibility: hidden; width: 500%; height: 300px; overflow: hidden"
+      ></div>
       <!-- <v-btn class="ma-2" @click="onClickExport" color="primary"
         >Export Data</v-btn
       > -->
@@ -75,6 +79,7 @@ export default {
   data() {
     return {
       deleteSpotDialog: false,
+      selectedSpot: null,
       addNewSpotDialog: false,
       hotspotButtons: [],
       TAB_STATUSES,
@@ -134,6 +139,27 @@ export default {
         autoCropArea: 0,
         viewMode: 3,
         autoCrop: false,
+        ready: () => {
+          const vueInstance = this;
+          let x = document.getElementsByClassName("cropper-container")[0];
+          x.onmousemove = (e) => {
+            var el = document.getElementById("cropper-preview");
+            var x = e.x;
+            var y = e.y;
+            if (vueInstance.selectedSpot) {
+              el.style.visibility = "visible";
+            } else el.style.visibility = "hidden";
+            el.style.zIndex = 1;
+            el.style.position = "absolute";
+            el.style.left = x + "px";
+            el.style.top = y + "px";
+          };
+          x.onmouseleave = (e) => {
+            var el = document.getElementById("cropper-preview");
+            el.style.visibility = "hidden";
+          };
+        },
+        preview: "#cropper-preview",
         cropend: (e) => {
           this.emitSpotChange(e, false);
         },
@@ -146,6 +172,7 @@ export default {
       this.$emit("exportData", this.objectBoundaries);
     },
     onClickReset() {
+      this.selectedSpot = null;
       this.cropper.destroy();
       this.initializeCropper(true);
       this.$emit("resetData", null);
@@ -155,6 +182,7 @@ export default {
       this.currentTabStatus = tab.status;
     },
     emitSpotChange(e, setCropper = true) {
+      this.selectedSpot = e;
       this.cropper.crop();
       if (setCropper) {
         this.cropper.setData(e.cropperCoordinates);
@@ -238,12 +266,12 @@ export default {
   position: relative;
   /*max-height: 600px;*/
 }
-.img-preview {
+/* .img-preview {
   width: 200px;
   height: 200px;
   float: left;
   margin-left: 10px;
-}
+} */
 
 .disabled {
   pointer-events: none;
