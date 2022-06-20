@@ -72,14 +72,16 @@ import _ from "lodash";
 import { singleColors } from "../constants/constants";
 import { generateUUID, createSpotsFromBoundaries } from "../utils/utils";
 import WSIMLSearchService from "../services/WSIMLSearch.service";
+import { mapGetters, mapMutations } from "vuex";
 
 export default {
   name: "BoundingBoxAddEditDialog",
   props: {
     sourceImage: String,
-    objectBoundaries: Array,
   },
-  computed: {},
+  computed: {
+    ...mapGetters(["objectBoundaries"])
+  },
   watch: {
     open(newVal, oldVal) {
       !newVal && this.$emit("dialogClosed");
@@ -124,6 +126,7 @@ export default {
     };
   },
   methods: {
+    ...mapMutations(["addNewBbox"]),
     onClickCancel() {
       this.open = false;
     },
@@ -141,7 +144,7 @@ export default {
       ]);
       this.yoloData.sno = _.maxBy(this.objectBoundaries, "sno").sno + 1;
       this.yoloData.bgColor = singleColors[this.objectBoundaries.length];
-      this.$emit("newBboxAdded", {
+      this.addNewBbox({
         categorizeSearchResults: productResults[0],
         objectBoundaries: this.yoloData,
       });

@@ -59,7 +59,7 @@
                 <ProductCard
                   @skuPrioritized="onSkuPrioritized($event, category)"
                   @skuUnprioritized="onSkuUnprioritized($event, category)"
-                  @skuUpdated="onSkuUpdate($event,category)"
+                  @skuUpdated="onSkuUpdate($event, category)"
                   v-for="(product, index) in category.previewData"
                   :key="index"
                   :product="product"
@@ -143,33 +143,37 @@ export default {
     };
   },
   methods: {
-    ...mapMutations(["markCurrentTabPendingChanges"]),
+    ...mapMutations([
+      "markCurrentTabPendingChanges",
+      "setSkuPrioritized",
+      "setSkuUnprioritized",
+      "setSkuUpdate",
+      "setSkuAdd",
+    ]),
     onSkuAdd(sku, category) {
-      this.$emit("skuAdded", {
-        product:sku,
+      this.setSkuAdd({
+        product: sku,
         categoryId: category.categoryId,
       });
       // category.previewData.unshift(sku);
       this.skuAddSnackbar = true;
       this.markCurrentTabPendingChanges();
     },
-    onSkuUpdate(product,category) {
-      this.$emit("skuUpdated", {
+    onSkuUpdate(product, category) {
+      this.setSkuUpdate({
         product,
         categoryId: category.categoryId,
       });
     },
     onSkuPrioritized(skuid, category) {
-      this.$emit("skuPrioritized", { skuid, categoryId: category.categoryId });
+      this.setSkuPrioritized({ skuid, categoryId: category.categoryId });
     },
-    onSkuUnprioritized() {
-      this.$emit("skuUnprioritized", {
-        skuid,
-        categoryId: category.categoryId,
-      });
+    onSkuUnprioritized(skuid, category) {
+      this.setSkuUnprioritized({ skuid, categoryId: category.categoryId });
     },
     onChangeFilterCheckbox(e, category, filter) {
       filter.isEnabled = e;
+      s;
       this.updateDataAsPerFilters();
     },
     updateDataAsPerFilters() {

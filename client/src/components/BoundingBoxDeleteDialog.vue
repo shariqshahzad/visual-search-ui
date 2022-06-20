@@ -79,15 +79,17 @@ import Cropper from "cropperjs";
 import _ from "lodash";
 import { singleColors } from "../constants/constants";
 import { generateUUID, createSpotsFromBoundaries } from "../utils/utils";
+import { mapMutations, mapGetters } from "vuex";
 import WSIMLSearchService from "../services/WSIMLSearch.service";
 
 export default {
   name: "BoundingBoxDeleteDialog",
   props: {
     sourceImage: String,
-    objectBoundaries: Array,
   },
-  computed: {},
+  computed: {
+    ...mapGetters(["objectBoundaries"]),
+  },
   mounted() {
     this.hotspotButtons = JSON.parse(JSON.stringify(this.hotspotButtonsProp));
     console.log(this.hotspotButtonsProp);
@@ -96,9 +98,6 @@ export default {
     open(newVal, oldVal) {
       !newVal && this.$emit("dialogClosed");
     },
-    // objectBoundaries: function (newVal, oldVal) {
-    //   this.hotspotButtons = JSON.parse(JSON.stringify(newVal));
-    // },
     inProgress: function (inProgress, oldVal) {
       if (inProgress) {
         this.cropper.disable();
@@ -138,6 +137,7 @@ export default {
     };
   },
   methods: {
+    ...mapMutations(["deleteBbox"]),
     onClickDelete(btn) {
       this.deletedSpotsIds.push(btn.id);
       this.hotspotButtons = this.hotspotButtons.filter(
@@ -149,7 +149,7 @@ export default {
       this.open = false;
     },
     async onClickSave() {
-      this.$emit("bboxDeleted", this.deletedSpotsIds);
+      this.deleteBbox(this.deletedSpotsIds);
       this.isLoading = false;
       this.open = false;
     },

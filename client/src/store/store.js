@@ -1,8 +1,12 @@
 import Vuex from "vuex";
 import _ from "lodash";
 import { TAB_STATUSES } from "../constants/constants";
+import { imageToolModule } from "./imageToolModule";
 
 export const store = new Vuex.Store({
+  modules: {
+    imageToolModule,
+  },
   getters: {
     selectedBrand: (state) => {
       return state.selectedBrand;
@@ -36,7 +40,7 @@ export const store = new Vuex.Store({
       });
     },
     setApprovedItems(state, payload) {
-      state.approvedItems[payload.fileName] = _.orderBy(payload.data,['sno'],['asc']);
+      state.approvedItems[payload.fileName] = _.orderBy(payload.data, ["sno"], ["asc"]);
     },
     setTabs(state, payload) {
       state.tabs = payload;

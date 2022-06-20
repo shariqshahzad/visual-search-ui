@@ -64,6 +64,7 @@ export default {
       window.open(`${this.brands[product.brand].hostUrl}/products/${product.pid}`);
     },
     onClickPrioritize() {
+
       this.markCurrentTabPendingChanges();
       this.$emit("skuPrioritized", this.product.skuid);
     },

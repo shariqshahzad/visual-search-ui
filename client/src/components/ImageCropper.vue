@@ -39,7 +39,6 @@
         @dialogClosed="onAddDialogClosed"
         v-if="addNewSpotDialog"
         :sourceImage="imageData.src"
-        :objectBoundaries="objectBoundaries"
       />
       <v-btn class="ma-2" @click="onClickReset" color="primary">Back</v-btn>
       <v-btn @click="onClickDeleteSpot" color="primary"> Delete Spots </v-btn>
@@ -48,7 +47,6 @@
         @dialogClosed="onDeleteDialogClosed"
         v-if="deleteSpotDialog"
         :sourceImage="imageData.src"
-        :objectBoundaries="objectBoundaries"
       />
 
       <div
@@ -93,7 +91,6 @@ export default {
   },
   props: {
     imageData: Object,
-    objectBoundaries: Array,
     isLoading: Boolean,
   },
   mounted() {
@@ -203,17 +200,15 @@ export default {
     ...mapGetters([
       "currentTabKey",
       "tabs",
+      "objectBoundaries"
       // ...
     ]),
   },
   watch: {
     objectBoundaries(newVal, oldVal) {
-      debugger;
       this.hotspotButtons = this.hotspotButtons.filter(
         (hb) => newVal.findIndex((ob) => ob.id === hb.id) !== -1
       );
-      console.log(this.hotspotButtons);
-      console.log(newVal);
     },
     currentTabKey(newValue, oldValue) {
       this.updateCurrentTabStatus();

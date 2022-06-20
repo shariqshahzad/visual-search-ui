@@ -111,10 +111,6 @@
     </v-row>
     <v-col cols="8" v-else>
       <CategoryProductDisplay
-        @skuUpdated="onSkuUpdate($event)"
-        @skuAdded="onSkuAdd($event)"
-        @skuPrioritized="onSkuPrioritized($event)"
-        @skuUnprioritized="onSkuUnprioritized($event)"
         :categoryFilters="categoryFilters"
         v-if="showProducts"
         :isLoading="isLoading"
@@ -162,7 +158,7 @@ export default {
     // Filters
   },
   watch: {
-    categorizeSearchResults: function (newVal) {
+    categorizedSearchResults: function (newVal) {
       this.resultsByCategories = _.cloneDeep(newVal);
       this.applyFilters();
     },
@@ -177,7 +173,7 @@ export default {
       })),
       dataResults: this.results,
       categoryFilters: {},
-      resultsByCategories: _.cloneDeep(this.categorizeSearchResults),
+      resultsByCategories: _.cloneDeep(this.categorizedSearchResults),
       isLoading: false,
       cropper: {},
       destination: {},
@@ -205,7 +201,11 @@ export default {
   //   // },
   // },
   computed: {
-    ...mapGetters(["selectedBrand", "approvedItems"]),
+    ...mapGetters([
+      "selectedBrand",
+      "approvedItems",
+      "categorizedSearchResults",
+    ]),
     filteredResult: function () {
       if (!this.dataResults) return this.dataResults;
       return this.dataResults.filter((value) => {
@@ -249,7 +249,7 @@ export default {
     },
     applyBrandFilter() {
       if (this.selectedBrands.length > 0) {
-        this.resultsByCategories = this.categorizeSearchResults.reduce(
+        this.resultsByCategories = this.categorizedSearchResults.reduce(
           (prevCatResults, cat) => {
             const prevCat = _.cloneDeep(cat);
             prevCat.data = prevCat.previewData = cat.data.filter((pr) => {
@@ -261,7 +261,7 @@ export default {
           []
         );
       } else {
-        this.resultsByCategories = _.cloneDeep(this.categorizeSearchResults);
+        this.resultsByCategories = _.cloneDeep(this.categorizedSearchResults);
       }
     },
     async onCustomCrop(e) {
@@ -288,7 +288,7 @@ export default {
       return;
     },
     onResetData() {
-      this.resultsByCategories = _.cloneDeep(this.categorizeSearchResults);
+      this.resultsByCategories = _.cloneDeep(this.categorizedSearchResults);
       this.selectedBrands = [];
       this.selectedCropAreaId = null;
     },
@@ -305,7 +305,8 @@ export default {
     },
   },
   mounted() {
-    this.categorizeSearchResults.forEach((cat) => {
+    this.resultsByCategories = _.cloneDeep(this.categorizedSearchResults);
+    this.categorizedSearchResults.forEach((cat) => {
       const filters = _.uniqBy(cat.data, "product_type").map((el) => ({
         filterName: el.product_type,
         isEnabled: false,
@@ -321,7 +322,6 @@ export default {
     imageData: Object,
     objectBoundaries: Array,
     searchOption: String,
-    categorizeSearchResults: Array,
     fileName: String,
   },
 };
