@@ -18,6 +18,9 @@
       </span>
     </div>
     <div class="text-center">
+      <v-btn class="ma-2" @click="onClickReset" color="primary"
+        ><v-icon>mdi-refresh</v-icon></v-btn
+      >
       <v-btn
         class="ma-2"
         v-if="currentTabStatus === TAB_STATUSES.IN_PROGRESS"
@@ -31,16 +34,18 @@
         :disabled="currentTabStatus !== TAB_STATUSES.PENDING_CHANGES"
         @click="updateApproval"
         color="primary"
-        >Save Changes</v-btn
+        >Save</v-btn
       >
-      <v-btn @click="onClickAddNewSpot" color="primary"> Add New Spot </v-btn>
+      <v-btn @click="onClickAddNewSpot" class="ma-2" color="primary">
+        Add New Spot
+      </v-btn>
       <BoundingBoxAddEditDialog
         @newBboxAdded="onAddNewBbox($event)"
         @dialogClosed="onAddDialogClosed"
         v-if="addNewSpotDialog"
         :sourceImage="imageData.src"
       />
-      <v-btn class="ma-2" @click="onClickReset" color="primary">Back</v-btn>
+
       <v-btn @click="onClickDeleteSpot" color="primary"> Delete Spots </v-btn>
       <BoundingBoxDeleteDialog
         @bboxDeleted="onDeleteBbox($event)"
@@ -51,7 +56,13 @@
 
       <div
         id="cropper-preview"
-        style="visibility: hidden; width: 500%; height: 300px; overflow: hidden"
+        style="
+          position: absolute;
+          visibility: hidden;
+          width: 500%;
+          height: 300px;
+          overflow: hidden;
+        "
       ></div>
       <!-- <v-btn class="ma-2" @click="onClickExport" color="primary"
         >Export Data</v-btn
@@ -76,6 +87,7 @@ export default {
   name: "ImageCropper",
   data() {
     return {
+      imageDimensions: null,
       deleteSpotDialog: false,
       selectedSpot: null,
       addNewSpotDialog: false,
@@ -101,6 +113,7 @@ export default {
         width: img.target.naturalWidth,
         height: img.target.naturalHeight,
       };
+      this.imageDimensions = dimensions;
       this.hotspotButtons = createSpotsFromBoundaries(
         objectBoundaries,
         dimensions.height,
@@ -200,14 +213,16 @@ export default {
     ...mapGetters([
       "currentTabKey",
       "tabs",
-      "objectBoundaries"
+      "objectBoundaries",
       // ...
     ]),
   },
   watch: {
     objectBoundaries(newVal, oldVal) {
-      this.hotspotButtons = this.hotspotButtons.filter(
-        (hb) => newVal.findIndex((ob) => ob.id === hb.id) !== -1
+      this.hotspotButtons = createSpotsFromBoundaries(
+        newVal,
+        this.imageDimensions.height,
+        this.imageDimensions.width
       );
     },
     currentTabKey(newValue, oldValue) {

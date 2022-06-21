@@ -1,6 +1,7 @@
 export const imageToolModule = {
   state: () => ({
     categorizedSearchResults: [],
+    searchResultsWithoutSimilarFilter: [],
     objectBoundaries: [],
   }),
   mutations: {
@@ -66,8 +67,14 @@ export const imageToolModule = {
       });
       // this.$emit("skuUpdated", $event);
     },
+    setSearchResultsWithoutSimilarFilter(state, payload) {
+      return (state.searchResultsWithoutSimilarFilter = payload);
+    },
   },
   getters: {
+    searchResultsWithoutSimilarFilter(state) {
+      return state.searchResultsWithoutSimilarFilter;
+    },
     categorizedSearchResults(state) {
       return state.categorizedSearchResults;
     },

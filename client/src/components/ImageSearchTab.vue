@@ -24,7 +24,6 @@
       @updateApproval="(e) => onUpdateApproval(e)"
       :key="key"
       v-if="resultsAvailable"
-      :results="resultsData"
       :imageData="imageData"
       :objectBoundaries="objectBoundaries"
       :categorizeSearchResults="categorizeSearchResults"
@@ -77,11 +76,6 @@ export default {
       resultsAvailable: false,
       imageData: null,
       objectBoundaries: [],
-      //   imgFileRules: [
-      //     (v) =>
-      //       (v && v.size <= 2000000) || "Image size should be less than 1 MB!",
-      //   ],
-      resultsData: [],
       categorizeSearchResults: [],
       imageUrl: "",
       isLoading: false,
@@ -90,7 +84,13 @@ export default {
     };
   },
   methods: {
-    ...mapMutations(["setTabs", "setApprovedItems","setCategorizedSearchResults","setObjectBoundaries"]),
+    ...mapMutations([
+      "setTabs",
+      "setApprovedItems",
+      "setCategorizedSearchResults",
+      "setObjectBoundaries",
+      "setSearchResultsWithoutSimilarFilter",
+    ]),
     onUpdateApproval(bboxes) {
       const exportData = this.categorizeSearchResults.map((res) => {
         const bbox = bboxes.find((bbox) => bbox.mappedPrId === res.categoryId);
@@ -115,7 +115,6 @@ export default {
       this.setApprovedItems(approvedItemsPayload);
       this.setTabs(tabsPayload);
     },
-
 
     async onWSIMLSearch() {
       let base64str;
@@ -159,14 +158,15 @@ export default {
       let productResults = await WSIMLSearchService.getSimilaritiesResults(
         objectEmbeddings
       );
-
+      this.setSearchResultsWithoutSimilarFilter(
+        JSON.parse(JSON.stringify(productResults))
+      );
       this.processSimilarResults(productResults, yoloData);
       this.objectBoundaries = setSNoAndBgColorToBoundaries(yoloData);
       productResults = _.uniqBy(productResults, "categoryId");
       this.isLoading = false;
       this.setCategorizedSearchResults(productResults);
       this.categorizeSearchResults = productResults;
-      this.resultsData = null;
       this.imageData = {
         isUrl: false,
         src: this.imgBase64,

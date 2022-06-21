@@ -22,8 +22,6 @@
         </div>
       </div>
       <ImageCropper
-        @bboxDeleted="onDeleteBbox($event)"
-        @newBboxAdded="onAddNewBbox($event)"
         @updateApproval="(e) => onApprovalUpdate(e)"
         @crop="(e) => onImageCrop(e)"
         @resetData="onResetData"
@@ -31,7 +29,6 @@
         @customCrop="onCustomCrop"
         :imageData="imageData"
         :isLoading="isLoading"
-        :objectBoundaries="objectBoundaries"
       />
 
       <v-card class="ma-2">
@@ -160,6 +157,7 @@ export default {
   watch: {
     categorizedSearchResults: function (newVal) {
       this.resultsByCategories = _.cloneDeep(newVal);
+      this.createTableData();
       this.applyFilters();
     },
   },
@@ -188,23 +186,12 @@ export default {
       approvedItemsList: [],
     };
   },
-  // watch: {
-  //   // resultsByCategories() {
-  //   //   this.approvedItemsList = this.resultsByCategories.map((rbc) => {
-  //   //     const prWithPrioritySku = rbc.previewData.find(pd.isPrioritySku);
-  //   //     if (prWithPrioritySku) {
-  //   //       const this.objectBoundaries.filter(ob=>ob.mappedPrId===rbc.categoryId)
-  //   //       return {
-  //   //       }
-  //   //     }
-  //   //   });
-  //   // },
-  // },
   computed: {
     ...mapGetters([
       "selectedBrand",
       "approvedItems",
       "categorizedSearchResults",
+      "objectBoundaries"
     ]),
     filteredResult: function () {
       if (!this.dataResults) return this.dataResults;
@@ -221,12 +208,24 @@ export default {
     },
   },
   methods: {
+    createTableData() {
+      const approvedItemsData = this.categorizedSearchResults.map((res) => {
+        const bbox = this.objectBoundaries.find((bbox) => bbox.mappedPrId === res.categoryId);
+        return {
+          bbox: bbox.bbox,
+          class: bbox.class,
+          sno: bbox.sno,
+          bgColor: bbox.bgColor,
+          data: res.previewData.filter((pd) => pd.isPrioritySku),
+        };
+      });
+      this.approvedItemsList = approvedItemsData;
+    },
     onDeleteBbox(e) {
       this.$emit("bboxDeleted", e);
     },
     onApprovalUpdate(bboxes) {
       this.$emit("updateApproval", bboxes);
-      this.approvedItemsList = this.approvedItems[this.fileName];
     },
     onAddNewBbox(e) {
       this.$emit("newBboxAdded", e);
@@ -315,12 +314,11 @@ export default {
     });
     this.showProducts = true;
     this.hasCategory = !(this.results && this.results.length > 0);
+    this.createTableData();
     // this.hasCategory = true;
   },
   props: {
-    results: Array,
     imageData: Object,
-    objectBoundaries: Array,
     searchOption: String,
     fileName: String,
   },

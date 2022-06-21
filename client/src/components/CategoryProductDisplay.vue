@@ -119,8 +119,11 @@
 import _ from "lodash";
 import SkuAddDialog from "./SkuAddDialog.vue";
 import ProductCard from "./ProductCard.vue";
-import { mapMutations } from "vuex";
+import { mapGetters, mapMutations } from "vuex";
 export default {
+  computed: {
+    ...mapGetters(["objectBoundaries"]),
+  },
   components: {
     ProductCard,
     SkuAddDialog,
@@ -142,6 +145,9 @@ export default {
       selectedCategoryHeading: "",
     };
   },
+  mounted() {
+    this.setDataSimilarities();
+  },
   methods: {
     ...mapMutations([
       "markCurrentTabPendingChanges",
@@ -150,6 +156,19 @@ export default {
       "setSkuUpdate",
       "setSkuAdd",
     ]),
+    setDataSimilarities() {
+      this.categorizedData.forEach((pr) => {
+        const bd = this.objectBoundaries.find(
+          (ob) =>
+            ob.mappedPrId === pr.categoryId &&
+            ob.id === pr.categoryId &&
+            ob.hasSimilarity
+        );
+        if (bd) pr.similarityData = bd;
+        return pr;
+      });
+      console.log(this.categorizedData);
+    },
     onSkuAdd(sku, category) {
       this.setSkuAdd({
         product: sku,
