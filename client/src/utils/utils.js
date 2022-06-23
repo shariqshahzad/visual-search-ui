@@ -186,7 +186,7 @@ export const convertApprovedItemsToBinaryObjects = (approvedItems) => {
       `/content/dam/west-elm/production/testing/2022-06-02-metadatatesting-tpurdy/8886231-Olive-Trre-151-450x450.png`,
       `/content/dam/west-elm/production/testing/2022-06-02-metadatatesting-tpurdy/pdi-709193-mp-cold-brew-sustainable-coffee-press-8-cup-34oz-with-yohki-lid-ho21-main-011-450x450.png`,
     ];
-    let element = { skus ,assetPath: assetPath[index] , assetType:'pdi', assetYear: '2022' };
+    let element = { skus, assetPath: assetPath[index], assetType: "pdi", assetYear: "2022" };
     // excelArray.push(excelMetaData.map((e) => (element[e.propertyName] ? element[e.propertyName].toString() : "-")));
     excelArray.push(excelMetaData.map((e) => (element[e.propertyName] ? element[e.propertyName].toString() : "-")));
   }
@@ -216,11 +216,10 @@ export const exportExcel = (xlsxPayload) => {
     var encodedUri = encodeURI(csvContent);
     var link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", 'test.csv');
+    link.setAttribute("download", "test.csv");
     document.body.appendChild(link); // Required for FF
     link.click();
     document.removeChild(link);
-
 
     XLSX.utils.book_append_sheet(wb, WS, "QiunnMetaData");
   });
@@ -262,11 +261,13 @@ export const createSpotsFromBoundaries = (objectBoundaries, height, width) => {
 };
 
 export const setSNoAndBgColorToBoundaries = (objectBoundaries) => {
+  let singleColorIndex = 0;
   let categorySnoMapper = {},
     currentSno = 1;
   return objectBoundaries.map((bd, index) => {
     if (!bd.bgColor) {
-      bd.bgColor = bd.bgColor = singleColors[index];
+      bd.bgColor = bd.bgColor = singleColors[singleColorIndex];
+      singleColorIndex++;
     }
     if (categorySnoMapper[bd.mappedPrId]) {
       bd.sno = categorySnoMapper[bd.mappedPrId];

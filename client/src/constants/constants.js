@@ -24,6 +24,11 @@ export const BRANDS = {
   //     name: "Mark and Grahams"
   // }
 };
+export  const GROUP_STATUSES = {
+  SIMILAR_PARENT:"SIMILAR_PARENT",
+  NOT_SIMILAR:"NOT_SIMILAR",
+  SIMILAR:"SIMILAR"
+}
 export const TAB_STATUSES = {
   APPROVED: "APPROVED",
   PENDING_CHANGES: "PENDING_CHANGES",

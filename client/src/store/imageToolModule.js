@@ -1,10 +1,14 @@
 export const imageToolModule = {
   state: () => ({
+    selectedSpot: null,
     categorizedSearchResults: [],
     searchResultsWithoutSimilarFilter: [],
     objectBoundaries: [],
   }),
   mutations: {
+    setSelectedSpot(state, payload) {
+      state.selectedSpot = payload;
+    },
     setCategorizedSearchResults(state, payload) {
       state.categorizedSearchResults = payload;
     },
@@ -72,6 +76,9 @@ export const imageToolModule = {
     },
   },
   getters: {
+    selectedSpot(state) {
+      return state.selectedSpot;
+    },
     searchResultsWithoutSimilarFilter(state) {
       return state.searchResultsWithoutSimilarFilter;
     },

@@ -33,6 +33,7 @@
             </div> -->
             <div class="slider-bar" style="flex-direction: column">
               <div>
+                <SpotGroupDialog :selectedSpot="selectedSpot" v-if="selectedSpot" />
                 <SkuAddDialog @skuAdded="(e) => onSkuAdd(e, category)" />
               </div>
               <v-snackbar top right v-model="skuAddSnackbar">
@@ -119,20 +120,27 @@
 import _ from "lodash";
 import SkuAddDialog from "./SkuAddDialog.vue";
 import ProductCard from "./ProductCard.vue";
+import SpotGroupDialog from "./SpotGroupDialog.vue";
 import { mapGetters, mapMutations } from "vuex";
 export default {
   computed: {
-    ...mapGetters(["objectBoundaries"]),
+    ...mapGetters(["objectBoundaries", "selectedSpot"]),
   },
   components: {
     ProductCard,
     SkuAddDialog,
+    SpotGroupDialog,
   },
   props: {
     categorizedData: Array,
     categoryFilters: Object,
   },
   watch: {
+    // selectedSpot: function (newVal, oldVal) {
+    //   this.selectedSpotGroupData = this.objectBoundaries.find(
+    //     (bd) => newVal.id === bd.id && bd.hasSimilarity
+    //   );
+    // },
     // categorizedData: function (newVal, oldVal) {
     //   this.updateDataAsPerFilters();
     // },
@@ -140,6 +148,7 @@ export default {
   data() {
     return {
       showMore: false,
+      selectedSpotGroupData: null,
       skuAddSnackbar: false,
       selectedCategoryFullData: [],
       selectedCategoryHeading: "",
@@ -157,17 +166,16 @@ export default {
       "setSkuAdd",
     ]),
     setDataSimilarities() {
-      this.categorizedData.forEach((pr) => {
-        const bd = this.objectBoundaries.find(
-          (ob) =>
-            ob.mappedPrId === pr.categoryId &&
-            ob.id === pr.categoryId &&
-            ob.hasSimilarity
-        );
-        if (bd) pr.similarityData = bd;
-        return pr;
-      });
-      console.log(this.categorizedData);
+      // this.categorizedData.forEach((pr) => {
+      //   const bd = this.objectBoundaries.find(
+      //     (ob) => ob.mappedPrId === pr.categoryId && ob.hasSimilarity
+      //   );
+      //   if (bd) {
+      //     bd.isGroupParent = bd.id === bd.mappedPrId;
+      //     pr.similarityData = bd;
+      //   }
+      //   return pr;
+      // });
     },
     onSkuAdd(sku, category) {
       this.setSkuAdd({

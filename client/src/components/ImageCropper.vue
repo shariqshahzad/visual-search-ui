@@ -77,7 +77,7 @@
 
 <script>
 import Cropper from "cropperjs";
-import { mapGetters } from "vuex";
+import { mapGetters,mapMutations } from "vuex";
 import { singleColors, TAB_STATUSES } from "../constants/constants";
 import { createSpotsFromBoundaries } from "../utils/utils";
 import BoundingBoxAddEditDialog from "./BoundingBoxAddEditDialog.vue";
@@ -123,6 +123,7 @@ export default {
     };
   },
   methods: {
+    ...mapMutations(["setSelectedSpot"]),
     setHotspotButtons(img) {},
     onAddNewBbox(e) {
       // this.onClickReset();
@@ -197,6 +198,7 @@ export default {
       if (setCropper) {
         this.cropper.setData(e.cropperCoordinates);
         this.$emit("crop", e.categoryId);
+        this.setSelectedSpot(e);
       } else {
         this.$emit(
           "customCrop",
