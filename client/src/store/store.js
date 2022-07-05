@@ -17,6 +17,9 @@ export const store = new Vuex.Store({
     tabs: (state) => {
       return state.tabs;
     },
+    tabsData: (state) => {
+      return state.tabs;
+    },
     currentTabKey: (state) => {
       return state.currentTabKey;
     },
@@ -25,12 +28,16 @@ export const store = new Vuex.Store({
     },
   },
   state: {
+    tabsData: {},
     approvedItems: {},
     selectedBrand: null,
     tabs: [],
     currentTabKey: "",
   },
   mutations: {
+    setTabsData(state, payload) {
+      state.tabsData[state.currentTabKey] = JSON.parse(JSON.stringify(state.imageToolModule));
+    },
     markCurrentTabPendingChanges(state, payload) {
       state.tabs = state.tabs.map((tab) => {
         if (tab.key === state.currentTabKey) {
@@ -49,6 +56,10 @@ export const store = new Vuex.Store({
       state.selectedBrand = payload;
     },
     setCurrentTabKey(state, payload) {
+      if(state.tabsData[payload]){
+        state.imageToolModule.categorizedSearchResults = state.tabsData[payload].categorizedSearchResults;
+        state.imageToolModule.objectBoundaries = state.tabsData[payload].objectBoundaries;
+      }
       state.currentTabKey = payload;
     },
   },

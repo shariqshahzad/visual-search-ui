@@ -1,7 +1,7 @@
 <template>
   <v-app>
-    <MaintenancePage/>
-      <!-- <Root/> -->s
+    <!-- <MaintenancePage/> -->
+      <Root/>
   </v-app>
 </template>
 

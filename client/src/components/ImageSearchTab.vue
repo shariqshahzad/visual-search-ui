@@ -50,6 +50,7 @@ export default {
   computed: {
     ...mapGetters([
       "tabs",
+      "currentTabKey",
       // ...
     ]),
   },
@@ -88,6 +89,7 @@ export default {
       "setTabs",
       "setApprovedItems",
       "setCategorizedSearchResults",
+      "setTabsData",
       "setObjectBoundaries",
       "setSearchResultsWithoutSimilarFilter",
     ]),
@@ -166,6 +168,7 @@ export default {
       productResults = _.uniqBy(productResults, "categoryId");
       this.isLoading = false;
       this.setCategorizedSearchResults(productResults);
+      this.setTabsData();
       this.categorizeSearchResults = productResults;
       this.imageData = {
         isUrl: false,
