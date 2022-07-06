@@ -56,9 +56,11 @@ export const store = new Vuex.Store({
       state.selectedBrand = payload;
     },
     setCurrentTabKey(state, payload) {
-      if(state.tabsData[payload]){
+      if (state.tabsData[payload]) {
         state.imageToolModule.categorizedSearchResults = state.tabsData[payload].categorizedSearchResults;
+        state.imageToolModule.selectedSpot = state.tabsData[payload].selectedSpot;
         state.imageToolModule.objectBoundaries = state.tabsData[payload].objectBoundaries;
+        state.imageToolModule.searchResultsWithoutSimilarFilter = state.tabsData[payload].searchResultsWithoutSimilarFilter;
       }
       state.currentTabKey = payload;
     },
