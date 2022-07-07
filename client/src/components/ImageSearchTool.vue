@@ -29,6 +29,7 @@
         @customCrop="onCustomCrop"
         :imageData="imageData"
         :isLoading="isLoading"
+        :tabindex="tabindex"
       />
 
       <v-card class="ma-2">
@@ -321,6 +322,7 @@ export default {
     imageData: Object,
     searchOption: String,
     fileName: String,
+    tabindex: Number,
   },
 };
 </script>

@@ -55,7 +55,7 @@
       />
 
       <div
-        id="cropper-preview"
+        :id="`cropper-preview-${tabindex}`"
         style="
           position: absolute;
           visibility: hidden;
@@ -104,6 +104,7 @@ export default {
   props: {
     imageData: Object,
     isLoading: Boolean,
+    tabindex: Number,
   },
   mounted() {
     const objectBoundaries = this.objectBoundaries;
@@ -152,9 +153,12 @@ export default {
         autoCrop: false,
         ready: () => {
           const vueInstance = this;
-          let x = document.getElementsByClassName("cropper-container")[0];
+          // let x = document.getElementsByClassName("cropper-container")[0];
+          let x = document
+              .querySelectorAll(`.tab-section[tab-index="${this.tabindex}"]`)[0]
+              .getElementsByClassName("cropper-container")[0]
           x.onmousemove = (e) => {
-            var el = document.getElementById("cropper-preview");
+            var el = document.getElementById(`cropper-preview-${this.tabindex}`);
             var x = e.x;
             var y = e.y;
             if (vueInstance.selectedSpot) {
@@ -166,11 +170,11 @@ export default {
             el.style.top = y + "px";
           };
           x.onmouseleave = (e) => {
-            var el = document.getElementById("cropper-preview");
+            var el = document.getElementById(`cropper-preview-${this.tabindex}`);
             el.style.visibility = "hidden";
           };
         },
-        preview: "#cropper-preview",
+        preview: `#cropper-preview-${this.tabindex}`,
         cropend: (e) => {
           this.emitSpotChange(e, false);
         },
