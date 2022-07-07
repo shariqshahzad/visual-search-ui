@@ -38,7 +38,7 @@
               :disabled="!(Object.keys(approvedItems).length > 0)"
               type="button"
               dark
-              
+
               elevation="2"
             >
               <v-icon>mdi-export</v-icon>
@@ -139,8 +139,8 @@
       </v-tabs>
 
       <v-tabs-items v-model="tab">
-        <v-tab-item v-for="item in tabs" :key="item.key">
-          <ImageSearchTab :searchProp="item" />
+        <v-tab-item v-for="(item, i) in tabs" :key="item.key" class="tab-section" :tab-index="i">
+          <ImageSearchTab :searchProp="item" :tabindex="i" />
         </v-tab-item>
       </v-tabs-items>
     </v-main>

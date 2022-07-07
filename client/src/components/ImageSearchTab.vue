@@ -28,6 +28,7 @@
       :objectBoundaries="objectBoundaries"
       :categorizeSearchResults="categorizeSearchResults"
       :fileName="searchProp.file.name"
+      :tabindex="tabindex"
     />
     <!-- <v-card>
       <div style="padding: 10px; overflow: hidden"></div>
@@ -59,6 +60,7 @@ export default {
   },
   props: {
     searchProp: Object,
+    tabindex: Number,
   },
   mounted() {
     this.$refs.uploadedImage.onload = (img) => {
