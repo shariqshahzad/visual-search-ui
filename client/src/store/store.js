@@ -36,7 +36,7 @@ export const store = new Vuex.Store({
   },
   mutations: {
     setTabsData(state, payload) {
-      state.tabsData[state.currentTabKey] = JSON.parse(JSON.stringify(state.imageToolModule));
+      if (state.currentTabKey) state.tabsData[state.currentTabKey] = JSON.parse(JSON.stringify(state.imageToolModule));
     },
     markCurrentTabPendingChanges(state, payload) {
       state.tabs = state.tabs.map((tab) => {

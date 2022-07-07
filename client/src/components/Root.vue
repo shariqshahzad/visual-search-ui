@@ -247,8 +247,7 @@ export default {
     },
   },
   methods: {
-    ...mapMutations(["setSelectedBrand"]),
-    ...mapMutations(["setTabs", "setCurrentTabKey"]),
+    ...mapMutations(["setTabs", "setCurrentTabKey","setTabsData"]),
     onSnackBarClose() {
       this.isError = false;
       this.errorDetail = "";
@@ -267,6 +266,7 @@ export default {
         });
         this.setTabs(payload);
       }
+      this.setTabsData();
       this.setCurrentTabKey(this.tabs[e].key);
     },
     async onClickSearch() {
