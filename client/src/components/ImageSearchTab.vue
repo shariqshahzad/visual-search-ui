@@ -96,16 +96,19 @@ export default {
       "setSearchResultsWithoutSimilarFilter",
     ]),
     onUpdateApproval(bboxes) {
-      const exportData = this.categorizeSearchResults.map((res) => {
+      const exportData = this.categorizeSearchResults.reduce((prev,res) => {
         const bbox = bboxes.find((bbox) => bbox.mappedPrId === res.categoryId);
-        return {
-          bbox: bbox.bbox,
-          class: bbox.class,
-          sno: bbox.sno,
-          bgColor: bbox.bgColor,
-          data: res.previewData.filter((pd) => pd.isPrioritySku),
-        };
-      });
+        if (bbox) {
+          prev.push({
+            bbox: bbox.bbox,
+            class: bbox.class,
+            sno: bbox.sno,
+            bgColor: bbox.bgColor,
+            data: res.previewData.filter((pd) => pd.isPrioritySku),
+          })
+        }
+        return prev;
+      },[]);
       const approvedItemsPayload = {
         fileName: this.searchProp.file.name,
         data: exportData,

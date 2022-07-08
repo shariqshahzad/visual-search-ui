@@ -69,6 +69,7 @@ export default {
       this.$emit("skuPrioritized", this.product.skuid);
     },
     onClickUnprioritize() {
+      this.markCurrentTabPendingChanges();
       this.$emit("skuUnprioritized", this.product.skuid);
     },
     onSkuUpdate(skuDetails) {

@@ -174,7 +174,7 @@ export const convertApprovedItemsToBinaryObjects = (approvedItems) => {
     debugger;
     let skus;
     value.map((element) => {
-      skus = !skus ? element.data[0].skuid : `${skus} | ${element.data[0].skuid}`;
+      skus = !skus ? (element.data[0] ? element.data[0].skuid : "") : `${skus} | ${element.data[0] ? element.data[0].skuid : ""}`;
       // element.data.map((element) => {
 
       //   if(skus){

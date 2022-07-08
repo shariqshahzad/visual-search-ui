@@ -137,7 +137,7 @@ export default {
     };
   },
   methods: {
-    ...mapMutations(["deleteBbox"]),
+    ...mapMutations(["deleteBbox","markCurrentTabPendingChanges"]),
     onClickDelete(btn) {
       this.deletedSpotsIds.push(btn.id);
       this.hotspotButtons = this.hotspotButtons.filter(
@@ -150,6 +150,7 @@ export default {
     },
     async onClickSave() {
       this.deleteBbox(this.deletedSpotsIds);
+      this.markCurrentTabPendingChanges();
       this.isLoading = false;
       this.open = false;
     },
