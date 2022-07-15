@@ -14,7 +14,10 @@
         v-bind:style="btn.btnStyle"
         :class="`dot ${isLoading ? 'disabled' : ''}`"
       >
-        <span class="dot-number">{{ btn.sno }}</span>
+        <span
+          :class="`dot-number ${btn.sno > 9 ? 'dot-number-dbl-digit' : ''}`"
+          >{{ btn.sno }}</span
+        >
       </span>
     </div>
     <div class="text-center">
@@ -77,11 +80,12 @@
 
 <script>
 import Cropper from "cropperjs";
-import { mapGetters,mapMutations } from "vuex";
+import { mapGetters, mapMutations } from "vuex";
 import { singleColors, TAB_STATUSES } from "../constants/constants";
 import { createSpotsFromBoundaries } from "../utils/utils";
 import BoundingBoxAddEditDialog from "./BoundingBoxAddEditDialog.vue";
 import BoundingBoxDeleteDialog from "./BoundingBoxDeleteDialog.vue";
+import { EventBus } from "../event-bus/event-bus";
 
 export default {
   name: "ImageCropper",
@@ -107,6 +111,8 @@ export default {
     tabindex: Number,
   },
   mounted() {
+    EventBus.$on("grouped", this.onGrouped);
+    EventBus.$on("unGrouped", this.onUngrouped);
     const objectBoundaries = this.objectBoundaries;
     this.$refs.uploadedImage.onload = (img) => {
       this.imageTarget = img.target;
@@ -126,6 +132,12 @@ export default {
   methods: {
     ...mapMutations(["setSelectedSpot"]),
     setHotspotButtons(img) {},
+    onGrouped(params) {
+      this.onClickReset();
+    },
+    onUngrouped(params) {
+      this.onClickReset();
+    },
     onAddNewBbox(e) {
       // this.onClickReset();
       this.$emit("newBboxAdded", e);
@@ -155,10 +167,12 @@ export default {
           const vueInstance = this;
           // let x = document.getElementsByClassName("cropper-container")[0];
           let x = document
-              .querySelectorAll(`.tab-section[tab-index="${this.tabindex}"]`)[0]
-              .getElementsByClassName("cropper-container")[0]
+            .querySelectorAll(`.tab-section[tab-index="${this.tabindex}"]`)[0]
+            .getElementsByClassName("cropper-container")[0];
           x.onmousemove = (e) => {
-            var el = document.getElementById(`cropper-preview-${this.tabindex}`);
+            var el = document.getElementById(
+              `cropper-preview-${this.tabindex}`
+            );
             var x = e.x;
             var y = e.y;
             if (vueInstance.selectedSpot) {
@@ -170,7 +184,9 @@ export default {
             el.style.top = y + "px";
           };
           x.onmouseleave = (e) => {
-            var el = document.getElementById(`cropper-preview-${this.tabindex}`);
+            var el = document.getElementById(
+              `cropper-preview-${this.tabindex}`
+            );
             el.style.visibility = "hidden";
           };
         },
@@ -248,8 +264,8 @@ export default {
 <style scoped>
 .dot {
   position: absolute;
-  width: 25px;
-  height: 25px;
+  width: 26px;
+  height: 26px;
   border: #fff 3px solid;
   border-radius: 50%;
   display: inline-block;
@@ -257,11 +273,15 @@ export default {
 }
 
 .dot-number {
-  font-size: 1rem;
+  font-size: 0.9rem;
   position: relative;
-  left: 25%;
+  left: 28%;
   color: #fff;
-  bottom: 12%;
+  bottom: 14%;
+}
+.dot-number-dbl-digit {
+  left: 10%;
+  bottom: 16%;
 }
 
 .btn {

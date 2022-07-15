@@ -49,7 +49,7 @@
               >
                 <td>
                   <span v-bind:style="{ background: item.bgColor }" class="dot">
-                    <span class="dot-number">{{ item.sno }}</span>
+                    <span :class="`dot-number ${item.sno > 9 ? 'dot-number-dbl-digit' : ''}`">{{ item.sno }}</span>
                   </span>
                 </td>
                 <td>
@@ -120,8 +120,8 @@
 </template>
 <style scoped>
 .dot {
-  width: 25px;
-  height: 25px;
+  width: 26px;
+  height: 26px;
   border: #fff 3px solid;
   border-radius: 50%;
   display: inline-block;
@@ -129,11 +129,15 @@
 }
 
 .dot-number {
-  font-size: 1rem;
+  font-size: 0.9rem;
   position: relative;
-  left: 25%;
+  left: 28%;
   color: #fff;
-  bottom: 12%;
+  bottom: 5%;
+}
+.dot-number-dbl-digit {
+  left: 10%;
+  bottom: 3%;
 }
 .v-card__title {
   height: 126px;
