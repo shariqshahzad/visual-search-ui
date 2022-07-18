@@ -133,10 +133,16 @@ export default {
     ...mapMutations(["setSelectedSpot"]),
     setHotspotButtons(img) {},
     onGrouped(params) {
-      this.onClickReset();
+      this.selectedSpot = null;
+      this.setSelectedSpot(null);
+      this.$emit("resetData", null);
+      this.cropper && this.cropper.clear();
     },
     onUngrouped(params) {
-      this.onClickReset();
+      this.selectedSpot = null;
+      this.setSelectedSpot(null);
+      this.$emit("resetData", null);
+      this.cropper && this.cropper.clear();
     },
     onAddNewBbox(e) {
       // this.onClickReset();
@@ -204,6 +210,7 @@ export default {
     },
     onClickReset() {
       this.selectedSpot = null;
+      this.setSelectedSpot(null);
       this.cropper.destroy();
       this.initializeCropper(true);
       this.$emit("resetData", null);
