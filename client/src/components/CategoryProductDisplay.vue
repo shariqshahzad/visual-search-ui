@@ -33,7 +33,7 @@
             </div> -->
             <div class="slider-bar" style="flex-direction: column">
               <div>
-                <SpotGroupDialog :selectedSpot="selectedSpot" v-if="selectedSpot" />
+                <SpotGroupDialog :selectedSpot="selectedSpot" v-if="selectedSpot" :key="selectedSpot.id" />
                 <SkuAddDialog @skuAdded="(e) => onSkuAdd(e, category)" />
               </div>
               <v-snackbar top right v-model="skuAddSnackbar">
