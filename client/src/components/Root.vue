@@ -107,7 +107,7 @@
         v-model="tab"
       >
         <v-tabs-slider color="primary lighten-3"></v-tabs-slider>
-        <v-tab v-for="item in tabs" :key="item.key">
+        <v-tab  :disabled="isDataLoading" v-for="item in tabs" :key="item.key">
           <v-tooltip bottom color="primary">
             <template v-slot:activator="{ on, attrs }">
               <div v-bind="attrs" v-on="on">
@@ -240,6 +240,7 @@ export default {
     ...mapGetters([
       "tabs",
       "approvedItems",
+      "isDataLoading"
       // ...
     ]),
     imageProxyUrl: function () {

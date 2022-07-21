@@ -50,6 +50,7 @@ import { multipleColors, TAB_STATUSES } from "../constants/constants";
 export default {
   computed: {
     ...mapGetters([
+      "isDataLoading",
       "tabs",
       "currentTabKey",
       // ...
@@ -88,6 +89,7 @@ export default {
   },
   methods: {
     ...mapMutations([
+      "setIsDataLoading",
       "setTabs",
       "setApprovedItems",
       "setCategorizedSearchResults",
@@ -147,6 +149,7 @@ export default {
     },
     async WSIMLSearch(base64str) {
       this.isLoading = true;
+      this.setIsDataLoading(true);
       const yoloData = await WSIMLSearchService.getYoloResults(base64str);
       const promises = [];
       yoloData.forEach((element) => {
@@ -172,6 +175,7 @@ export default {
       this.objectBoundaries = setSNoAndBgColorToBoundaries(yoloData);
       productResults = _.uniqBy(productResults, "categoryId");
       this.isLoading = false;
+      this.setIsDataLoading(false);
       this.setCategorizedSearchResults(productResults);
       this.categorizeSearchResults = productResults;
       this.imageData = {

@@ -1,7 +1,7 @@
 -<template>
   <v-dialog v-model="dialog" persistent max-width="600px">
     <template v-slot:activator="{ on, attrs }">
-      <v-btn v-bind="attrs" v-on="on" color="primary" class="my-2 float-right">
+      <v-btn v-bind="attrs" v-on="on" color="primary" class="my-2 mr-3 float-right">
         Add SKU
       </v-btn>
     </template>

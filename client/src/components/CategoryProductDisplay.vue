@@ -3,7 +3,7 @@
     <v-row v-for="(category, index) in categorizedData" :key="index">
       <v-col cols="12">
         <v-sheet
-          class="pa-2"
+          class="pa-2 mb-5"
           elevation="8"
           max-width="1100"
           style="overflow: hidden"

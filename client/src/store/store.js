@@ -26,6 +26,9 @@ export const store = new Vuex.Store({
     approvedItems: (state) => {
       return state.approvedItems;
     },
+    isDataLoading: (state) => {
+      return state.isDataLoading;
+    },
   },
   state: {
     tabsData: {},
@@ -33,8 +36,12 @@ export const store = new Vuex.Store({
     selectedBrand: null,
     tabs: [],
     currentTabKey: "",
+    isDataLoading: false,
   },
   mutations: {
+    setIsDataLoading(state, payload) {
+      state.isDataLoading = payload;
+    },
     setTabsData(state, payload) {
       if (state.currentTabKey) state.tabsData[state.currentTabKey] = JSON.parse(JSON.stringify(state.imageToolModule));
     },

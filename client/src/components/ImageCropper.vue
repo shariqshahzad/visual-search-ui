@@ -195,6 +195,7 @@ export default {
             );
             el.style.visibility = "hidden";
           };
+          this.cropper.disable();
         },
         preview: `#cropper-preview-${this.tabindex}`,
         cropend: (e) => {
@@ -220,6 +221,7 @@ export default {
       this.currentTabStatus = tab.status;
     },
     emitSpotChange(e, setCropper = true) {
+      this.cropper.enable();
       this.selectedSpot = e;
       this.cropper.crop();
       if (setCropper) {
@@ -232,6 +234,7 @@ export default {
           this.cropper.getCroppedCanvas().toDataURL("image/jpeg")
         );
       }
+      this.cropper.disable();
     },
   },
   components: {
