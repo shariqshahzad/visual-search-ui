@@ -96,6 +96,23 @@
       </template>
     </v-snackbar>
     <v-main>
+      <v-row
+        v-if="isDataLoading && tabs.length <= 0"
+        align-content="center"
+        justify="center"
+        style="margin: 200px"
+      >
+        <v-col class="text-subtitle-1 text-center" cols="12">
+          Fetching Images From DAM ...
+        </v-col>
+        <v-col cols="4">
+          <v-progress-linear
+            indeterminate
+            rounded
+            height="6"
+          ></v-progress-linear>
+        </v-col>
+      </v-row>
       <v-tabs
         @change="onChangeTab($event)"
         centered
@@ -107,7 +124,11 @@
         v-model="tab"
       >
         <v-tabs-slider color="primary lighten-3"></v-tabs-slider>
-        <v-tab  :disabled="isDataLoading" v-for="item in tabs" :key="item.key">
+        <v-tab
+          v-for="item in tabs"
+          :key="item.key"
+          :disabled="isDataLoading && !tabs.length > 0"
+        >
           <v-tooltip bottom color="primary">
             <template v-slot:activator="{ on, attrs }">
               <div v-bind="attrs" v-on="on">
@@ -139,7 +160,12 @@
       </v-tabs>
 
       <v-tabs-items v-model="tab">
-        <v-tab-item v-for="(item, i) in tabs" :key="item.key" class="tab-section" :tab-index="i">
+        <v-tab-item
+          v-for="(item, i) in tabs"
+          :key="item.key"
+          class="tab-section"
+          :tab-index="i"
+        >
           <ImageSearchTab :searchProp="item" :tabindex="i" />
         </v-tab-item>
       </v-tabs-items>
@@ -165,6 +191,7 @@ import {
 import { BRANDS, TAB_STATUSES } from "../constants/constants";
 
 import { mapMutations, mapGetters } from "vuex";
+import WSIMLSearchService from "../services/WSIMLSearch.service";
 
 export default {
   components: {
@@ -240,7 +267,7 @@ export default {
     ...mapGetters([
       "tabs",
       "approvedItems",
-      "isDataLoading"
+      "isDataLoading",
       // ...
     ]),
     imageProxyUrl: function () {
@@ -248,7 +275,12 @@ export default {
     },
   },
   methods: {
-    ...mapMutations(["setTabs", "setCurrentTabKey","setTabsData"]),
+    ...mapMutations([
+      "setTabs",
+      "setCurrentTabKey",
+      "setTabsData",
+      "setIsDataLoading",
+    ]),
     onSnackBarClose() {
       this.isError = false;
       this.errorDetail = "";
@@ -311,6 +343,7 @@ export default {
         console.log(`${knownFilesCount} files are known`);
         // Object.keys(zip.files).forEach(async (key, index) => {});
       } else {
+        this.setIsDataLoading(true);
         files = await this.getImageFilesFromExcel();
         if (files.length && files.length > 0) {
           files.forEach(async (file) => {
@@ -331,11 +364,19 @@ export default {
       let imagesData = JSON.parse(await parseExcel(this.xlsxFile));
       let imagesDataWithDataURI = await Promise.all(
         imagesData.map(async (element, index) => {
-          const dataURI = await toDataURL(element.Url);
+          const response = await WSIMLSearchService.getDamImageByAssetPath(
+            element.assetPath
+          );
+          const blob = new Blob([response.data]);
+          const img = new Image();
+          img.src = URL.createObjectURL(blob);
+          await img.decode();
+          const dataURI = await toDataURL(img.src);
           return {
             name: `Image ${index + 1}`,
             key: generateUUID(),
             dataURI,
+            assetPath: element.assetPath,
           };
         })
       );
