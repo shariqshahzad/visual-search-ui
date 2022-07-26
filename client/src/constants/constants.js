@@ -92,3 +92,4 @@ export const multipleColors = [
 export const WSI_ML_SIMILARITY_ENDPOINT = `ml-visual-search/similarity`;
 export const WSI_ML_EMBEDDINGS_ENDPOINT = `ml-visual-search/embeddings`;
 export const WSI_ML_YOLO_ENDPOINT = `ml-visual-search/yolo`;
+export const DAM_IMAGE_ENDPOINT = `get-picture-from-dam`;

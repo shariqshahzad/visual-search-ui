@@ -13,5 +13,6 @@ app.post('/visual-search/:provider', visualSearchController.index);
 app.post('/ml-visual-search/yolo', mlSearchControlller.getYoloResults);
 app.post('/ml-visual-search/similarity', mlSearchControlller.getSimilaritiesResults);
 app.post('/ml-visual-search/embeddings', mlSearchControlller.getEmbeddingsResults);
+app.post('/get-picture-from-dam', mlSearchControlller.getPictureFromDam)
 
 module.exports = app;

@@ -12,7 +12,7 @@ export const parseExcel = function(file) {
       });
 
       workbook.SheetNames.forEach(function(sheetName) {
-        var XL_row_object = XLSX.utils.sheet_to_row_object_array(workbook.Sheets[sheetName]);
+        var XL_row_object = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
         var json_object = JSON.stringify(XL_row_object);
         resolve(json_object);
       });
@@ -173,7 +173,7 @@ export const convertApprovedItemsToBinaryObjects = (approvedItems) => {
     // let values = [];
     debugger;
     let skus;
-    value.map((element) => {
+    value.data.map((element) => {
       skus = !skus ? (element.data[0] ? element.data[0].skuid : "") : `${skus} | ${element.data[0] ? element.data[0].skuid : ""}`;
       // element.data.map((element) => {
 
@@ -182,11 +182,7 @@ export const convertApprovedItemsToBinaryObjects = (approvedItems) => {
       //   }
       // });
     });
-    let assetPath = [
-      `/content/dam/west-elm/production/testing/2022-06-02-metadatatesting-tpurdy/8886231-Olive-Trre-151-450x450.png`,
-      `/content/dam/west-elm/production/testing/2022-06-02-metadatatesting-tpurdy/pdi-709193-mp-cold-brew-sustainable-coffee-press-8-cup-34oz-with-yohki-lid-ho21-main-011-450x450.png`,
-    ];
-    let element = { skus, assetPath: assetPath[index], assetType: "pdi", assetYear: "2022" };
+    let element = { skus, assetPath: value.assetPath, assetType: "pdi", assetYear: "2022" };
     // excelArray.push(excelMetaData.map((e) => (element[e.propertyName] ? element[e.propertyName].toString() : "-")));
     excelArray.push(excelMetaData.map((e) => (element[e.propertyName] ? element[e.propertyName].toString() : "-")));
   }

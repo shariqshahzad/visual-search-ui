@@ -1,7 +1,7 @@
 <template>
   <div>
     <v-row
-      v-if="isLoading"
+      v-if="isDataLoading"
       class="fill-height"
       align-content="center"
       justify="center"
@@ -27,7 +27,10 @@
       :imageData="imageData"
       :objectBoundaries="objectBoundaries"
       :categorizeSearchResults="categorizeSearchResults"
-      :fileName="searchProp.file.name"
+      :fileName="
+        (this.searchProp.file && this.searchProp.file.name) ||
+        this.searchProp.name
+      "
       :tabindex="tabindex"
     />
     <!-- <v-card>
@@ -82,7 +85,6 @@ export default {
       objectBoundaries: [],
       categorizeSearchResults: [],
       imageUrl: "",
-      isLoading: false,
       isError: false,
       errorDetail: "",
     };
@@ -98,7 +100,7 @@ export default {
       "setSearchResultsWithoutSimilarFilter",
     ]),
     onUpdateApproval(bboxes) {
-      const exportData = this.categorizeSearchResults.reduce((prev,res) => {
+      const exportData = this.categorizeSearchResults.reduce((prev, res) => {
         const bbox = bboxes.find((bbox) => bbox.mappedPrId === res.categoryId);
         if (bbox) {
           prev.push({
@@ -107,13 +109,16 @@ export default {
             sno: bbox.sno,
             bgColor: bbox.bgColor,
             data: res.previewData.filter((pd) => pd.isPrioritySku),
-          })
+          });
         }
         return prev;
-      },[]);
+      }, []);
       const approvedItemsPayload = {
-        fileName: this.searchProp.file.name,
+        fileName:
+          (this.searchProp.file && this.searchProp.file.name) ||
+          this.searchProp.name,
         data: exportData,
+        assetPath: this.searchProp.assetPath,
       };
       const tabsPayload = this.tabs.map((tab) => {
         if (tab.key === this.searchProp.key) {
@@ -148,7 +153,6 @@ export default {
       return base64;
     },
     async WSIMLSearch(base64str) {
-      this.isLoading = true;
       this.setIsDataLoading(true);
       const yoloData = await WSIMLSearchService.getYoloResults(base64str);
       const promises = [];
@@ -174,7 +178,6 @@ export default {
       this.processSimilarResults(productResults, yoloData);
       this.objectBoundaries = setSNoAndBgColorToBoundaries(yoloData);
       productResults = _.uniqBy(productResults, "categoryId");
-      this.isLoading = false;
       this.setIsDataLoading(false);
       this.setCategorizedSearchResults(productResults);
       this.categorizeSearchResults = productResults;

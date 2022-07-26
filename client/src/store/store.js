@@ -54,7 +54,11 @@ export const store = new Vuex.Store({
       });
     },
     setApprovedItems(state, payload) {
-      state.approvedItems[payload.fileName] = _.orderBy(payload.data, ["sno"], ["asc"]);
+      if (!state.approvedItems[payload.fileName]) {
+        state.approvedItems[payload.fileName] = {};
+      }
+      state.approvedItems[payload.fileName].assetPath = payload.assetPath;
+      state.approvedItems[payload.fileName].data = _.orderBy(payload.data, ["sno"], ["asc"]);
     },
     setTabs(state, payload) {
       state.tabs = payload;

@@ -1,10 +1,27 @@
 import axios from "axios";
 import { generateUUID } from "../utils/utils";
-import { BRANDS, WSI_ML_SIMILARITY_ENDPOINT, WSI_ML_EMBEDDINGS_ENDPOINT, WSI_ML_YOLO_ENDPOINT, API_KEY } from "../constants/constants";
+import { BRANDS, WSI_ML_SIMILARITY_ENDPOINT, WSI_ML_EMBEDDINGS_ENDPOINT, WSI_ML_YOLO_ENDPOINT, API_KEY, DAM_IMAGE_ENDPOINT } from "../constants/constants";
 import _ from "lodash";
 const baseUrl = process.env.VUE_APP_MIDDLEWARE_URL;
 
 export default {
+  async getDamImageByAssetPath(assetPath) {
+    let body = {
+      assetPath,
+    };
+    let res;
+    try {
+      res = await axios({
+        method: "post",
+        url: `${baseUrl}${DAM_IMAGE_ENDPOINT}`,
+        data: body,
+        responseType : 'blob'
+      });
+    } catch (e) {
+      console.log(e);
+    }
+    return res;
+  },
   async getEmbbeddingsResults(categoryName, base64Str, categoryId) {
     let body = {
       img: base64Str,
