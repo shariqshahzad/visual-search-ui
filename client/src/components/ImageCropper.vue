@@ -51,7 +51,6 @@
 
       <v-btn @click="onClickDeleteSpot" color="primary"> Delete Spots </v-btn>
       <BoundingBoxDeleteDialog
-        @bboxDeleted="onDeleteBbox($event)"
         @dialogClosed="onDeleteDialogClosed"
         v-if="deleteSpotDialog"
         :sourceImage="imageData.src"
@@ -111,8 +110,8 @@ export default {
     tabindex: Number,
   },
   mounted() {
-    EventBus.$on("grouped", this.onGrouped);
-    EventBus.$on("unGrouped", this.onUngrouped);
+    // EventBus.$on("grouped", this.onGrouped);
+    // EventBus.$on("unGrouped", this.onUngrouped);
     const objectBoundaries = this.objectBoundaries;
     this.$refs.uploadedImage.onload = (img) => {
       this.imageTarget = img.target;
@@ -132,24 +131,9 @@ export default {
   methods: {
     ...mapMutations(["setSelectedSpot"]),
     setHotspotButtons(img) {},
-    onGrouped(params) {
-      this.selectedSpot = null;
-      this.setSelectedSpot(null);
-      this.$emit("resetData", null);
-      this.cropper && this.cropper.clear();
-    },
-    onUngrouped(params) {
-      this.selectedSpot = null;
-      this.setSelectedSpot(null);
-      this.$emit("resetData", null);
-      this.cropper && this.cropper.clear();
-    },
     onAddNewBbox(e) {
       // this.onClickReset();
       this.$emit("newBboxAdded", e);
-    },
-    onDeleteBbox(e) {
-      this.$emit("bboxDeleted", e);
     },
     onAddDialogClosed() {
       this.addNewSpotDialog = false;
@@ -203,6 +187,14 @@ export default {
         },
       });
     },
+    clearCropperAndResetData() {
+      this.selectedSpot = null;
+      this.setSelectedSpot(null);
+      this.$emit("resetData", null);
+      this.cropper.enable();
+      this.cropper && this.cropper.clear();
+      this.cropper.disable();
+    },
     updateApproval() {
       this.$emit("updateApproval", this.objectBoundaries);
     },
@@ -224,6 +216,7 @@ export default {
       this.cropper.enable();
       this.selectedSpot = e;
       this.cropper.crop();
+
       if (setCropper) {
         this.cropper.setData(e.cropperCoordinates);
         this.$emit("crop", e.categoryId);
@@ -256,6 +249,7 @@ export default {
         this.imageDimensions.height,
         this.imageDimensions.width
       );
+      this.clearCropperAndResetData();
     },
     currentTabKey(newValue, oldValue) {
       this.updateCurrentTabStatus();

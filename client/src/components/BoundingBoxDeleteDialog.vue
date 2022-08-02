@@ -161,7 +161,7 @@ export default {
         viewMode: 3,
         autoCrop: false,
         cropend: (e) => {
-          this.onCropEnd();
+          // this.onCropEnd();
         },
       });
     },

@@ -226,9 +226,6 @@ export default {
       });
       this.approvedItemsList = approvedItemsData;
     },
-    onDeleteBbox(e) {
-      this.$emit("bboxDeleted", e);
-    },
     onApprovalUpdate(bboxes) {
       this.$emit("updateApproval", bboxes);
     },
